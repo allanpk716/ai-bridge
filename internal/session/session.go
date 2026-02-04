@@ -1,0 +1,75 @@
+package session
+
+import (
+	"context"
+	"sync"
+	"time"
+
+	"github.com/your-org/ai-bridge/internal/pool"
+	"github.com/your-org/ai-bridge/pkg/protocol"
+)
+
+// Session represents a Claude CLI session
+type Session struct {
+	id         string
+	instance   *pool.Instance
+	store      *SessionStore
+	status     SessionState
+	mu         sync.RWMutex
+	messages     []*protocol.Message
+	lastSeq      int64
+	createdAt    time.Time
+	lastActivity time.Time
+	ctx          context.Context
+	cancel     context.CancelFunc
+}
+
+// SessionState represents session state
+type SessionState string
+
+const (
+	StateIdle       SessionState = "idle"
+	StateProcessing SessionState = "processing"
+)
+
+// SessionConfig session configuration
+type SessionConfig struct {
+	MaxRecentMessages int
+	MessageBufferSize int
+}
+
+// NewSession creates a new session
+func NewSession(id string, instance *pool.Instance, store *SessionStore, cfg SessionConfig) *Session {
+	ctx, cancel := context.WithCancel(context.Background())
+	return &Session{
+		id:          id,
+		instance:    instance,
+		store:       store,
+		status:      StateIdle,
+		messages:     make([]*protocol.Message, 0),
+		createdAt:    time.Now(),
+		lastActivity: time.Now(),
+		ctx:          ctx,
+		cancel:      cancel,
+	}
+}
+
+func (s *Session) ID() string {
+	return s.id
+}
+
+func (s *Session) Close() error {
+	s.cancel()
+	return nil
+}
+
+func (s *Session) GetStatus() protocol.SessionStatus {
+	return protocol.SessionStatus{
+		SessionID: s.id,
+	}
+}
+
+func (s *Session) SendMessage(ctx context.Context, content string) error {
+	return nil
+}
+
