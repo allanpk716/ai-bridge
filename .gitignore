@@ -1,0 +1,57 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+dist/
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+coverage.out
+coverage.html
+
+# Dependency directories
+vendor/
+
+# Go workspace file
+go.work
+
+# IDE specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs and databases
+logs/
+*.log
+data/
+*.db
+*.sqlite
+*.sqlite3
+
+# Configuration files with secrets
+configs/config.yaml
+*.env
+.env.local
+
+# Temporary files
+tmp/
+*.tmp
+*.bak
+
+# OS specific files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Build artifacts
+ai-bridge
+ai-bridge.exe
+nul

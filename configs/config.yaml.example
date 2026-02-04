@@ -1,0 +1,208 @@
+# AI-Bridge Configuration Example
+# Copy this file to config.yaml and modify with your settings
+
+# Server configuration
+server:
+  # Host to bind to (0.0.0.0 for all interfaces)
+  host: "0.0.0.0"
+  # Port to listen on
+  port: 8080
+  # Public URL for external access (used in callbacks, WebSocket origins, etc.)
+  publicUrl: "http://localhost:8080"
+  # Read timeout for HTTP requests
+  readTimeout: 30s
+  # Write timeout for HTTP requests
+  writeTimeout: 30s
+  # Idle timeout for connections
+  idleTimeout: 120s
+
+# CORS configuration
+cors:
+  # Allowed origins for CORS requests
+  origins:
+    - "http://localhost:3000"
+    - "https://app.hapi.run"
+  # Allowed methods
+  methods:
+    - "GET"
+    - "POST"
+    - "PUT"
+    - "DELETE"
+    - "OPTIONS"
+  # Allowed headers
+  headers:
+    - "Content-Type"
+    - "Authorization"
+    - "X-Requested-With"
+  # Allow credentials
+  allowCredentials: true
+  # Max age for preflight requests
+  maxAge: 86400
+
+# Database configuration
+database:
+  # Path to SQLite database file
+  path: "./data/ai-bridge.db"
+  # Enable WAL mode for better concurrency
+  enableWAL: true
+  # Connection timeout
+  timeout: 10s
+  # Max open connections
+  maxOpenConns: 25
+  # Max idle connections
+  maxIdleConns: 5
+  # Connection max lifetime
+  connMaxLifetime: 5m
+
+# Authentication configuration
+auth:
+  # JWT secret for token generation (use environment variable in production)
+  jwtSecret: "${JWT_SECRET:-change-this-in-production}"
+  # JWT token expiration time
+  jwtExpiration: 24h
+  # CLI API token for authentication
+  cliApiToken: "${CLI_API_TOKEN:-your-token-here}"
+  # Enable/disable authentication (useful for development)
+  enabled: true
+
+# Process pool configuration
+pool:
+  # Maximum number of Claude CLI instances to run concurrently
+  maxInstances: 5
+  # How long an idle instance can stay alive before being terminated
+  idleTimeout: 300s
+  # Maximum time to wait for instance startup
+  startupTimeout: 30s
+  # Maximum time to wait for instance shutdown
+  shutdownTimeout: 10s
+  # Health check interval for instances
+  healthCheckInterval: 30s
+
+# Claude Code CLI configuration
+claude:
+  # Default model to use (haiku, sonnet, opus)
+  defaultModel: "haiku"
+  # Maximum time to wait for Claude CLI response
+  timeout: 300s
+  # Permission mode: "normal" or "auto-approve"
+  # normal: ask for permission for each operation
+  # auto-approve: automatically approve all operations
+  permissionMode: "normal"
+  # Working directory for Claude CLI (can be overridden per session)
+  workingDir: "./data/sessions"
+  # Environment variables to pass to Claude CLI processes
+  env:
+    - "CLAUDE_API_KEY=${CLAUDE_API_KEY:-}"
+    - "PATH=${PATH:-}"
+
+# Session management configuration
+session:
+  # Maximum number of sessions to keep
+  maxSessions: 100
+  # Session timeout (inactive sessions are cleaned up)
+  sessionTimeout: 3600s
+  # Maximum number of messages to keep in memory per session
+  maxRecentMessages: 100
+  # Enable session persistence to database
+  enablePersistence: true
+  # Cleanup interval for expired sessions
+  cleanupInterval: 300s
+
+# WebSocket configuration
+websocket:
+  # Enable WebSocket server
+  enabled: true
+  # WebSocket path
+  path: "/socket.io/"
+  # Ping interval for connection health checks
+  pingInterval: 30s
+  # Ping timeout for connection health checks
+  pingTimeout: 60s
+  # Maximum message size in bytes
+  maxMessageSize: 1048576  # 1MB
+  # Maximum buffer size for message buffering
+  bufferSize: 1024
+
+# Performance tuning
+performance:
+  # Maximum number of recent messages to keep in memory per session
+  maxRecentMessages: 100
+  # Message buffer size for channel communication
+  messageBufferSize: 50
+  # Subscriber buffer size for message broadcasting
+  subscriberBufferSize: 50
+  # Maximum number of concurrent message handlers
+  maxConcurrentHandlers: 10
+  # Enable message batching for efficiency
+  enableMessageBatching: true
+  # Batch size for message batching
+  messageBatchSize: 10
+  # Batch timeout for message batching
+  messageBatchTimeout: 100ms
+
+# Logging configuration
+logging:
+  # Log level: debug, info, warn, error
+  level: "info"
+  # Log format: json, text
+  format: "text"
+  # Log output: stdout, file, both
+  output: "both"
+  # Log directory (used when output is "file" or "both")
+  directory: "./logs"
+  # Log file name prefix
+  filename: "ai-bridge"
+  # Maximum log file size in MB before rotation
+  maxSize: 100
+  # Maximum number of old log files to retain
+  maxBackups: 7
+  # Maximum number of days to retain old log files
+  maxAge: 7
+  # Compress rotated log files
+  compress: true
+
+# Health check configuration
+health:
+  # Enable health check endpoint
+  enabled: true
+  # Health check path
+  path: "/health"
+  # Include system information in health check
+  includeSystemInfo: true
+  # Include pool status in health check
+  includePoolStatus: true
+  # Include session stats in health check
+  includeSessionStats: true
+
+# Metrics configuration (optional)
+metrics:
+  # Enable metrics endpoint
+  enabled: false
+  # Metrics path (Prometheus format)
+  path: "/metrics"
+  # Metrics collection interval
+  interval: 60s
+
+# Development mode configuration
+development:
+  # Enable development mode (more verbose logging, debug endpoints)
+  enabled: false
+  # Enable debug endpoints
+  debugEndpoints: false
+  # Enable profiling endpoints (pprof)
+  profiling: false
+  # Profiling path
+  profilingPath: "/debug/pprof"
+
+# Security configuration
+security:
+  # Enable rate limiting
+  rateLimitEnabled: false
+  # Requests per minute per IP
+  rateLimitRPM: 60
+  # Enable request logging
+  requestLogging: true
+  # Trusted proxy IPs (for X-Forwarded-For header)
+  trustedProxies:
+    - "127.0.0.1"
+    - "::1"
