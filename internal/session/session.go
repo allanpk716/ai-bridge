@@ -73,3 +73,20 @@ func (s *Session) SendMessage(ctx context.Context, content string) error {
 	return nil
 }
 
+func (s *Session) GetMessages(opts GetMessagesOptions) ([]*protocol.Message, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	var result []*protocol.Message
+	for _, msg := range s.messages {
+		if msg.Seq > opts.SinceSeq {
+			result = append(result, msg)
+		}
+	}
+
+	if opts.Limit > 0 && len(result) > opts.Limit {
+		result = result[:opts.Limit]
+	}
+
+	return result, nil
+}
