@@ -99,6 +99,21 @@ func (m *Manager) CreateSession(ctx context.Context, opts CreateOptions) (*Sessi
 	m.sessions[sessionID] = sess
 	m.mu.Unlock()
 
+	// Start the session
+	logger.Infof("Starting session %s...", sessionID)
+	if err := sess.Start(); err != nil {
+		logger.Errorf("Failed to start session %s: %v", sessionID, err)
+		// Clean up failed session
+		m.mu.Lock()
+		delete(m.sessions, sessionID)
+		m.mu.Unlock()
+
+		m.pool.Release(instance)
+		m.store.DeleteSession(sessionID)
+
+		return nil, fmt.Errorf("failed to start session: %w", err)
+	}
+
 	logger.Infof("Session %s created", sessionID)
 	return sess, nil
 }

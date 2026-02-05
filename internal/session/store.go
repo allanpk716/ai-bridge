@@ -1,11 +1,13 @@
 package session
 
 import (
+	"database/sql"
 	"time"
 
 	"gorm.io/gorm"
 	"gorm.io/driver/sqlite"
 	"github.com/WQGroup/logger"
+	_ "modernc.org/sqlite"
 )
 
 // BaseModel base model for all entities
@@ -46,7 +48,15 @@ type SessionStore struct {
 
 // NewSessionStore creates a new session store
 func NewSessionStore(dbPath string) (*SessionStore, error) {
-	db, err := gorm.Open(sqlite.Open(dbPath), &gorm.Config{
+	// Use modernc.org/sqlite (pure Go) instead of mattn/go-sqlite3 (requires CGO)
+	sqlDB, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		return nil, err
+	}
+
+	db, err := gorm.Open(sqlite.Dialector{
+		Conn: sqlDB,
+	}, &gorm.Config{
 		SkipDefaultTransaction: true,
 		PrepareStmt:            true,
 	})
@@ -55,14 +65,14 @@ func NewSessionStore(dbPath string) (*SessionStore, error) {
 	}
 
 	// Configure connection pool
-	sqlDB, err := db.DB()
+	dbSQL, err := db.DB()
 	if err != nil {
 		return nil, err
 	}
 
-	sqlDB.SetMaxIdleConns(10)
-	sqlDB.SetMaxOpenConns(100)
-	sqlDB.SetConnMaxLifetime(1 * time.Hour)
+	dbSQL.SetMaxIdleConns(10)
+	dbSQL.SetMaxOpenConns(100)
+	dbSQL.SetConnMaxLifetime(1 * time.Hour)
 
 	// Enable WAL mode
 	if err := enableWALMode(db); err != nil {
