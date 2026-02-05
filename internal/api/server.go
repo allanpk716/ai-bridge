@@ -4,11 +4,12 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/your-org/ai-bridge/internal/api/handlers"
-	// "github.com/your-org/ai-bridge/internal/commands" // TODO: Task 10
+	"github.com/your-org/ai-bridge/internal/commands"
 	"github.com/your-org/ai-bridge/internal/config"
 	"github.com/your-org/ai-bridge/internal/health"
 	"github.com/your-org/ai-bridge/internal/pool"
@@ -30,8 +31,8 @@ type Server struct {
 	messageHandler   *handlers.MessageHandler
 	permissionHandler *handlers.PermissionHandler
 	wsServer         *websocket.Server
-	// commandHandler   *handlers.CommandHandler // TODO: Task 10
-	// commandParser    *commands.Parser
+	commandHandler   *handlers.CommandHandler
+	commandParser    *commands.Parser
 }
 
 // NewServer creates a new API server
@@ -45,6 +46,16 @@ func NewServer(cfg *config.Config, sm *session.Manager, p *pool.Pool, hc *health
 
 	router := gin.New()
 
+	// Initialize command discovery
+	homeDir := os.Getenv("HOME")
+	if homeDir == "" {
+		homeDir = os.Getenv("USERPROFILE") // Windows
+	}
+
+	discoverer := commands.NewDiscoverer(cfg.Server.WorkingDir, homeDir)
+	cmds, _ := discoverer.DiscoverAll()
+	parser := commands.NewParser(cmds)
+
 	s := &Server{
 		config:           cfg,
 		sessionMgr:       sm,
@@ -55,8 +66,8 @@ func NewServer(cfg *config.Config, sm *session.Manager, p *pool.Pool, hc *health
 		messageHandler:   handlers.NewMessageHandler(sm),
 		permissionHandler: handlers.NewPermissionHandler(sm),
 		wsServer:         websocket.NewServer(sm),
-		// commandHandler:   nil, // Will be set in Task 10
-		// commandParser:    nil,
+		commandHandler:   handlers.NewCommandHandler(sm, parser),
+		commandParser:    parser,
 	}
 
 	s.setupMiddleware()
@@ -176,13 +187,13 @@ func (s *Server) setupRoutes() {
 			permissions.POST("/:requestId/deny", s.permissionHandler.DenyPermission)
 		}
 
-		// Slash commands - TODO: Implement in Task 10
-		// commands := v1.Group("/commands")
-		// {
-		//     commands.GET("", s.commandHandler.ListCommands)
-		//     commands.GET("/*path", s.commandHandler.GetCommand)
-		// }
-		// sessions.POST("/:sessionId/commands", s.commandHandler.ExecuteCommand)
+		// Slash commands
+		commands := v1.Group("/commands")
+		{
+			commands.GET("", s.commandHandler.ListCommands)
+			commands.GET("/*path", s.commandHandler.GetCommand)
+		}
+		sessions.POST("/:sessionId/commands", s.commandHandler.ExecuteCommand)
 	}
 }
 

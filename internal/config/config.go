@@ -31,6 +31,7 @@ type ServerConfig struct {
 	Host         string        `yaml:"host"`
 	Port         int           `yaml:"port"`
 	PublicURL    string        `yaml:"publicUrl"`
+	WorkingDir   string        `yaml:"workingDir"`
 	ReadTimeout  time.Duration `yaml:"readTimeout"`
 	WriteTimeout time.Duration `yaml:"writeTimeout"`
 	IdleTimeout  time.Duration `yaml:"idleTimeout"`
