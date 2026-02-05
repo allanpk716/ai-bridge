@@ -127,11 +127,15 @@ type LoggingConfig struct {
 
 // HealthConfig represents health check configuration
 type HealthConfig struct {
-	Enabled             bool `yaml:"enabled"`
-	Path                string `yaml:"path"`
-	IncludeSystemInfo   bool `yaml:"includeSystemInfo"`
-	IncludePoolStatus   bool `yaml:"includePoolStatus"`
-	IncludeSessionStats bool `yaml:"includeSessionStats"`
+	Enabled             bool          `yaml:"enabled"`
+	Path                string        `yaml:"path"`
+	CheckInterval       time.Duration `yaml:"checkInterval"`
+	MessageTimeout      time.Duration `yaml:"messageTimeout"`
+	SendWarning         bool          `yaml:"sendWarning"`
+	RestartOnCrash      bool          `yaml:"restartOnCrash"`
+	IncludeSystemInfo   bool          `yaml:"includeSystemInfo"`
+	IncludePoolStatus   bool          `yaml:"includePoolStatus"`
+	IncludeSessionStats bool          `yaml:"includeSessionStats"`
 }
 
 // MetricsConfig represents metrics configuration

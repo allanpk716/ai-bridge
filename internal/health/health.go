@@ -1,6 +1,7 @@
 package health
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"time"
@@ -106,3 +107,59 @@ func (c *Checker) HandleHealthCheck(w http.ResponseWriter, r *http.Request) {
 
 	logger.Debugf("Health check requested from %s", r.RemoteAddr)
 }
+
+// CheckSession checks the health of a specific session
+func (c *Checker) CheckSession(ctx context.Context, sessionID string) *CheckResult {
+	result := &CheckResult{
+		Component: sessionID,
+		Timestamp: time.Now(),
+		Status:    StatusUnknown,
+	}
+
+	// Get session
+	sess, err := c.sessionMgr.GetSession(sessionID)
+	if err != nil {
+		result.Status = StatusCritical
+		result.Message = "Session not found"
+		return result
+	}
+
+	// Get session status
+	status := sess.GetStatus()
+
+	// Check if session is processing
+	if status.State == "processing" {
+		// Check duration in milliseconds
+		duration := status.Duration
+
+		if duration > 300000 { // 5 minutes
+			result.Status = StatusCritical
+			result.Message = "Session stuck processing"
+		} else if duration > 60000 { // 1 minute
+			result.Status = StatusWarning
+			result.Message = "Session processing slowly"
+		} else {
+			result.Status = StatusHealthy
+		}
+	} else {
+		result.Status = StatusHealthy
+	}
+
+	return result
+}
+
+// CheckAllSessions checks all active sessions
+func (c *Checker) CheckAllSessions(ctx context.Context) []*CheckResult {
+	var results []*CheckResult
+
+	// Get all sessions
+	sessions := c.sessionMgr.ListSessions()
+
+	for _, sessionID := range sessions {
+		result := c.CheckSession(ctx, sessionID)
+		results = append(results, result)
+	}
+
+	return results
+}
+

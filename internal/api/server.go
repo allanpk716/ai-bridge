@@ -204,6 +204,11 @@ func (s *Server) setupRoutes() {
 //     s.commandHandler = handlers.NewCommandHandler(s.sessionMgr, parser)
 // }
 
+// Router returns the Gin router for testing
+func (s *Server) Router() *gin.Engine {
+	return s.router
+}
+
 // Start starts the HTTP server
 func (s *Server) Start() error {
 	addr := fmt.Sprintf("%s:%d", s.config.Server.Host, s.config.Server.Port)
