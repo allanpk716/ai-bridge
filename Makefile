@@ -1,4 +1,4 @@
-.PHONY: build test-all test-unit test-integration test-e2e test-coverage run clean help
+.PHONY: build test-all test-unit test-integration test-e2e test-coverage run clean help docker-build docker-up docker-down docker-logs
 
 # Variables
 BINARY_NAME=ai-bridge.exe
@@ -109,4 +109,25 @@ help:
 	@echo "  lint           - Run linters (go vet, golangci-lint)"
 	@echo "  fmt            - Format code with go fmt and goimports"
 	@echo "  init           - Initialize Go module and install dependencies"
+	@echo "  docker-build   - Build Docker image"
+	@echo "  docker-up      - Start services with docker-compose"
+	@echo "  docker-down    - Stop services with docker-compose"
+	@echo "  docker-logs    - Show docker-compose logs"
 	@echo "  help           - Show this help message"
+
+# Docker targets
+docker-build:
+	@echo "Building Docker image..."
+	docker build -f deployments/docker/Dockerfile -t ai-bridge:latest .
+
+docker-up:
+	@echo "Starting services with docker-compose..."
+	cd deployments/docker && docker-compose up -d
+
+docker-down:
+	@echo "Stopping services..."
+	cd deployments/docker && docker-compose down
+
+docker-logs:
+	@echo "Showing logs..."
+	cd deployments/docker && docker-compose logs -f

@@ -1,0 +1,43 @@
+bin/
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+coverage.out
+coverage.html
+
+# Test files
+*_test.go
+tests/
+tmp/
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs and data
+logs/
+data/
+*.db
+*.db-shm
+*.db-wal
+
+# Config (use example in container)
+configs/config.yaml
