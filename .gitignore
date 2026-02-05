@@ -55,3 +55,25 @@ desktop.ini
 ai-bridge
 ai-bridge.exe
 nul
+
+# Performance profiling and debugging
+*.prof
+*.pprof
+cpu.prof
+mem.prof
+
+# Test results (Go 1.20+)
+test-results/
+*.test.json
+
+# Development tools
+.air.toml
+
+# Editor backup files (enhanced)
+.#*
+
+# Deployment temporary files
+deployments/*/tmp/
+
+# Windows special files (enhanced)
+~$*

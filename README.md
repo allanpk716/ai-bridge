@@ -1,68 +1,142 @@
 # AI-Bridge
 
-AI-Bridge is a lightweight Go middleware that provides remote access to Claude Code CLI through HTTP/WebSocket APIs. It enables any web application to remotely control local Claude Code CLI instances with HAPI-compatible APIs.
+轻量级 Go 中间件,通过 HTTP/WebSocket API 提供对 Claude Code CLI 的远程访问。
 
-## Features
+## 项目简介
 
-- **Claude Code CLI Focus**: Exclusively designed for Claude Code CLI integration
-- **High Performance**: Smooth operation even with 10,000+ message sessions using incremental sync
-- **HAPI-Compatible API**: Drop-in replacement for HAPI backends
-- **Production-Ready**: Complete error handling, structured logging, and monitoring
-- **Process Pool**: Efficient Claude CLI instance management
-- **Real-time Communication**: WebSocket support for streaming messages
-- **Slash Commands**: Full support for Claude CLI slash commands
-- **Permission Management**: Built-in permission request handling
+AI-Bridge 是一个专注于 Claude Code CLI 的中间件,提供:
 
-## Quick Start
+- ✅ HAPI 兼容的 API
+- ✅ 高性能(支持 10,000+ 消息会话)
+- ✅ 增量消息同步优化
+- ✅ 完整的 Slash 命令支持
 
-### Prerequisites
+## 快速开始
 
-- Go 1.21 or later
-- Claude Code CLI installed and authenticated (`claude auth login`)
-- Windows, Linux, or macOS
+### 前置要求
 
-### Installation
+- Go 1.21+
+- Claude Code CLI(已认证)
+
+### 安装
 
 ```bash
-# Clone the repository
+# 克隆仓库
 git clone https://github.com/your-org/ai-bridge.git
 cd ai-bridge
 
-# Install dependencies
-go mod download
-
-# Copy and edit configuration
+# 复制配置文件
 cp configs/config.yaml.example configs/config.yaml
-# Edit configs/config.yaml with your settings
 
-# Build
+# 编辑配置(设置 JWT_SECRET 和 CLI_API_TOKEN)
+# 编辑 configs/config.yaml
+
+# 构建
 make build
 
-# Run
-make run
+# 运行
+./ai-bridge.exe server --config configs/config.yaml
 ```
 
-### Configuration
+### Docker 部署
 
-Edit `configs/config.yaml`:
+```bash
+cd deployments/docker
+docker-compose up
+```
+
+## 架构概述
+
+```
+Web App (HAPI frontend or custom)
+    ↓ HTTP/WebSocket (HAPI-compatible API)
+AI-Bridge Server
+    ├─ HTTP API Layer (sessions, messages, permissions, slash commands)
+    ├─ WebSocket Layer (Socket.IO)
+    └─ Claude Code Manager (process pool, session lifecycle, message parsing)
+    ↓ exec/stdio
+Claude Code CLI Instances
+```
+
+## 开发指南
+
+### 项目结构
+
+- `internal/claude/` - Claude Code CLI wrapper
+- `internal/pool/` - 进程池管理
+- `internal/session/` - 会话管理(增量同步优化)
+- `internal/api/` - HTTP API handlers
+- `internal/commands/` - Slash 命令支持
+- `pkg/protocol/` - HAPI 兼容协议类型
+
+### 测试
+
+```bash
+make test-all         # 运行所有测试
+make test-unit        # 单元测试
+make test-integration # 集成测试
+make test-e2e         # E2E 测试(需要 Claude CLI)
+```
+
+详细开发指南请参阅 [CLAUDE.md](./CLAUDE.md)。
+
+## API 文档
+
+### Session Management
+
+- `POST /api/v1/sessions` - 创建会话
+- `GET /api/v1/sessions/:id` - 获取会话信息
+- `GET /api/v1/sessions` - 列出所有会话
+
+### Message Management(优化)
+
+- `GET /api/v1/sessions/:sessionId/messages?since=123&limit=50&before=456` - 分页消息
+  - `since` - 增量同步(获取此 seq 之后的消息)
+  - `before` - 历史滚动(获取此 seq 之前的消息)
+  - `limit` - 最大消息数(默认 50,最大 100)
+- `GET /api/v1/sessions/:sessionId/messages/stream?since=123` - SSE 流
+- `POST /api/v1/sessions/:sessionId/messages` - 发送消息
+
+### Permissions
+
+- `POST /api/v1/sessions/:sessionId/permissions/:requestId/approve` - 批准权限
+- `POST /api/v1/sessions/:sessionId/permissions/:requestId/deny` - 拒绝权限
+
+### Slash Commands
+
+- `GET /api/v1/commands?sessionId=:id` - 列出所有命令
+- `GET /api/v1/commands/:path` - 获取单个命令
+- `POST /api/v1/sessions/:sessionId/commands` - 执行命令
+
+## 健康检查
+
+```bash
+curl http://localhost:8080/health
+```
+
+响应:
+
+```json
+{
+  "status": "healthy",
+  "version": "1.0.0",
+  "uptime": 3600,
+  "components": {
+    "database": "ok",
+    "pool": "ok"
+  }
+}
+```
+
+## 配置
+
+主要配置项(`configs/config.yaml`):
 
 ```yaml
 server:
   host: "0.0.0.0"
   port: 8080
   publicUrl: "http://localhost:8080"
-
-cors:
-  origins:
-    - "http://localhost:3000"
-    - "https://app.hapi.run"
-
-database:
-  path: "./data/ai-bridge.db"
-
-auth:
-  jwtSecret: "change-this-in-production"
-  cliApiToken: "your-token-here"
 
 pool:
   maxInstances: 5
@@ -74,121 +148,45 @@ claude:
   permissionMode: "normal"
 
 performance:
-  maxRecentMessages: 100
+  maxRecentMessages: 100    # 内存中只保留 100 条消息
   messageBufferSize: 50
-  subscriberBufferSize: 50
 ```
 
-## Development
+完整配置示例请参阅 `configs/config.yaml.example`。
 
-### Project Structure
+## 性能优化
 
-```
-ai-bridge/
-├── cmd/ai-bridge/        # Main application entry
-├── internal/
-│   ├── claude/           # Claude CLI wrapper
-│   ├── pool/             # Process pool management
-│   ├── session/          # Session lifecycle and incremental sync
-│   ├── commands/         # Slash command support
-│   ├── api/              # HTTP API handlers
-│   ├── websocket/        # WebSocket server
-│   ├── config/           # Configuration management
-│   └── health/           # Health check endpoints
-├── pkg/protocol/         # HAPI-compatible protocol types
-├── configs/              # Configuration files
-├── scripts/              # Utility scripts
-└── tests/                # Test suites
-```
+AI-Bridge 针对大容量会话进行了优化:
 
-### Build
+- **增量消息同步**: 只传输新增消息
+- **分页查询**: 支持历史消息滚动
+- **内存管理**: 只保留最近 100 条消息在内存中
+- **SSE 流式传输**: 实时推送新消息
 
-```bash
-make build
-```
+## 故障排查
 
-### Run
+### Claude CLI 问题
 
-```bash
-make run
-```
+- **命令未找到**: 确保 Claude CLI 在 PATH 中
+- **认证错误**: 运行 `claude auth login`
+- **超时**: 增加 `claude.timeout` 配置
 
-### Testing
+### 性能问题
 
-```bash
-# Run all tests
-make test-all
+- **高内存**: 检查 `maxRecentMessages` 设置
+- **消息延迟**: 检查 WebSocket 连接和数据库索引
+- **进程池满**: 增加 `pool.maxInstances`
 
-# Unit tests only
-make test-unit
+## 贡献
 
-# Integration tests
-make test-integration
+欢迎提交 Issue 和 Pull Request!
 
-# E2E tests (requires Claude CLI)
-make test-e2e
+## 许可证
 
-# Coverage report
-make test-coverage
-```
+MIT License
 
-## API Endpoints
+## 相关资源
 
-### Session Management
-- `POST /api/v1/sessions` - Create session
-- `GET /api/v1/sessions/:id` - Get session info
-- `GET /api/v1/sessions` - List sessions
-- `DELETE /api/v1/sessions/:id` - Delete session
-
-### Message Management (Incremental Sync)
-- `GET /api/v1/sessions/:sessionId/messages?since=123&limit=50&before=456` - Paginated messages
-- `GET /api/v1/sessions/:sessionId/messages/stream?since=123` - SSE stream
-- `POST /api/v1/sessions/:sessionId/messages` - Send message
-
-### Permissions
-- `GET /api/v1/sessions/:sessionId/permissions` - List pending permissions
-- `POST /api/v1/sessions/:sessionId/permissions/:requestId/approve` - Approve
-- `POST /api/v1/sessions/:sessionId/permissions/:requestId/deny` - Deny
-
-### Slash Commands
-- `GET /api/v1/commands?sessionId=:id` - List commands
-- `GET /api/v1/commands/:path` - Get command details
-- `POST /api/v1/sessions/:sessionId/commands` - Execute command
-
-### Health
-- `GET /health` - Health check
-- `GET /metrics` - Metrics (optional)
-
-## Architecture
-
-AI-Bridge uses an incremental message sync architecture to handle large sessions efficiently:
-
-1. **Process Pool**: Manages Claude CLI instances with configurable limits
-2. **Session Manager**: Handles session lifecycle with incremental message tracking
-3. **Message Pagination**: Each message has a monotonically increasing `seq` number
-4. **Memory Optimization**: Only recent 100 messages kept in memory
-5. **Database Persistence**: All messages stored in SQLite for history access
-6. **Real-time Updates**: SSE streaming for incremental sync
-
-## Performance
-
-- Supports 10,000+ messages per session
-- Handles 5+ concurrent Claude CLI instances
-- Sub-second message delivery with incremental sync
-- Efficient memory usage with bounded buffers
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests: `make test-all`
-5. Submit a pull request
-
-## License
-
-MIT License - see LICENSE file for details
-
-## Support
-
-For issues and questions, please open an issue on GitHub.
+- [CLAUDE.md](./CLAUDE.md) - Claude Code 开发指南
+- [docs/](./docs/) - 详细设计和计划文档
+- [deployments/docker/](./deployments/docker/) - Docker 部署配置
