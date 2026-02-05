@@ -1,6 +1,9 @@
 package handlers
 
 import (
+	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 
@@ -85,5 +88,46 @@ func (h *MessageHandler) GetMessages(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"messages": messages,
+		"since":    sinceSeq,
+	})
+}
+
+// StreamMessages streams messages using SSE
+func (h *MessageHandler) StreamMessages(c *gin.Context) {
+	sessionID := c.Param("sessionId")
+
+	sess, err := h.manager.GetSession(sessionID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Session not found"})
+		return
+	}
+
+	// Set SSE headers
+	c.Header("Content-Type", "text/event-stream")
+	c.Header("Cache-Control", "no-cache")
+	c.Header("Connection", "keep-alive")
+
+	// Parse since parameter
+	sinceSeq, _ := strconv.ParseInt(c.Query("since"), 10, 64)
+
+	// Subscribe to messages
+	filter := session.MessageFilter{
+		SinceSeq: sinceSeq,
+	}
+
+	msgChan, cancel := sess.Subscribe(c.Request.Context(), filter)
+	defer cancel()
+
+	// Stream messages
+	c.Stream(func(w io.Writer) bool {
+		select {
+		case msg := <-msgChan:
+			// Send SSE format
+			data, _ := json.Marshal(msg)
+			fmt.Fprintf(w, "data: %s\n\n", string(data))
+			return true
+		case <-c.Request.Context().Done():
+			return false
+		}
 	})
 }

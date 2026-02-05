@@ -52,8 +52,17 @@ func NewManager(cfg config.SessionConfig, pool *pool.Pool) (*Manager, error) {
 	return mgr, nil
 }
 
+// CreateOptions options for creating a session
+type CreateOptions struct {
+	WorkingDir     string
+	Model          string
+	Agent          string
+	PermissionMode string
+	AllowedTools   []string
+}
+
 // CreateSession creates a new session
-func (m *Manager) CreateSession(ctx context.Context) (*Session, error) {
+func (m *Manager) CreateSession(ctx context.Context, opts CreateOptions) (*Session, error) {
 	// Acquire instance from pool
 	instance, err := m.pool.Acquire(ctx)
 	if err != nil {

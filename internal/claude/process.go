@@ -227,6 +227,32 @@ func (p *Process) SendMessage(ctx context.Context, content string) error {
 	return nil
 }
 
+// SendApproval sends a permission approval or denial to the process
+func (p *Process) SendApproval(ctx context.Context, requestID string, approved bool, scope string) error {
+	p.mu.RLock()
+	defer p.mu.RUnlock()
+
+	if !p.running {
+		return fmt.Errorf("process not running")
+	}
+
+	var response string
+	if approved {
+		response = fmt.Sprintf("approve %s %s", requestID, scope)
+	} else {
+		response = fmt.Sprintf("deny %s", requestID)
+	}
+
+	if p.stdin != nil {
+		if _, err := fmt.Fprintln(p.stdin, response); err != nil {
+			return fmt.Errorf("failed to send approval: %w", err)
+		}
+	}
+
+	logger.Infof("Permission decision sent: %s -> approved=%v, scope=%s", requestID, approved, scope)
+	return nil
+}
+
 // MessageChannel returns the message channel
 func (p *Process) MessageChannel() <-chan protocol.Message {
 	return p.messageChan

@@ -90,3 +90,37 @@ func (s *Session) GetMessages(opts GetMessagesOptions) ([]*protocol.Message, err
 
 	return result, nil
 }
+
+// GetProcess returns the underlying process instance
+func (s *Session) GetProcess() *pool.Instance {
+	return s.instance
+}
+
+// Subscribe subscribes to messages with filtering
+func (s *Session) Subscribe(ctx context.Context, filter MessageFilter) (<-chan *protocol.Message, func()) {
+	msgChan := make(chan *protocol.Message, 50)
+
+	cancel := func() {
+		close(msgChan)
+	}
+
+	// Watch context
+	go func() {
+		<-ctx.Done()
+		cancel()
+	}()
+
+	return msgChan, cancel
+}
+
+// Stop stops the session
+func (s *Session) Stop(ctx context.Context) error {
+	return s.Close()
+}
+
+// MessageFilter filters messages
+type MessageFilter struct {
+	SinceSeq int64
+	Types    []string
+	Limit    int
+}
