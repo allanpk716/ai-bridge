@@ -2,11 +2,11 @@
 
 ## What This Is
 
-AI-Bridge-Web 是一个 PWA(Progressive Web App)前端项目,用于验证 AI-Bridge 后端的完整功能。通过参考 [tiann/hapi](https://github.com/tiann/hapi) 的移动优先设计,提供现代化的 Claude Code CLI 远程控制界面。前端采用 React + Vite + TypeScript 构建,使用 Tailwind CSS + shadcn/ui 实现类似 hapi 的简洁现代 UI,通过 Socket.IO 实现实时消息交互,使用 TanStack Query 管理应用状态。
+AI-Bridge-Web 是一个可复用的 PWA(Progressive Web App)前端项目,既可以作为独立站点使用,也可以通过 JavaScript SDK 集成到其他应用中。通过参考 [tiann/hapi](https://github.com/tiann/hapi) 的移动优先设计,提供现代化的 Claude Code CLI 远程控制界面。前端采用 React + Vite + TypeScript 构建,使用 Tailwind CSS + shadcn/ui 实现类似 hapi 的简洁现代 UI,通过 Socket.IO 实现实时消息交互,使用 TanStack Query 管理应用状态。
 
 ## Core Value
 
-**功能完整性与性能表现双重验证** - 前端必须验证 AI-Bridge 后端所有 API 端点正常工作,同时在 10000+ 消息场景下验证增量同步性能,确保多实例并发流畅。
+**可复用性 + 功能完整性 + 性能表现** - AI-Bridge-Web 既是 AI-Bridge 后端的功能验证工具,也是一个可被其他项目集成的通用 Claude Code 交互界面。作为独立站点时验证后端所有 API 端点正常工作;作为嵌入式组件时,支持外部应用通过 SDK 注入动态上下文(选区内容、项目元信息、应用状态),使 Claude 能够理解当前工作环境。在 10000+ 消息场景下验证增量同步性能,确保多实例并发流畅。
 
 ## Requirements
 
@@ -34,6 +34,7 @@ AI-Bridge-Web 是一个 PWA(Progressive Web App)前端项目,用于验证 AI-Bri
 - [ ] **斜杠命令界面** — 命令浏览器(按分类展示内置 + 自定义命令)、命令详情查看、执行命令、显示命令示例
 - [ ] **实时通信** — Socket.IO 客户端连接、订阅会话消息、实时接收增量消息、连接状态管理
 - [ ] **响应式设计** — 移动优先布局、桌面/平板适配、触摸友好交互
+- [ ] **JavaScript SDK** — 提供 npm 包,支持外部应用通过 iframe 嵌入,postMessage 双向通信,动态上下文注入(选区内容、项目元信息、应用状态)
 
 ### Out of Scope
 
@@ -68,8 +69,9 @@ AI-Bridge-Web 是一个 PWA(Progressive Web App)前端项目,用于验证 AI-Bri
 **验证目标:**
 
 1. **功能完整性** — 每个后端 API 都要通过前端测试,确认可以正常创建会话、发送消息、处理权限、执行命令
-2. **性能表现** — 在 10000+ 消息会话中验证增量同步不卡顿,前端滚动流畅,内存占用合理
-3. **多实例并发** — 同时打开多个会话,验证进程池调度、消息隔离、实时通信稳定性
+2. **可复用性** — 作为独立站点运行,同时提供 SDK 供外部应用集成,支持动态上下文注入
+3. **性能表现** — 在 10000+ 消息会话中验证增量同步不卡顿,前端滚动流畅,内存占用合理
+4. **多实例并发** — 同时打开多个会话,验证进程池调度、消息隔离、实时通信稳定性
 
 ## Constraints
 

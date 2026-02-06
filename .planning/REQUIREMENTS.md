@@ -1,7 +1,7 @@
 # Requirements: AI-Bridge-Web
 
 **Defined:** 2026-02-06
-**Core Value:** 功能完整性与性能表现双重验证 - 前端必须验证 AI-Bridge 后端所有 API 端点正常工作,同时在 10000+ 消息场景下验证增量同步性能
+**Core Value:** 可复用性 + 功能完整性 + 性能表现 - AI-Bridge-Web 既是后端验证工具,也是可被其他项目集成的通用 Claude Code 交互界面。支持外部应用通过 SDK 注入动态上下文(选区内容、项目元信息、应用状态)
 
 ## v1 Requirements
 
@@ -58,6 +58,15 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **ADV-02**: User can export conversation as markdown
 - [ ] **ADV-03**: User can use keyboard shortcuts (e.g., Ctrl+K to send message)
 - [ ] **ADV-04**: User can select model per session (Haiku/Sonnet/Opus)
+
+### SDK Integration
+
+- [ ] **SDK-01**: External applications can integrate ai-bridge-web via npm package
+- [ ] **SDK-02**: SDK initializes iframe with ai-bridge-web independent site
+- [ ] **SDK-03**: External app can inject dynamic context before sending message (selected text, project metadata, app state)
+- [ ] **SDK-04**: bidirectional communication via postMessage (external app ↔ ai-bridge-web)
+- [ ] **SDK-05**: SDK provides TypeScript types for context injection and message handling
+- [ ] **SDK-06**: SDK handles connection state and error recovery for external app
 
 ## v2 Requirements
 
@@ -145,6 +154,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 - Mapped to phases: 30
 - Unmapped: 0 ✓
 
+**Phase Distribution:**
+- Phase 1: 2 requirements (UI-01, UI-02)
+- Phase 2: 1 requirement (UI-04)
+- Phase 3: 7 requirements (SESS-01 through SESS-06, UI-03, ADV-04)
+- Phase 4: 14 requirements (MSG-01 through MSG-06, PERM-01 through PERM-04, CMD-01 through CMD-04)
+- Phase 5: 3 requirements (PWA-01, PWA-02, PWA-03)
+- Phase 6: 3 requirements (ADV-01, ADV-02, ADV-03)
+
 ---
 *Requirements defined: 2026-02-06*
-*Last updated: 2026-02-06 after initial definition*
+*Last updated: 2026-02-06 after roadmap creation*
