@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { MessageSquare } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 

@@ -1,5 +1,7 @@
-import { createContext, useContext, ReactNode } from 'react';
-import { useTheme as useThemeHook, Theme } from '../hooks/useTheme';
+import { createContext, useContext } from 'react';
+import type { ReactNode } from 'react';
+import { useTheme as useThemeHook } from '../hooks/useTheme';
+import type { Theme } from '../hooks/useTheme';
 
 interface ThemeContextType {
   theme: Theme;
