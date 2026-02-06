@@ -54,7 +54,7 @@ export default function MainLayout() {
   return (
     <>
       {/* Desktop Sidebar (fixed, hidden on mobile) */}
-      <div className="hidden md:flex md:fixed md:inset-y-0 md:z-30">
+      <div className="hidden md:flex md:fixed md:inset-y-0 md:z-20">
         <Sidebar />
       </div>
 
