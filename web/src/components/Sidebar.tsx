@@ -25,9 +25,9 @@ export function Sidebar({ children }: SidebarProps) {
   return (
     <div className="w-full md:w-80 flex flex-col h-full bg-background border-r">
       {/* Header */}
-      <div className="flex h-16 items-center px-6 border-b">
-        <MessageSquare className="h-6 w-6 text-primary" />
-        <h1 className="ml-3 text-lg font-semibold">AI-Bridge</h1>
+      <div className="flex h-16 items-center px-6 border-b flex-shrink-0">
+        <MessageSquare className="h-6 w-6 text-primary flex-shrink-0" />
+        <h1 className="ml-3 text-lg font-semibold truncate">AI-Bridge</h1>
       </div>
 
       {/* Session List Area (placeholder) */}
