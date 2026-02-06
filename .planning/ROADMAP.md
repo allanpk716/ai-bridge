@@ -12,7 +12,7 @@ AI-Bridge-Web is a Progressive Web App frontend that provides remote access to C
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation & UI Infrastructure** - Project setup, routing, base layout, theming, and responsive design
+- [x] **Phase 1: Foundation & UI Infrastructure** - Project setup, routing, base layout, theming, and responsive design ✅
 - [ ] **Phase 2: Backend Integration** - TanStack Query setup, Socket.IO client, API service layer, and connection management
 - [ ] **Phase 3: Session Management** - Complete session CRUD with working directory picker, model selection, and session list UI
 - [ ] **Phase 4: Real-Time Chat** - Chat interface with virtualized message list, streaming responses, permission handling, and slash commands
@@ -36,14 +36,22 @@ Decimal phases appear between their surrounding integers in numeric order.
 3. All navigation routes work without page reloads (client-side routing)
 4. Base UI components (Button, Input, Card) render correctly across screen sizes
 
-**Plans**: TBD
+**Status**: ✅ Complete (2026-02-06)
 
-Plans:
-- [ ] 01-01: Project scaffolding with Vite, React, TypeScript, and build configuration
-- [ ] 01-02: React Router setup with route structure and navigation components
-- [ ] 01-03: shadcn/ui installation and base component library setup
-- [ ] 01-04: Theme system with dark/light mode toggle and persistence
-- [ ] 01-05: Responsive layout shell with mobile-first design patterns
+**Plans:**
+
+- [x] 01-01: Project scaffolding with Vite, React, TypeScript, and build configuration ✅
+- [x] 01-02: React Router setup with route structure and navigation components ✅
+- [x] 01-03: shadcn/ui installation and base component library setup ✅
+- [x] 01-04: Theme system with dark/light mode toggle and persistence ✅
+- [x] 01-05: Responsive layout shell with mobile-first design patterns ✅
+
+**Plan Files:**
+- `.planning/phases/01-foundation-ui-infrastructure/01-01-PLAN.md`
+- `.planning/phases/01-foundation-ui-infrastructure/01-02-PLAN.md`
+- `.planning/phases/01-foundation-ui-infrastructure/01-03-PLAN.md`
+- `.planning/phases/01-foundation-ui-infrastructure/01-04-PLAN.md`
+- `.planning/phases/01-foundation-ui-infrastructure/01-05-PLAN.md`
 
 ---
 
