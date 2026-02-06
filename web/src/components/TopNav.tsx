@@ -1,18 +1,60 @@
-export default function TopNav() {
+import { Menu } from 'lucide-react';
+import { Button } from './ui/button';
+import { useScrollDirection } from '../hooks/useScrollDirection';
+
+interface TopNavProps {
+  onMenuClick?: () => void;
+}
+
+/**
+ * TopNav component
+ *
+ * Responsive navigation bar with:
+ * - Mobile: Hamburger menu (left) + Auto-hide on scroll
+ * - Desktop: Logo (left) + Breadcrumb (center) + Status (right)
+ *
+ * Features:
+ * - Auto-hides when scrolling down on mobile (max-md:)
+ * - Shows when scrolling up
+ * - Uses transform for smooth animation
+ * - Hamburger menu visible only on mobile (md:hidden)
+ */
+export default function TopNav({ onMenuClick }: TopNavProps) {
+  const scrollDirection = useScrollDirection();
+
+  // Auto-hide on scroll down (mobile only)
+  const shouldHide = scrollDirection === 'down';
+
   return (
-    <header className="border-b bg-background shadow-sm">
+    <header
+      className={`border-b bg-background shadow-sm transition-transform duration-300 ease-in-out fixed top-0 left-0 right-0 z-30 ${
+        shouldHide ? '-translate-y-full' : 'translate-y-0'
+      }`}
+    >
       <div className="flex h-16 items-center justify-between px-4 md:px-6">
-        {/* Logo */}
+        {/* Left: Hamburger (mobile) / Logo (desktop) */}
         <div className="flex items-center">
-          <h1 className="text-xl font-bold">AI-Bridge</h1>
+          {/* Hamburger menu - mobile only */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onMenuClick}
+            className="md:hidden"
+            aria-label="Open menu"
+          >
+            <Menu className="h-6 w-6" />
+          </Button>
+
+          {/* Logo - desktop only */}
+          <h1 className="hidden md:block text-xl font-bold">AI-Bridge</h1>
         </div>
 
-        {/* Breadcrumb placeholder - center */}
-        <div className="flex-1 px-8">
+        {/* Center: Breadcrumb - desktop only */}
+        <div className="flex-1 px-8 hidden md:block">
           <div className="text-sm text-muted-foreground">Navigation</div>
         </div>
 
-        {/* Connection status placeholder - right */}
+        {/* Right: Connection status placeholder */}
         <div className="flex items-center">
           <div className="h-2 w-2 rounded-full bg-gray-300" />
           <span className="ml-2 text-sm text-muted-foreground">Disconnected</span>
