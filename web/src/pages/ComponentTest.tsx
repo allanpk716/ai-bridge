@@ -105,7 +105,7 @@ export default function ComponentTest() {
                   </p>
                 </CardContent>
                 <CardFooter>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={() => alert('Action button clicked!')}>
                     Action
                   </Button>
                 </CardFooter>
@@ -123,7 +123,7 @@ export default function ComponentTest() {
                   </p>
                 </CardContent>
                 <CardFooter>
-                  <Button size="sm">Learn More</Button>
+                  <Button size="sm" onClick={() => alert('Learn More clicked!')}>Learn More</Button>
                 </CardFooter>
               </Card>
 
@@ -136,8 +136,8 @@ export default function ComponentTest() {
                   <Input placeholder="Type something..." />
                 </CardContent>
                 <CardFooter className="flex gap-2">
-                  <Button size="sm">Submit</Button>
-                  <Button size="sm" variant="ghost">
+                  <Button size="sm" onClick={() => alert('Submit clicked!')}>Submit</Button>
+                  <Button size="sm" variant="ghost" onClick={() => alert('Cancel clicked!')}>
                     Cancel
                   </Button>
                 </CardFooter>
