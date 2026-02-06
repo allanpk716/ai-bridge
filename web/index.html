@@ -5,6 +5,31 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>web</title>
+
+    <!-- Anti-FOUC script: Apply theme before React renders -->
+    <script>
+      (function() {
+        try {
+          // Read theme from localStorage (default: 'system')
+          var savedTheme = localStorage.getItem('theme');
+          var theme = savedTheme || 'system';
+
+          // Detect system preference if theme is 'system'
+          var resolvedTheme = theme;
+          if (theme === 'system') {
+            resolvedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          }
+
+          // Apply dark class to document element
+          if (resolvedTheme === 'dark') {
+            document.documentElement.classList.add('dark');
+          }
+        } catch (e) {
+          // Fail silently - React will apply theme on mount
+          console.error('Anti-FOUC script error:', e);
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
