@@ -208,7 +208,7 @@ Plans:
 1. External applications can embed ai-bridge-web as an iframe with initial configuration
 2. Host application can send messages to Claude through postMessage API
 3. Host application can receive Claude responses and status updates via postMessage events
-4. SDK supports context injection (working directory, git context, file selections)
+4. External app can send text messages to Claude via simple API (sendMessage(text: string))
 5. SDK provides TypeScript type definitions for all postMessage interfaces
 6. SDK handles errors gracefully with recovery mechanisms
 
@@ -218,7 +218,7 @@ Plans:
 - [ ] 07-01: SDK package structure with initialization and configuration
 - [ ] 07-02: Iframe integration with responsive sizing and sandbox policies
 - [ ] 07-03: Bidirectional postMessage communication protocol
-- [ ] 07-04: Context injection API (working directory, git branch, selected files)
+- [ ] 07-04: Text message API with simple sendMessage(text: string) interface
 - [ ] 07-05: TypeScript type definitions and documentation
 - [ ] 07-06: Error handling, reconnection, and recovery mechanisms
 

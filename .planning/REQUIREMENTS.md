@@ -1,7 +1,7 @@
 # Requirements: AI-Bridge-Web
 
 **Defined:** 2026-02-06
-**Core Value:** 可复用性 + 功能完整性 + 性能表现 - AI-Bridge-Web 既是后端验证工具,也是可被其他项目集成的通用 Claude Code 交互界面。支持外部应用通过 SDK 注入动态上下文(选区内容、项目元信息、应用状态)
+**Core Value:** 可复用性 + 功能完整性 + 性能表现 - AI-Bridge-Web 既是后端验证工具,也是可被其他项目集成的通用 Claude Code 交互界面。提供简单的文本传递接口,外部应用传入纯文本,Claude Code CLI 自主处理
 
 ## v1 Requirements
 
@@ -63,9 +63,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [ ] **SDK-01**: External applications can integrate ai-bridge-web via npm package
 - [ ] **SDK-02**: SDK initializes iframe with ai-bridge-web independent site
-- [ ] **SDK-03**: External app can inject dynamic context before sending message (selected text, project metadata, app state)
+- [ ] **SDK-03**: External app can send text messages to Claude via simple API (sendMessage(text: string))
 - [ ] **SDK-04**: bidirectional communication via postMessage (external app ↔ ai-bridge-web)
-- [ ] **SDK-05**: SDK provides TypeScript types for context injection and message handling
+- [ ] **SDK-05**: SDK provides TypeScript types for message handling
 - [ ] **SDK-06**: SDK handles connection state and error recovery for external app
 
 ## v2 Requirements
