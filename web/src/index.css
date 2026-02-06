@@ -67,3 +67,44 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
+
+/* Button hover states */
+@layer components {
+  .btn-default {
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+  }
+  .btn-default:hover {
+    background-color: hsl(var(--primary) / 0.9);
+  }
+
+  .btn-destructive {
+    background-color: hsl(var(--destructive));
+    color: hsl(var(--destructive-foreground));
+  }
+  .btn-destructive:hover {
+    background-color: hsl(var(--destructive) / 0.9);
+  }
+
+  .btn-outline {
+    border-color: hsl(var(--input));
+    background-color: hsl(var(--background));
+  }
+  .btn-outline:hover {
+    background-color: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
+  }
+
+  .btn-secondary {
+    background-color: hsl(var(--secondary));
+    color: hsl(var(--secondary-foreground));
+  }
+  .btn-secondary:hover {
+    background-color: hsl(var(--secondary) / 0.8);
+  }
+
+  .btn-ghost:hover {
+    background-color: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
+  }
+}
