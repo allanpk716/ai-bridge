@@ -53,7 +53,10 @@ export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
       {/* Drawer Panel */}
       <div
         {...handlers}
-        className="fixed inset-y-0 left-0 w-[280px] bg-background z-50 shadow-lg transform transition-transform duration-300 ease-in-out"
+        className="fixed inset-y-0 left-0 w-[280px] z-50 shadow-lg transform transition-transform duration-300 ease-in-out border-r border-border"
+        style={{
+          backgroundColor: 'hsl(var(--card))',
+        }}
       >
         {/* Close Button */}
         <div className="absolute top-4 right-4 z-10">
