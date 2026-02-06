@@ -23,7 +23,7 @@ interface SidebarProps {
  */
 export function Sidebar({ children }: SidebarProps) {
   return (
-    <div className="w-full md:w-80 flex flex-col h-full bg-background">
+    <div className="w-full md:w-80 flex flex-col h-full bg-background border-r">
       {/* Header */}
       <div className="flex h-16 items-center px-6 border-b">
         <MessageSquare className="h-6 w-6 text-primary" />

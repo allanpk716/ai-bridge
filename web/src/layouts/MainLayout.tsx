@@ -54,7 +54,9 @@ export default function MainLayout() {
   return (
     <>
       {/* Desktop Sidebar (fixed, hidden on mobile) */}
-      <Sidebar />
+      <div className="hidden md:flex md:fixed md:inset-y-0 md:z-30">
+        <Sidebar />
+      </div>
 
       {/* Mobile Drawer (overlay, hidden on desktop) */}
       <MobileDrawer isOpen={isDrawerOpen} onClose={handleDrawerClose} />
