@@ -32,15 +32,8 @@ export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
         onClose();
       }
     },
-    onSwiping: (eventData) => {
-      // Optional: Track swipe distance for visual feedback
-      // Could be used for "follow finger" animation
-      console.log('Swiping:', eventData.deltaX);
-    },
     trackMouse: true, // Enable mouse swipe for desktop testing
-    swipeEdgeWidth: 20, // Left edge trigger zone (not used in drawer, but kept for consistency)
     preventScrollOnSwipe: false, // Allow page scroll while swiping
-    trackTouch: true, // Enable touch swipe
   });
 
   // Don't render if closed (unless you want exit animation)
