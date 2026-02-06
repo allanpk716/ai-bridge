@@ -3,6 +3,7 @@ import RootLayout from "@/layouts/RootLayout";
 import MainLayout from "@/layouts/MainLayout";
 import SessionList from "@/pages/SessionList";
 import SessionDetail from "@/pages/SessionDetail";
+import ComponentTest from "@/pages/ComponentTest";
 
 /**
  * Router configuration for AI-Bridge web application
@@ -12,6 +13,7 @@ import SessionDetail from "@/pages/SessionDetail";
  *   - MainLayout (TopNav + content area)
  *     - / (root) → SessionList page
  *     - /sessions/:id → SessionDetail page
+ *     - /components → ComponentTest page (dev only)
  */
 const router = createBrowserRouter([
   {
@@ -28,6 +30,10 @@ const router = createBrowserRouter([
           {
             path: "sessions/:id",
             element: <SessionDetail />,
+          },
+          {
+            path: "components",
+            element: <ComponentTest />,
           },
         ],
       },
