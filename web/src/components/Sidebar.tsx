@@ -15,14 +15,15 @@ interface SidebarProps {
  * - Footer with theme toggle
  *
  * Features:
- * - Fixed width (w-80, 320px)
- * - Border on right side
+ * - Fixed width (w-80, 320px) on desktop
+ * - Full width (w-full) in mobile drawer
+ * - Border on right side (desktop only, handled by parent)
  * - Background and text colors from theme variables
- * - Hidden on mobile, visible on desktop (md+)
+ * - Works in both desktop fixed and mobile drawer contexts
  */
 export function Sidebar({ children }: SidebarProps) {
   return (
-    <aside className="hidden md:flex md:w-80 md:flex-col md:fixed md:inset-y-0 border-r bg-background">
+    <div className="w-full md:w-80 flex flex-col h-full bg-background">
       {/* Header */}
       <div className="flex h-16 items-center px-6 border-b">
         <MessageSquare className="h-6 w-6 text-primary" />
@@ -43,6 +44,6 @@ export function Sidebar({ children }: SidebarProps) {
           <ThemeToggle />
         </div>
       </div>
-    </aside>
+    </div>
   );
 }
