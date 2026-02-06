@@ -148,10 +148,16 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ADV-02 | Phase 6 | Pending |
 | ADV-03 | Phase 6 | Pending |
 | ADV-04 | Phase 3 | Pending |
+| SDK-01 | Phase 7 | Pending |
+| SDK-02 | Phase 7 | Pending |
+| SDK-03 | Phase 7 | Pending |
+| SDK-04 | Phase 7 | Pending |
+| SDK-05 | Phase 7 | Pending |
+| SDK-06 | Phase 7 | Pending |
 
 **Coverage:**
-- v1 requirements: 30 total
-- Mapped to phases: 30
+- v1 requirements: 36 total
+- Mapped to phases: 36
 - Unmapped: 0 ✓
 
 **Phase Distribution:**
@@ -161,6 +167,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 - Phase 4: 14 requirements (MSG-01 through MSG-06, PERM-01 through PERM-04, CMD-01 through CMD-04)
 - Phase 5: 3 requirements (PWA-01, PWA-02, PWA-03)
 - Phase 6: 3 requirements (ADV-01, ADV-02, ADV-03)
+- Phase 7: 6 requirements (SDK-01 through SDK-06)
 
 ---
 *Requirements defined: 2026-02-06*
