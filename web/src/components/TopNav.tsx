@@ -45,8 +45,8 @@ export default function TopNav({ onMenuClick }: TopNavProps) {
             <Menu className="h-6 w-6" />
           </Button>
 
-          {/* Logo - desktop only */}
-          <h1 className="hidden md:block text-xl font-bold">AI-Bridge</h1>
+          {/* Logo - mobile only (desktop shows logo in sidebar) */}
+          <h1 className="md:hidden text-xl font-bold">AI-Bridge</h1>
         </div>
 
         {/* Center: Breadcrumb - desktop only */}
