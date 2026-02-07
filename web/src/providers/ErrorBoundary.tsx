@@ -26,6 +26,12 @@ import { Button } from "@/components/ui/button";
  * - Retry button (to attempt recovery)
  */
 function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
+  // Type guard to ensure error is an Error object
+  const isError = error instanceof Error;
+
+  const errorMessage = isError ? error.message : "An unexpected error occurred";
+  const errorStack = isError ? error.stack : null;
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-background">
       <div className="max-w-md w-full p-6 bg-destructive/10 border border-destructive/20 rounded-lg shadow-lg">
@@ -54,17 +60,17 @@ function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
 
         {/* Error message */}
         <p className="text-sm text-muted-foreground mb-4 text-center">
-          {error.message || "An unexpected error occurred"}
+          {errorMessage}
         </p>
 
         {/* Stack trace (collapsible for debugging) */}
-        {error.stack && (
+        {errorStack && (
           <details className="mb-4">
             <summary className="text-xs font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors">
               View technical details
             </summary>
             <pre className="mt-2 text-xs bg-muted p-3 rounded overflow-auto max-h-32 text-left">
-              {error.stack}
+              {errorStack}
             </pre>
           </details>
         )}

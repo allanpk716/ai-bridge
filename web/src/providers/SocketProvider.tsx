@@ -36,7 +36,7 @@ import { initConnectionManager } from '@/lib/socket/connectionManager';
 export function SocketProvider({ children }: PropsWithChildren) {
   useEffect(() => {
     // Initialize socket on mount (uses default API_BASE_URL from config)
-    const socket = initSocket();
+    initSocket();
 
     // Initialize connection status tracking
     // This attaches Socket.IO event listeners to Zustand store
