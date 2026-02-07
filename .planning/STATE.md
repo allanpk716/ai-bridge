@@ -6,13 +6,13 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 
 **Core value:** 功能完整性与性能表现双重验证 - 前端必须验证 AI-Bridge 后端所有 API 端点正常工作,同时在 10000+ 消息场景下验证增量同步性能
 
-**Current focus:** Phase 2: Backend Integration (in progress - 5/6 plans complete)
+**Current focus:** Phase 2: Backend Integration (in progress - 4/6 plans complete)
 
 ## Current Position
 
 Phase: 2 of 7 (in progress)
-Plan: 02-05 of 6 in this phase
-Last activity: 2026-02-07 — Completed global error handling with ErrorBoundary and Sonner toasts
+Plan: 02-04 of 6 in this phase
+Last activity: 2026-02-07 — Completed connection state management with Zustand and Socket.IO event integration
 
 Progress: [████████░░░] 20% (9/45 plans)
 
@@ -35,8 +35,8 @@ Progress: [████████░░░] 20% (9/45 plans)
 | 6 | 0 | 0 | - |
 
 **Recent Trend:**
-- Last 5 plans: 01-05 (18min), 02-01 (8min), 02-03 (12min), 02-02 (25min), 02-05 (5min)
-- Trend: Stable velocity, Phase 2 progressing efficiently
+- Last 5 plans: 01-05 (18min), 02-01 (8min), 02-03 (12min), 02-02 (25min), 02-04 (5min)
+- Trend: Stable velocity, Phase 2 progressing ahead of schedule
 
 *Updated after each plan completion*
 
@@ -68,7 +68,7 @@ Recent decisions affecting current work:
 - [02-01 - TanStack Query]: Installed @tanstack/react-query@5.90.20 with devtools, created QueryProvider with production-ready defaults (5min staleTime, 30min gcTime, 3x retry), integrated into app with proper provider nesting (StrictMode > QueryProvider > ThemeProvider > RouterProvider), added global error logging via QueryCache subscription
 - [02-02 - API Service Layer]: Installed zod for runtime validation, created complete API service layer with Zod schemas (Session, Message, Permission, Command) and inferred TypeScript types, implemented service functions and React hooks for all backend endpoints (sessions, messages with pagination, permissions, commands), centralized API client configuration with environment variable support, used TanStack Query for caching with appropriate stale times
 - [02-03 - Socket.IO Client]: Installed socket.io-client v4.8.3, created ES6 module singleton with typed events (ServerToClientEvents, ClientToServerEvents), implemented custom React hooks (useSocket, useSocketEvent) with automatic cleanup, configured reconnection (10 attempts, exponential backoff 1s-30s, 3s timeout), auto-derive WebSocket URL from HTTP URL, created SocketProvider for app startup initialization
-- [02-05 - Error Handling]: Installed react-error-boundary v6.1.0 and sonner v2.0.7, created AppErrorBoundary with fallback UI (error message, stack trace, retry button), integrated Toaster component globally, added QueryCache/MutationCache error callbacks for toast notifications, added success/error toasts to API mutations, established provider nesting order (StrictMode > AppErrorBoundary > Toaster > QueryProvider > SocketProvider > ThemeProvider > RouterProvider)
+- [02-04 - Connection State Management]: Installed zustand@4.5.2 for lightweight state management, created useConnectionStore with 4 states (online/offline/reconnecting/error), built initConnectionManager to map Socket.IO events to Zustand store updates (Manager-level + Socket-level listeners), created ConnectionStatusIndicator with colored dot (green/gray/yellow-red) and tooltip, integrated into TopNav (desktop) and Sidebar (mobile), created ConnectionDialog modal for connection failures with retry/dismiss options, initialized in SocketProvider, added to App.tsx as global modal
 
 ### Pending Todos
 
@@ -80,8 +80,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-07 11:49 UTC
-Stopped at: Completed 02-05-PLAN.md (Global error handling)
+Last session: 2026-02-07 11:48 UTC
+Stopped at: Completed 02-04-PLAN.md (Connection state management with Zustand and Socket.IO event integration)
 Resume file: None
 
 ## Phase 1 总结
