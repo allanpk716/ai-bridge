@@ -105,15 +105,24 @@ Decimal phases appear between their surrounding integers in numeric order.
 6. System displays session metadata (message count, last activity, git branch)
 7. User can navigate between session list and individual session views
 
-**Plans**: TBD
+**Status**: In Planning (2026-02-08)
 
-Plans:
-- [ ] 03-01: Session list page with status indicators and metadata display
-- [ ] 03-02: Create session dialog with working directory picker and model selection
-- [ ] 03-03: CLI startup parameters configuration form
-- [ ] 03-04: Session detail page with resume functionality
-- [ ] 03-05: Session deletion with confirmation
-- [ ] 03-06: Session routing and navigation structure
+**Plans:**
+
+- [ ] 03-01-PLAN.md — Session routing and navigation structure ✅
+- [ ] 03-02-PLAN.md — Session list page with status indicators and metadata display ✅
+- [ ] 03-03-PLAN.md — Create session dialog with working directory picker and model selection ✅
+- [ ] 03-04-PLAN.md — CLI startup parameters configuration form ✅
+- [ ] 03-05-PLAN.md — Session deletion with confirmation ✅
+- [ ] 03-06-PLAN.md — Session detail page with resume functionality ✅
+
+**Plan Files:**
+- `.planning/phases/03-session-management/03-01-PLAN.md`
+- `.planning/phases/03-session-management/03-02-PLAN.md`
+- `.planning/phases/03-session-management/03-03-PLAN.md`
+- `.planning/phases/03-session-management/03-04-PLAN.md`
+- `.planning/phases/03-session-management/03-05-PLAN.md`
+- `.planning/phases/03-session-management/03-06-PLAN.md`
 
 ---
 
