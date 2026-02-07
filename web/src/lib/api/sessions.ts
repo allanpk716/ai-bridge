@@ -29,6 +29,11 @@ import {
 const SessionListSchema = z.array(SessionSchema);
 
 /**
+ * Zod schema for validating single session response
+ */
+const SingleSessionSchema = SessionSchema;
+
+/**
  * Fetches all sessions from the API
  *
  * @returns Promise resolving to array of sessions
@@ -60,6 +65,47 @@ export function useSessions(): UseQueryResult<Session[], Error> {
   return useQuery({
     queryKey: ["sessions"],
     queryFn: fetchSessions,
+    staleTime: 5000, // Consider data stale after 5 seconds
+  });
+}
+
+/**
+ * Fetches a single session by ID from the API
+ *
+ * @param sessionId - The session ID to fetch
+ * @returns Promise resolving to session object
+ * @throws ApiError if request fails or response is invalid
+ */
+export async function fetchSession(sessionId: string): Promise<Session> {
+  const url = getApiUrl(`sessions/${sessionId}`);
+  const response = await fetchWithErrorHandling(url, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  const data = await response.json();
+  const validatedData = SingleSessionSchema.parse(data);
+  return validatedData;
+}
+
+/**
+ * React hook for fetching a single session
+ *
+ * @param sessionId - The session ID to fetch
+ * @returns Query result with session data, error, and loading state
+ *
+ * @example
+ * const { data: session, error, isLoading } = useSession("abc123");
+ */
+export function useSession(
+  sessionId: string | undefined
+): UseQueryResult<Session, Error> {
+  return useQuery({
+    queryKey: ["session", sessionId],
+    queryFn: () => fetchSession(sessionId!),
+    enabled: !!sessionId, // Only run query when sessionId is defined
     staleTime: 5000, // Consider data stale after 5 seconds
   });
 }
