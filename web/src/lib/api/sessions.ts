@@ -8,8 +8,14 @@
  * - POST /api/v1/sessions - Create new session
  */
 
-import { useMutation, useQuery, useQueryClient, type UseQueryResult } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type UseQueryResult,
+} from "@tanstack/react-query";
 import { z } from "zod";
+import { toast } from "sonner";
 import { getApiUrl, fetchWithErrorHandling } from "./client";
 import {
   SessionSchema,
@@ -98,9 +104,15 @@ export function useCreateSession() {
 
   return useMutation({
     mutationFn: createSession,
-    onSuccess: () => {
+    onSuccess: (data) => {
       // Invalidate sessions query to refetch list
       queryClient.invalidateQueries({ queryKey: ["sessions"] });
+      // Show success toast
+      toast.success(`Session "${data.id}" created successfully`);
+    },
+    onError: (error) => {
+      // Show error toast (note: MutationCache also shows toast, but this provides context)
+      toast.error(`Failed to create session: ${error.message}`);
     },
   });
 }
