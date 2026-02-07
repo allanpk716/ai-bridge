@@ -1,6 +1,7 @@
 import { Menu } from 'lucide-react';
 import { Button } from './ui/button';
 import { useScrollDirection } from '../hooks/useScrollDirection';
+import { ConnectionStatusIndicator } from './connection/StatusIndicator';
 
 interface TopNavProps {
   onMenuClick?: () => void;
@@ -54,10 +55,9 @@ export default function TopNav({ onMenuClick }: TopNavProps) {
           <div className="text-sm text-muted-foreground">Navigation</div>
         </div>
 
-        {/* Right: Connection status placeholder */}
-        <div className="flex items-center">
-          <div className="h-2 w-2 rounded-full bg-gray-300" />
-          <span className="ml-2 text-sm text-muted-foreground">Disconnected</span>
+        {/* Right: Connection status - desktop only */}
+        <div className="hidden md:block">
+          <ConnectionStatusIndicator />
         </div>
       </div>
     </header>

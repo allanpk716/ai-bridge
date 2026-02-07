@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { MessageSquare } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
+import { ConnectionStatusIndicator } from './connection/StatusIndicator';
 
 interface SidebarProps {
   children?: ReactNode;
@@ -38,9 +39,10 @@ export function Sidebar({ children }: SidebarProps) {
         {children}
       </div>
 
-      {/* Footer with Theme Toggle */}
+      {/* Footer with Theme Toggle and Connection Status */}
       <div className="p-4 border-t">
-        <div className="flex items-center justify-center">
+        <div className="flex items-center justify-between">
+          <ConnectionStatusIndicator />
           <ThemeToggle />
         </div>
       </div>
