@@ -31,7 +31,7 @@ export default function TopNav({ onMenuClick }: TopNavProps) {
         shouldHide ? '-translate-y-full' : 'translate-y-0'
       }`}
     >
-      <div className="flex h-16 items-center justify-between pl-4 pr-4 md:pl-[320px] md:pr-6">
+      <div className="flex h-16 items-center justify-between pl-4 pr-4 md:pl-6 md:ml-80">`
         {/* Left: Hamburger (mobile) / Logo (desktop) */}
         <div className="flex items-center">
           {/* Hamburger menu - mobile only */}
