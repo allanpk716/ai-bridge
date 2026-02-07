@@ -6,29 +6,29 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 
 **Core value:** 功能完整性与性能表现双重验证 - 前端必须验证 AI-Bridge 后端所有 API 端点正常工作,同时在 10000+ 消息场景下验证增量同步性能
 
-**Current focus:** Phase 2: Backend Integration (in progress - 4/6 plans complete)
+**Current focus:** Phase 3: Session Management (准备开始)
 
 ## Current Position
 
-Phase: 2 of 7 (in progress)
-Plan: 02-04 of 6 in this phase
-Last activity: 2026-02-07 — Completed connection state management with Zustand and Socket.IO event integration
+Phase: 2 of 7 completed
+UAT: Phase 1 ✅ passed, Phase 2 ✅ passed (67/67 must-haves verified)
+Last activity: 2026-02-07 — Phase 2 执行完成并验证通过,TypeScript 编译通过
 
-Progress: [████████░░░] 20% (9/45 plans)
+Progress: [████████░░░] 22% (10/45 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 9
-- Average duration: 11 min
-- Total execution time: 1.7 hours
+- Total plans completed: 10
+- Average duration: 10.5 min
+- Total execution time: 1.75 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1 | 5 | 60min | 12min |
-| 2 | 4 | 40min | 10min |
+| 2 | 5 | 50min | 10min |
 | 3 | 0 | 0 | - |
 | 4 | 0 | 0 | - |
 | 5 | 0 | 0 | - |
@@ -69,6 +69,7 @@ Recent decisions affecting current work:
 - [02-02 - API Service Layer]: Installed zod for runtime validation, created complete API service layer with Zod schemas (Session, Message, Permission, Command) and inferred TypeScript types, implemented service functions and React hooks for all backend endpoints (sessions, messages with pagination, permissions, commands), centralized API client configuration with environment variable support, used TanStack Query for caching with appropriate stale times
 - [02-03 - Socket.IO Client]: Installed socket.io-client v4.8.3, created ES6 module singleton with typed events (ServerToClientEvents, ClientToServerEvents), implemented custom React hooks (useSocket, useSocketEvent) with automatic cleanup, configured reconnection (10 attempts, exponential backoff 1s-30s, 3s timeout), auto-derive WebSocket URL from HTTP URL, created SocketProvider for app startup initialization
 - [02-04 - Connection State Management]: Installed zustand@4.5.2 for lightweight state management, created useConnectionStore with 4 states (online/offline/reconnecting/error), built initConnectionManager to map Socket.IO events to Zustand store updates (Manager-level + Socket-level listeners), created ConnectionStatusIndicator with colored dot (green/gray/yellow-red) and tooltip, integrated into TopNav (desktop) and Sidebar (mobile), created ConnectionDialog modal for connection failures with retry/dismiss options, initialized in SocketProvider, added to App.tsx as global modal
+- [02-05 - Error Handling]: Installed react-error-boundary@6.1.0 and sonner@2.0.7, created AppErrorBoundary as outermost provider to catch all React errors, built ErrorFallback UI with error details and retry button, configured Sonner toast system (bottom-right, rich colors, close button), integrated toasts into TanStack Query (QueryCache/MutationCache onError callbacks), added success/error toasts to API mutations, finalized provider nesting order (StrictMode > ErrorBoundary > Toaster > QueryProvider > SocketProvider > ThemeProvider > RouterProvider)
 
 ### Pending Todos
 
@@ -80,11 +81,43 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-07 11:48 UTC
-Stopped at: Completed 02-04-PLAN.md (Connection state management with Zustand and Socket.IO event integration)
+Last session: 2026-02-07 12:00 UTC
+Stopped at: Phase 2 执行完成并验证通过,准备进入 Phase 3
 Resume file: None
 
 ## Phase 1 总结
+
+**完成内容:**
+- ✅ 项目脚手架 (Vite + React 19.2 + TypeScript)
+- ✅ 路由配置 (React Router 7)
+- ✅ UI组件库 (Tailwind v4 + shadcn/ui)
+- ✅ 主题系统 (深色/浅色模式切换)
+- ✅ 响应式布局 (移动端抽屉 + 桌面端侧边栏)
+
+**UAT结果:**
+- 8个测试通过
+- 2个测试跳过(触摸手势相关)
+- 0个问题发现
+
+## Phase 2 总结
+
+**完成内容:**
+- ✅ TanStack Query v5 集成 (QueryClient + Provider + DevTools)
+- ✅ API 服务层 (Zod 验证 + TypeScript 类型 + 5个服务文件)
+- ✅ Socket.IO 客户端 (单例模式 + 类型化事件 + 重连机制)
+- ✅ 连接状态管理 (Zustand store + 状态指示器 + 错误模态框)
+- ✅ 全局错误处理 (ErrorBoundary + Sonner toast 通知)
+
+**验证结果:**
+- 67/67 must-haves verified (100%)
+- TypeScript 编译通过 (零错误)
+- 1376 行实质性代码,无存根
+- 无反模式检测
+
+**总提交数:** 31 commits (Phase 2)
+**总耗时:** ~50 分钟
+
+**Phase 2 已就绪进入 Phase 3**
 
 **完成内容:**
 - ✅ 项目脚手架 (Vite + React 19.2 + TypeScript)
