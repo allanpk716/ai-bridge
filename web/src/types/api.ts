@@ -24,7 +24,7 @@ export const SessionSchema = z.object({
   // Use flexible string validation to handle backend changes
   status: z.enum(["idle", "processing", "waiting", "stopped"]),
   createdAt: z.string(), // ISO datetime string
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 /**

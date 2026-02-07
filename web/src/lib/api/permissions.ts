@@ -9,13 +9,8 @@
  */
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { z } from "zod";
 import { getApiUrl, fetchWithErrorHandling } from "./client";
-import {
-  PermissionSchema,
-  type Permission,
-  type ApprovePermissionRequest,
-} from "@/types/api";
+import { PermissionSchema, type Permission, type ApprovePermissionRequest } from "@/types/api";
 
 /**
  * Approves a permission request

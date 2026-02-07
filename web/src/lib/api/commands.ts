@@ -11,18 +11,13 @@
 import { useMutation, useQuery, useQueryClient, type UseQueryResult } from "@tanstack/react-query";
 import { z } from "zod";
 import { getApiUrl, fetchWithErrorHandling } from "./client";
-import { CommandSchema, type Command, type ExecuteCommandRequest } from "@/types/api";
-
-/**
- * Zod schema for validating command list response
- */
-const CommandListSchema = z.array(CommandSchema);
+import { CommandSchema, type ExecuteCommandRequest } from "@/types/api";
 
 /**
  * Zod schema for validating grouped commands response
  * Commands are grouped by category
  */
-export const CommandsByCategorySchema = z.record(z.array(CommandSchema));
+export const CommandsByCategorySchema = z.record(z.string(), z.array(CommandSchema));
 
 /**
  * Type for grouped commands by category
