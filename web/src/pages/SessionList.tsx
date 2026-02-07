@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
+import { useNavigateToSession } from '@/router';
 
 /**
  * SessionList page
@@ -11,8 +12,14 @@ import { Plus } from 'lucide-react';
  * - "New Session" button using Button component
  * - Responsive padding
  * - Full height container
+ * - Navigation utility for clicking on session items
+ *
+ * TODO (03-02): Integrate session list data from API
+ * TODO (03-02): Render actual session list items with click handlers
  */
 export default function SessionList() {
+  const navigateToSession = useNavigateToSession();
+
   return (
     <div className="h-full flex flex-col">
       {/* Header with title and action button */}
