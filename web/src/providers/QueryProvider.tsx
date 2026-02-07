@@ -1,6 +1,12 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  QueryClient,
+  QueryClientProvider,
+  QueryCache,
+  MutationCache,
+} from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useState } from "react";
+import { toast } from "sonner";
 
 type QueryProviderProps = {
   children: React.ReactNode;
@@ -15,6 +21,7 @@ type QueryProviderProps = {
  * - 3 retries with exponential backoff for failed requests
  * - Refetch on network reconnect (not on window focus)
  * - Global error logging via QueryCache
+ * - Toast notifications for query and mutation errors
  */
 export function QueryProvider({ children }: QueryProviderProps) {
   const [queryClient] = useState(
@@ -37,20 +44,20 @@ export function QueryProvider({ children }: QueryProviderProps) {
             refetchOnReconnect: true,
           },
         },
+        queryCache: new QueryCache({
+          onError: (error) => {
+            console.error("[Query Error]", error);
+            toast.error(`Request failed: ${error.message}`);
+          },
+        }),
+        mutationCache: new MutationCache({
+          onError: (error) => {
+            console.error("[Mutation Error]", error);
+            toast.error(`Operation failed: ${error.message}`);
+          },
+        }),
       })
   );
-
-  // Add global error logging via QueryCache subscription
-  queryClient.getQueryCache().subscribe((event) => {
-    if (event.type === "query" && event.query.state.status === "error") {
-      console.error(
-        "[Query Error]",
-        event.query.state.error,
-        "Query Key:",
-        event.query.queryKey
-      );
-    }
-  });
 
   return (
     <QueryClientProvider client={queryClient}>
