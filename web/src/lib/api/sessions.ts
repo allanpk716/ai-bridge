@@ -162,3 +162,49 @@ export function useCreateSession() {
     },
   });
 }
+
+/**
+ * Deletes a session by ID
+ *
+ * @param sessionId - The session ID to delete
+ * @returns Promise resolving to void on success
+ * @throws ApiError if request fails
+ */
+export async function deleteSession(sessionId: string): Promise<void> {
+  const url = getApiUrl(`sessions/${sessionId}`);
+  await fetchWithErrorHandling(url, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+}
+
+/**
+ * React hook for deleting a session
+ *
+ * @returns Mutation object with trigger function and state
+ *
+ * @example
+ * const deleteMutation = useDeleteSession();
+ * const handleDelete = () => {
+ *   deleteMutation.mutate("abc123");
+ * };
+ */
+export function useDeleteSession() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteSession,
+    onSuccess: () => {
+      // Invalidate sessions query to refetch list
+      queryClient.invalidateQueries({ queryKey: ["sessions"] });
+      // Show success toast
+      toast.success("Session deleted successfully");
+    },
+    onError: (error) => {
+      // Show error toast
+      toast.error(`Failed to delete session: ${error.message}`);
+    },
+  });
+}
