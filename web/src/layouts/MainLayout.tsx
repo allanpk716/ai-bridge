@@ -61,16 +61,14 @@ export default function MainLayout() {
       {/* Mobile Drawer (overlay, hidden on desktop) */}
       <MobileDrawer isOpen={isDrawerOpen} onClose={handleDrawerClose} />
 
-      {/* Main content wrapper with edge swipe detection */}
-      <div className="flex h-screen flex-col">
-        <TopNav onMenuClick={handleMenuClick} />
+      {/* TopNav (fixed at top) */}
+      <TopNav onMenuClick={handleMenuClick} />
 
-        {/* Content area with sidebar offset */}
-        <div {...edgeSwipeHandlers} className="flex flex-1 md:pl-80">
-          <main className="flex-1 overflow-auto p-4 md:p-6 pt-20">
-            <Outlet />
-          </main>
-        </div>
+      {/* Main content area (below TopNav, with sidebar offset) */}
+      <div {...edgeSwipeHandlers} className="h-screen pt-16 md:pl-80">
+        <main className="h-full overflow-auto p-4 md:p-6">
+          <Outlet />
+        </main>
       </div>
     </>
   );
