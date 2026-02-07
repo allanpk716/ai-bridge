@@ -1,10 +1,11 @@
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, Loader2 } from "lucide-react";
-import { useSessions } from "@/lib/api/sessions";
+import { useSessions, useDeleteSession } from "@/lib/api/sessions";
 import { SessionListItem } from "@/components/session/SessionListItem";
 import { SessionListFilters } from "@/components/session/SessionListFilters";
 import { CreateSessionDialog } from "@/components/session/CreateSessionDialog";
+import { DeleteSessionDialog } from "@/components/session/DeleteSessionDialog";
 import { useNavigateToSession } from "@/router";
 import type { Session } from "@/types/api";
 
@@ -31,9 +32,14 @@ export default function SessionList() {
   } = useSessions();
 
   const navigateToSession = useNavigateToSession();
+  const deleteSession = useDeleteSession();
 
   // Dialog state
   const [dialogOpen, setDialogOpen] = useState(false);
+
+  // Delete dialog state
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [sessionToDelete, setSessionToDelete] = useState<Session | null>(null);
 
   // Filter and sort state
   const [searchQuery, setSearchQuery] = useState("");
@@ -90,6 +96,19 @@ export default function SessionList() {
 
   const handleSessionClick = (sessionId: string) => {
     navigateToSession(sessionId);
+  };
+
+  const handleDeleteClick = (session: Session) => {
+    setSessionToDelete(session);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (sessionToDelete) {
+      deleteSession.mutate(sessionToDelete.id);
+      setDeleteDialogOpen(false);
+      setSessionToDelete(null);
+    }
   };
 
   return (
@@ -166,6 +185,11 @@ export default function SessionList() {
                 key={session.id}
                 session={session}
                 onClick={() => handleSessionClick(session.id)}
+                onDelete={() => handleDeleteClick(session)}
+                isDeleting={
+                  sessionToDelete?.id === session.id &&
+                  deleteSession.isPending
+                }
               />
             ))}
           </div>
@@ -174,6 +198,17 @@ export default function SessionList() {
 
       {/* Create Session Dialog */}
       <CreateSessionDialog open={dialogOpen} onOpenChange={setDialogOpen} />
+
+      {/* Delete Session Dialog */}
+      {sessionToDelete && (
+        <DeleteSessionDialog
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+          session={sessionToDelete}
+          isDeleting={deleteSession.isPending}
+          onConfirm={handleDeleteConfirm}
+        />
+      )}
     </div>
   );
 }
