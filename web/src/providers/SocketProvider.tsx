@@ -13,6 +13,7 @@
 import { useEffect } from 'react';
 import type { PropsWithChildren } from 'react';
 import { initSocket, connectSocket, disconnectSocket } from '@/lib/socket/socket';
+import { initConnectionManager } from '@/lib/socket/connectionManager';
 
 /**
  * Socket.IO Provider component
@@ -36,6 +37,10 @@ export function SocketProvider({ children }: PropsWithChildren) {
   useEffect(() => {
     // Initialize socket on mount (uses default API_BASE_URL from config)
     const socket = initSocket();
+
+    // Initialize connection status tracking
+    // This attaches Socket.IO event listeners to Zustand store
+    initConnectionManager();
 
     // Auto-connect on app startup
     connectSocket();
