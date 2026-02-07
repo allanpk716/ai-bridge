@@ -1,6 +1,7 @@
-import { useParams, useNavigate } from 'react-router';
+import { useParams } from 'react-router';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
+import { useNavigateToSessionList } from '@/router';
 
 /**
  * SessionDetail page
@@ -13,14 +14,13 @@ import { ArrowLeft } from 'lucide-react';
  * - Placeholder message area
  * - Full height container
  * - Responsive layout
+ *
+ * TODO (03-06): Integrate session data fetching from API
+ * TODO (03-06): Display session metadata and messages
  */
 export default function SessionDetail() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-
-  const handleBack = () => {
-    navigate('/');
-  };
+  const navigateToSessionList = useNavigateToSessionList();
 
   return (
     <div className="h-full flex flex-col">
@@ -30,7 +30,7 @@ export default function SessionDetail() {
         <Button
           variant="ghost"
           size="icon"
-          onClick={handleBack}
+          onClick={navigateToSessionList}
           className="md:hidden"
           aria-label="Go back"
         >
