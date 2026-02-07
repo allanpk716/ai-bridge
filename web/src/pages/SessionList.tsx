@@ -4,6 +4,7 @@ import { Plus, Loader2 } from "lucide-react";
 import { useSessions } from "@/lib/api/sessions";
 import { SessionListItem } from "@/components/session/SessionListItem";
 import { SessionListFilters } from "@/components/session/SessionListFilters";
+import { CreateSessionDialog } from "@/components/session/CreateSessionDialog";
 import { useNavigateToSession } from "@/router";
 import type { Session } from "@/types/api";
 
@@ -30,6 +31,9 @@ export default function SessionList() {
   } = useSessions();
 
   const navigateToSession = useNavigateToSession();
+
+  // Dialog state
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   // Filter and sort state
   const [searchQuery, setSearchQuery] = useState("");
@@ -93,7 +97,7 @@ export default function SessionList() {
       {/* Header with title and action button */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold">Sessions</h1>
-        <Button>
+        <Button onClick={() => setDialogOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
           New Session
         </Button>
@@ -167,6 +171,9 @@ export default function SessionList() {
           </div>
         )}
       </div>
+
+      {/* Create Session Dialog */}
+      <CreateSessionDialog open={dialogOpen} onOpenChange={setDialogOpen} />
     </div>
   );
 }

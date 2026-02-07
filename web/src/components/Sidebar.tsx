@@ -1,7 +1,10 @@
 import type { ReactNode } from 'react';
-import { MessageSquare } from 'lucide-react';
+import { useState } from 'react';
+import { MessageSquare, Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { ThemeToggle } from './ThemeToggle';
 import { ConnectionStatusIndicator } from './connection/StatusIndicator';
+import { CreateSessionDialog } from '@/components/session/CreateSessionDialog';
 
 interface SidebarProps {
   children?: ReactNode;
@@ -23,6 +26,8 @@ interface SidebarProps {
  * - Works in both desktop fixed and mobile drawer contexts
  */
 export function Sidebar({ children }: SidebarProps) {
+  const [dialogOpen, setDialogOpen] = useState(false);
+
   return (
     <div className="w-full md:w-80 flex flex-col h-full bg-background border-r">
       {/* Header */}
@@ -39,13 +44,23 @@ export function Sidebar({ children }: SidebarProps) {
         {children}
       </div>
 
-      {/* Footer with Theme Toggle and Connection Status */}
-      <div className="p-4 border-t">
+      {/* Footer with Theme Toggle, Connection Status, and New Session */}
+      <div className="p-4 border-t space-y-3">
+        <Button
+          className="w-full justify-start"
+          onClick={() => setDialogOpen(true)}
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          New Session
+        </Button>
         <div className="flex items-center justify-between">
           <ConnectionStatusIndicator />
           <ThemeToggle />
         </div>
       </div>
+
+      {/* Create Session Dialog */}
+      <CreateSessionDialog open={dialogOpen} onOpenChange={setDialogOpen} />
     </div>
   );
 }
