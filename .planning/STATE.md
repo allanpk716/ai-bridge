@@ -6,37 +6,37 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 
 **Core value:** 功能完整性与性能表现双重验证 - 前端必须验证 AI-Bridge 后端所有 API 端点正常工作,同时在 10000+ 消息场景下验证增量同步性能
 
-**Current focus:** Phase 2: Backend Integration (in progress - 3/6 plans complete)
+**Current focus:** Phase 2: Backend Integration (in progress - 5/6 plans complete)
 
 ## Current Position
 
 Phase: 2 of 7 (in progress)
-Plan: 02-02 of 6 in this phase
-Last activity: 2026-02-07 — Completed API service layer with Zod validation and TanStack Query hooks
+Plan: 02-05 of 6 in this phase
+Last activity: 2026-02-07 — Completed global error handling with ErrorBoundary and Sonner toasts
 
-Progress: [███████░░░░] 18% (8/45 plans)
+Progress: [████████░░░] 20% (9/45 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 8
-- Average duration: 12 min
-- Total execution time: 1.6 hours
+- Total plans completed: 9
+- Average duration: 11 min
+- Total execution time: 1.7 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1 | 5 | 60min | 12min |
-| 2 | 3 | 35min | 12min |
+| 2 | 4 | 40min | 10min |
 | 3 | 0 | 0 | - |
 | 4 | 0 | 0 | - |
 | 5 | 0 | 0 | - |
 | 6 | 0 | 0 | - |
 
 **Recent Trend:**
-- Last 5 plans: 01-04 (14min), 01-05 (18min), 02-01 (8min), 02-03 (12min), 02-02 (25min)
-- Trend: Stable velocity, Phase 2 progressing
+- Last 5 plans: 01-05 (18min), 02-01 (8min), 02-03 (12min), 02-02 (25min), 02-05 (5min)
+- Trend: Stable velocity, Phase 2 progressing efficiently
 
 *Updated after each plan completion*
 
@@ -68,6 +68,7 @@ Recent decisions affecting current work:
 - [02-01 - TanStack Query]: Installed @tanstack/react-query@5.90.20 with devtools, created QueryProvider with production-ready defaults (5min staleTime, 30min gcTime, 3x retry), integrated into app with proper provider nesting (StrictMode > QueryProvider > ThemeProvider > RouterProvider), added global error logging via QueryCache subscription
 - [02-02 - API Service Layer]: Installed zod for runtime validation, created complete API service layer with Zod schemas (Session, Message, Permission, Command) and inferred TypeScript types, implemented service functions and React hooks for all backend endpoints (sessions, messages with pagination, permissions, commands), centralized API client configuration with environment variable support, used TanStack Query for caching with appropriate stale times
 - [02-03 - Socket.IO Client]: Installed socket.io-client v4.8.3, created ES6 module singleton with typed events (ServerToClientEvents, ClientToServerEvents), implemented custom React hooks (useSocket, useSocketEvent) with automatic cleanup, configured reconnection (10 attempts, exponential backoff 1s-30s, 3s timeout), auto-derive WebSocket URL from HTTP URL, created SocketProvider for app startup initialization
+- [02-05 - Error Handling]: Installed react-error-boundary v6.1.0 and sonner v2.0.7, created AppErrorBoundary with fallback UI (error message, stack trace, retry button), integrated Toaster component globally, added QueryCache/MutationCache error callbacks for toast notifications, added success/error toasts to API mutations, established provider nesting order (StrictMode > AppErrorBoundary > Toaster > QueryProvider > SocketProvider > ThemeProvider > RouterProvider)
 
 ### Pending Todos
 
@@ -79,8 +80,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-07 12:00 UTC
-Stopped at: Completed 02-02-PLAN.md (API service layer with Zod validation)
+Last session: 2026-02-07 11:49 UTC
+Stopped at: Completed 02-05-PLAN.md (Global error handling)
 Resume file: None
 
 ## Phase 1 总结
