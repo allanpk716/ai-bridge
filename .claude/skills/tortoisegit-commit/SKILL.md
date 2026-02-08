@@ -26,7 +26,14 @@ The skill will:
 
 **前提条件:**
 - Pageant 必须正在运行并加载了 PPK 密钥
-- 第一次运行时会自动配置 git 使用 plink
+- TortoiseGit 必须已安装 (包含 TortoisePlink.exe)
+- 第一次运行时会自动检测并配置 git 使用 TortoisePlink
+
+**如果推送失败，请检查:**
+1. Pageant 是否运行: `tasklist | grep -i pageant`
+2. PPK 密钥是否已加载到 Pageant
+3. Git SSH 配置: `git config --global core.sshcommand`
+详见 `TROUBLESHOOTING.md`
 
 **With custom commit message:**
 
@@ -50,7 +57,8 @@ On Windows, standard git commands may fail with "permission denied (publickey)" 
 - Pageant (PuTTY authentication agent) holds the PPK key but git can't access it
 
 This skill solves these problems by:
-- Configuring git to use plink as SSH client (`git config --global core.sshcommand "plink"`)
+- Auto-detecting TortoisePlink.exe installation path
+- Configuring git with full path: `git config --global core.sshcommand "C:\Program Files\TortoiseGit\bin\TortoisePlink.exe"`
 - Reading PPK keys from Pageant
 - Using command-line git instead of TortoiseGitProc GUI (faster, no dialogs)
 - Running in a subagent to preserve main conversation context
@@ -89,10 +97,15 @@ This skill uses the Task tool to launch a Bash agent that executes all Git opera
 - **Same authentication**: Uses plink + PPK just like TortoiseGitProc
 
 **Environment Detection:**
-The skill automatically checks:
-- User home directory: `%USERPROFILE%` or `~`
-- Pageant status: Checks if pageant.exe is running
-- Git configuration: Ensures `core.sshcommand` is set to "plink"
+The skill automatically detects and configures:
+- **TortoisePlink.exe location**: Checks multiple common installation paths
+  - `C:\Program Files\TortoiseGit\bin\TortoisePlink.exe`
+  - `C:\Program Files (x86)\TortoiseGit\bin\TortoisePlink.exe`
+  - `C:\Program Files\PuTTY\plink.exe`
+  - Uses `where` command as fallback
+- **Pageant status**: Checks if pageant.exe process is running using `tasklist | grep -i pageant`
+- **Git configuration**: Automatically configures `core.sshcommand` with the detected path
+- **Path format conversion**: Converts Git Bash paths to Windows format with proper escaping
 </workflow>
 
 <one_time_setup>
@@ -100,41 +113,69 @@ The skill automatically checks:
 
 为了实现完全无人工干预的 Git 操作,建议执行以下一次性配置:
 
-**步骤 1: 配置 git 使用 plink**
+**步骤 1: 找到 TortoisePlink.exe 的完整路径**
+
+TortoiseGit 通常自带 TortoisePlink.exe，常见位置:
 ```bash
-git config --global core.sshcommand "plink"
-```
-这会让所有 git 命令(包括 git push)自动使用 PuTTY 的 plink,从而可以使用 PPK 密钥。
+# 检查 64 位系统
+ls "C:\Program Files\TortoiseGit\bin\TortoisePlink.exe"
 
-**步骤 2: 配置 Pageant 开机自动启动并加载 PPK**
-
-创建一个批处理文件 `start-pageant.bat`:
-```batch
-@echo off
-start "Pageant" "C:\Program Files\PuTTY\pageant.exe" "%USERPROFILE%\.ssh\your_key.ppk"
+# 或 32 位系统
+ls "C:\Program Files (x86)\TortoiseGit\bin\TortoisePlink.exe"
 ```
 
-将此批处理文件的快捷方式放到启动文件夹:
-`%USERPROFILE%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\`
+如果上述都不存在，可能需要单独安装 PuTTY。
+
+**步骤 2: 配置 git 使用 TortoisePlink**
+
+⚠️ **重要**: 路径必须使用 Windows 格式并正确转义!
+
+```bash
+# 64 位系统 (推荐)
+git config --global core.sshcommand "\"C:\\Program Files\\TortoiseGit\\bin\\TortoisePlink.exe\""
+
+# 32 位系统
+git config --global core.sshcommand "\"C:\\Program Files (x86)\\TortoiseGit\\bin\\TortoisePlink.exe\""
+
+# 如果使用单独安装的 PuTTY
+git config --global core.sshcommand "\"C:\\Program Files\\PuTTY\\plink.exe\""
+```
 
 **步骤 3: 验证配置**
 ```bash
 # 检查 git 配置
 git config --global core.sshcommand
-# 应该显示: plink
+# 应该显示完整路径，例如: "C:\Program Files\TortoiseGit\bin\TortoisePlink.exe"
 
-# 检查 Pageant 是否运行
-tasklist | find /I "pageant.exe"
+# 检查 Pageant 是否运行 (使用 grep 命令)
+tasklist | grep -i pageant
 # 应该显示 pageant.exe 进程
 ```
+
+**步骤 4: 配置 Pageant 开机自动启动并加载 PPK**
+
+创建一个批处理文件 `start-pageant.bat`:
+```batch
+@echo off
+REM 使用 TortoiseGit 的 Pageant
+start "Pageant" "C:\Program Files\TortoiseGit\bin\pageant.exe" "%USERPROFILE%\.ssh\your_key.ppk"
+
+REM 或者使用 PuTTY 的 Pageant
+REM start "Pageant" "C:\Program Files\PuTTY\pageant.exe" "%USERPROFILE%\.ssh\your_key.ppk"
+```
+
+将此批处理文件的快捷方式放到启动文件夹:
+`%USERPROFILE%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\`
 
 **完成!**
 现在所有 Git 操作都会:
 - 自动使用 PPK 密钥认证(无需手动输入密码)
 - 不会弹出任何对话框
-- 完全在后台运行
+- 完全在后台使用命令行 git 运行
+- 无需手动干预
 
-这个技能仍会使用 TortoiseGitProc 来保持一致性,但现在它将以完全静默模式运行。
+**常见问题排查:**
+详见 `TROUBLESHOOTING.md` 文件。
 </one_time_setup>
 
 <agent_configuration>
@@ -146,50 +187,102 @@ tasklist | find /I "pageant.exe"
 <prompt>
 Execute the following Git workflow using command-line git with PPK authentication:
 
-**Environment Setup for Subagent:**
+**CRITICAL: Environment Detection and Configuration**
 
-1. Detect user home directory:
-   ```bash
-   echo %USERPROFILE%
-   ```
+First, detect and configure the SSH client properly:
 
-2. Check if Pageant is running: `tasklist | find /I "pageant.exe"`
-   - If not running, warn user: "⚠ Pageant 未运行，推送可能失败。请先启动 Pageant 并加载 PPK 密钥。"
+```bash
+# Step 1: Check if Pageant is running (use grep for Git Bash compatibility)
+tasklist | grep -i pageant
+if [ $? -ne 0 ]; then
+  echo "⚠ WARNING: Pageant is not running. Push may fail."
+  echo "Please start Pageant and load your PPK key first."
+fi
 
-3. Ensure git is configured to use plink for SSH:
-   ```bash
-   git config --global core.sshcommand "plink"
-   ```
-   - This enables git commands to use PPK keys from Pageant
-   - Only needs to be done once (first time)
+# Step 2: Find TortoisePlink.exe (check multiple possible locations)
+PLINK_PATH=""
+
+# Try common installation paths
+if [ -f "/c/Program Files/TortoiseGit/bin/TortoisePlink.exe" ]; then
+  PLINK_PATH="C:\\Program Files\\TortoiseGit\\bin\\TortoisePlink.exe"
+elif [ -f "/c/Program Files (x86)/TortoiseGit/bin/TortoisePlink.exe" ]; then
+  PLINK_PATH="C:\\Program Files (x86)\\TortoiseGit\\bin\\TortoisePlink.exe"
+elif [ -f "/c/Program Files/PuTTY/plink.exe" ]; then
+  PLINK_PATH="C:\\Program Files\\PuTTY\\plink.exe"
+elif [ -f "/c/Program Files (x86)/PuTTY/plink.exe" ]; then
+  PLINK_PATH="C:\\Program Files (x86)\\PuTTY\\plink.exe"
+else
+  # Try using 'where' command
+  WHERE_RESULT=$(where TortoisePlink.exe 2>/dev/null | head -1)
+  if [ -n "$WHERE_RESULT" ]; then
+    # Convert Git Bash path to Windows path
+    PLINK_PATH=$(echo "$WHERE_RESULT" | sed 's|/c/|C:\\|g' | sed 's|/|\\|g')
+  fi
+fi
+
+# Step 3: Configure git to use the detected plink
+if [ -n "$PLINK_PATH" ]; then
+  echo "Found SSH client: $PLINK_PATH"
+  git config --global core.sshcommand "\"$PLINK_PATH\""
+else
+  echo "❌ ERROR: Cannot find TortoisePlink.exe or plink.exe"
+  echo "Please ensure TortoiseGit or PuTTY is installed."
+  echo "Falling back to default SSH client (may fail with PPK keys)..."
+  git config --global --unset core.sshcommand
+fi
+
+# Verify configuration
+echo "Current SSH configuration: $(git config --global core.sshcommand)"
+```
 
 **Git Workflow:**
 
-1. Check current repository status with `git status`
+After environment setup, proceed with Git operations:
+
+1. Check current repository status: `git status`
 2. Get current branch name: `git branch --show-current` (store in variable)
-3. Show brief diff with `git diff --stat`
+3. Show brief diff: `git diff --stat`
 4. Generate a descriptive commit message based on changes
 5. Stage all changes: `git add -A`
-6. Commit using command-line git: `git commit -m "[generated message]"`
-7. Push using command-line git: `git push`
-   - This will use plink (configured in step 3) which reads PPK keys from Pageant
-   - No GUI will appear
-8. Verify with `git log -1 --oneline` and `git status`
+6. Commit: `git commit -m "[generated message]"`
+7. Push: `git push`
+8. Verify: `git log -1 --oneline` && `git status`
 
-IMPORTANT NOTES:
-- ALWAYS use command-line `git commit` and `git push` instead of TortoiseGitProc
-- The `core.sshcommand "plink"` configuration enables git to use PPK keys
-- Pageant must be running with the PPK key loaded for authentication
-- Command-line git is faster and doesn't show any GUI
-- TortoiseGitProc is only used as fallback if command-line git is not available
+**CRITICAL IMPLEMENTATION NOTES:**
+
+1. **Path Format**:
+   - Windows paths MUST use backslashes: `C:\\Program Files\\...`
+   - Git Bash paths like `/c/Program Files/` will NOT work
+   - Paths with spaces MUST be quoted and escaped
+
+2. **Command Compatibility**:
+   - Use `grep -i pageant` NOT `find /I "pageant.exe"` (Git Bash compatibility)
+   - Use `ls` NOT `dir` (cross-platform)
+
+3. **SSH Client Priority**:
+   - TortoisePlink.exe (from TortoiseGit) - PREFERRED
+   - plink.exe (from PuTTY) - fallback
+   - Default SSH client - may not work with PPK keys
+
+4. **Troubleshooting**:
+   - If push fails with "cannot spawn plink", path format is wrong
+   - If push fails with "permission denied", Pageant not running or PPK not loaded
+   - If push fails with "Could not read from remote", SSH client not found
+
+5. **NEVER use TortoiseGitProc.exe**:
+   - Even with /silent flag, it may show GUI dialogs
+   - Command-line git is faster and more reliable
+   - Use `git commit` and `git push` directly
 
 Return ONLY a concise summary in this format:
 ✓ 操作结果 (成功/失败)
 📝 提交信息: [实际使用的提交信息]
 📁 文件变更: [简短描述]
 🔗 推送状态: [成功/失败]
+🔧 SSH 配置: [使用的 SSH 客户端路径]
 
-DO NOT return full git output. Just summarize the results in Chinese.
+If any errors occur during environment setup, include them in the summary.
+DO NOT return full git command output. Just summarize the results in Chinese.
 </prompt>
 <run_in_background>true</run_in_background>
 </agent_configuration>
@@ -378,17 +471,26 @@ Solution:
 - 确保有推送权限
 - 检查分支是否受保护
 
-**Error: "plink not found"**
+**Error: "plink not found" or "cannot spawn plink"**
 Solution:
-- 安装 PuTTY (包含 plink)
-- 确保 PuTTY 安装目录在 PATH 中
-- 或使用完整路径配置: `git config --global core.sshcommand "C:\Program Files\PuTTY\plink.exe"`
+- 检查 TortoisePlink.exe 是否存在: `ls "C:\Program Files\TortoiseGit\bin\TortoisePlink.exe"`
+- 使用完整路径配置: `git config --global core.sshcommand "\"C:\\Program Files\\TortoiseGit\\bin\\TortoisePlink.exe\""`
+- 注意路径格式: 必须使用 Windows 格式 (C:\\Program Files\\...) 并转义引号
+- 详见 `TROUBLESHOOTING.md` 的"问题 1: plink.exe 不在系统 PATH 中"
 
 **Error: Pageant 未运行**
 Solution:
 - 启动 Pageant: 双击 Pageant.exe 或使用启动脚本
 - 加载 PPK 密钥: `pageant.exe "path\to\key.ppk"`
-- 验证 Pageant 运行: `tasklist | find /I "pageant.exe"`
+- 验证 Pageant 运行: `tasklist | grep -i pageant` (注意使用 grep 不是 find)
+
+**Error: "C:/Program Files/...: line 1: C:/Program: No such file or directory"**
+Solution:
+- 路径格式错误，Git Bash 路径不被 Windows 程序识别
+- 使用正确的 Windows 路径格式: `C:\\Program Files\\...` (双反斜杠)
+- 必须用引号包裹并转义: `"\"C:\\Program Files\\...\""`
+- 详见 `TROUBLESHOOTING.md` 的"问题 2: 路径格式不兼容"
+
 </error_handling>
 
 <security_checklist>
