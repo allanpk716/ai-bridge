@@ -1,4 +1,5 @@
 ---
+name: ai-bridge-debug
 category: debug
 description: AI-Bridge 项目专用调试技能 - 支持后端 Go 日志分析和前端浏览器调试
 examples:
@@ -7,6 +8,38 @@ examples:
   - /ai-bridge-debug 会话创建失败
   - /ai-bridge-debug 前端页面显示异常
 ---
+
+<objective>
+Provide comprehensive debugging support for AI-Bridge project by analyzing backend Go logs and testing frontend with real browser automation. This skill uses parallel subagents to diagnose issues across the full stack.
+</objective>
+
+<quick_start>
+**Basic usage:**
+```
+/ai-bridge-debug <问题描述>
+```
+
+**Common debugging scenarios:**
+- Frontend cannot connect to backend WebSocket
+- API returns 500 errors
+- Session creation fails
+- Frontend pages not displaying data
+
+The skill will automatically:
+1. Analyze backend logs in `./logs/` directory
+2. Test frontend using dev-browser at `http://localhost:3000`
+3. Check API endpoints at `http://localhost:8080`
+4. Provide comprehensive diagnostic report
+</quick_start>
+
+<success_criteria>
+Debugging session is successful when:
+- Root cause of the issue is identified
+- Specific file locations and line numbers are provided
+- Actionable fix suggestions are given
+- Verification steps using dev-browser are included
+- Backend log errors are analyzed and explained
+</success_criteria>
 
 # AI-Bridge 项目调试技能
 
