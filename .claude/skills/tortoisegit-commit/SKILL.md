@@ -1,10 +1,10 @@
 ---
 name: tortoisegit-commit
-description: Windows Git commit and push using TortoiseGit with PPK authentication. Automatically analyzes changes, generates commit messages, and executes operations in a subagent to preserve context.
+description: Windows Git commit and push using command-line git with plink + PPK authentication. Automatically analyzes changes, generates commit messages, and executes operations in a subagent to preserve context. No GUI dialogs.
 ---
 
 <objective>
-Automate Git commit and push operations on Windows using TortoiseGit command-line tools. This skill analyzes code changes, generates descriptive commit messages, and executes all Git operations in a subagent context to preserve the main conversation's context window. It solves SSH key authentication problems by leveraging TortoiseGit's PPK key configuration.
+Automate Git commit and push operations on Windows using command-line git with plink SSH client. This skill analyzes code changes, generates descriptive commit messages, and executes all Git operations in a subagent context to preserve the main conversation's context window. It solves SSH key authentication problems by configuring git to use plink and reading PPK keys from Pageant. All operations are performed via command-line git without any GUI dialogs.
 </objective>
 
 <quick_start>
@@ -16,12 +16,17 @@ Use tortoisegit-commit to commit and push my changes
 ```
 
 The skill will:
-1. Analyze your recent changes using git diff
-2. Generate a descriptive commit message based on the changes
-3. Stage all modified files
-4. Commit using TortoiseGitProc.exe
-5. Push to remote repository
-6. Return only the summary result
+1. Ensure git is configured to use plink for SSH authentication
+2. Analyze your recent changes using git diff
+3. Generate a descriptive commit message based on the changes
+4. Stage all modified files
+5. Commit using command-line git
+6. Push to remote repository using command-line git (no GUI)
+7. Return only the summary result
+
+**前提条件:**
+- Pageant 必须正在运行并加载了 PPK 密钥
+- 第一次运行时会自动配置 git 使用 plink
 
 **With custom commit message:**
 
@@ -41,13 +46,13 @@ Use tortoisegit-commit to commit changes in src/ and tests/
 
 On Windows, standard git commands may fail with "permission denied (publickey)" errors when:
 - SSH keys are not configured in standard ~/.ssh/ location
-- Git is using a different SSH client than TortoiseGit
+- Git is using OpenSSH instead of PuTTY's plink
 - Pageant (PuTTY authentication agent) holds the PPK key but git can't access it
 
 This skill solves these problems by:
-- Using TortoiseGitProc.exe with PuTTY's plink as SSH client
-- Reading PPK keys from PuTTY's configuration
-- Integrating with Pageant for authentication
+- Configuring git to use plink as SSH client (`git config --global core.sshcommand "plink"`)
+- Reading PPK keys from Pageant
+- Using command-line git instead of TortoiseGitProc GUI (faster, no dialogs)
 - Running in a subagent to preserve main conversation context
 
 **Subagent Benefits:**
@@ -63,12 +68,13 @@ This skill solves these problems by:
 This skill uses the Task tool to launch a Bash agent that executes all Git operations. The workflow is:
 
 1. **Launch Subagent**: Start a bash agent with run_in_background=true
-2. **Analyze Changes**: Run git status and git diff to understand what changed
-3. **Generate Message**: Create a commit message based on the changes
-4. **Stage Files**: Run git add to stage all modified files
-5. **Commit**: Use TortoiseGitProc.exe to create the commit
-6. **Push**: Use TortoiseGitProc.exe to push to remote
-7. **Report**: Return a concise summary of what was done
+2. **Configure SSH**: Set `git config --global core.sshcommand "plink"` (one-time)
+3. **Analyze Changes**: Run git status and git diff to understand what changed
+4. **Generate Message**: Create a commit message based on the changes
+5. **Stage Files**: Run git add to stage all modified files
+6. **Commit**: Use `git commit` command (command-line, no GUI)
+7. **Push**: Use `git push` command (uses plink + PPK from Pageant, no GUI)
+8. **Report**: Return a concise summary of what was done
 
 **Why subagent?**
 - Keeps main conversation context small
@@ -76,13 +82,17 @@ This skill uses the Task tool to launch a Bash agent that executes all Git opera
 - Long-running operations don't block the conversation
 - Errors are handled and summarized cleanly
 
-**Environment Detection:**
-The skill automatically detects:
-- User home directory: `%USERPROFILE%` or `~`
-- TortoiseGit installation: checks `C:\Program Files\TortoiseGit\bin\` and `%ProgramFiles%\TortoiseGit\bin\`
-- PuTTY installation: checks `C:\Program Files\PuTTY\` and `%ProgramFiles%\PuTTY\`
+**Why command-line git instead of TortoiseGitProc?**
+- **Faster**: No GUI overhead
+- **No dialogs**: Completely silent operation
+- **Better control**: Full access to git options
+- **Same authentication**: Uses plink + PPK just like TortoiseGitProc
 
-**If not found in PATH**, skill will use common installation paths automatically.
+**Environment Detection:**
+The skill automatically checks:
+- User home directory: `%USERPROFILE%` or `~`
+- Pageant status: Checks if pageant.exe is running
+- Git configuration: Ensures `core.sshcommand` is set to "plink"
 </workflow>
 
 <one_time_setup>
@@ -134,7 +144,7 @@ tasklist | find /I "pageant.exe"
 <subagent_type>Bash</subagent_type>
 <description>Execute Git commit and push operations</description>
 <prompt>
-Execute the following Git workflow CRITICALLY IMPORTANT - Use TortoiseGitProc for ALL operations requiring authentication:
+Execute the following Git workflow using command-line git with PPK authentication:
 
 **Environment Setup for Subagent:**
 
@@ -143,52 +153,35 @@ Execute the following Git workflow CRITICALLY IMPORTANT - Use TortoiseGitProc fo
    echo %USERPROFILE%
    ```
 
-2. Detect TortoiseGit installation:
-   ```bash
-   where TortoiseGitProc.exe
-   # or use full path if not in PATH:
-   "%ProgramFiles%\TortoiseGit\bin\TortoiseGitProc.exe"
-   ```
+2. Check if Pageant is running: `tasklist | find /I "pageant.exe"`
+   - If not running, warn user: "⚠ Pageant 未运行，推送可能失败。请先启动 Pageant 并加载 PPK 密钥。"
 
-3. Use detected paths in commands instead of hardcoded ones.
+3. Ensure git is configured to use plink for SSH:
+   ```bash
+   git config --global core.sshcommand "plink"
+   ```
+   - This enables git commands to use PPK keys from Pageant
+   - Only needs to be done once (first time)
 
 **Git Workflow:**
-
-0. Check if Pageant is running: `tasklist | find /I "pageant.exe"`
-   - If not running, warn user but continue (TortoiseGitProc may prompt for key)
 
 1. Check current repository status with `git status`
 2. Get current branch name: `git branch --show-current` (store in variable)
 3. Show brief diff with `git diff --stat`
 4. Generate a descriptive commit message based on changes
 5. Stage all changes: `git add -A`
-6. Commit using TortoiseGitProc: `TortoiseGitProc.exe /command:commit /path:"." /logmsg:"[generated message]" /closeonend:2`
-7. CRITICAL: Push using ONLY TortoiseGitProc with FULL parameters for automation:
-   `TortoiseGitProc.exe /command:push /path:"." /remote:origin /branch:[CURRENT_BRANCH] /closeonend:2 /silent`
-   - Replace [CURRENT_BRANCH] with actual branch name from step 2
-   - The `/silent` flag prevents ALL dialogs from appearing
-   - `/remote:origin` prevents remote repository selection dialog
-   - `/branch:[NAME]` prevents branch selection dialog
-8. Wait 3 seconds for TortoiseGitProc to complete
+6. Commit using command-line git: `git commit -m "[generated message]"`
+7. Push using command-line git: `git push`
+   - This will use plink (configured in step 3) which reads PPK keys from Pageant
+   - No GUI will appear
 8. Verify with `git log -1 --oneline` and `git status`
 
 IMPORTANT NOTES:
-- NEVER use `git push` command - it will fail with SSH key errors unless configured
-- ALWAYS use `TortoiseGitProc.exe /command:push` with FULL parameters for pushing
-- TortoiseGitProc uses PPK keys from Pageant which is why this skill exists
-- CRITICAL PARAMETERS for automation:
-  * `/silent` - Suppresses ALL dialog boxes (required for automation)
-  * `/remote:origin` - Prevents remote repository selection dialog
-  * `/branch:NAME` - Prevents branch selection dialog (use current branch)
-  * `/closeonend:2` - Auto-closes TortoiseGitProc window
-- If TortoiseGitProc is not in PATH, use full path: "%ProgramFiles%\TortoiseGit\bin\TortoiseGitProc.exe"
-
-ALTERNATIVE: One-time setup to enable `git push` with PPK keys:
-```bash
-git config --global core.sshcommand "plink"
-```
-After this, standard `git push` will also work with PPK keys (if Pageant is running).
-But this skill still prefers TortoiseGitProc for consistency.
+- ALWAYS use command-line `git commit` and `git push` instead of TortoiseGitProc
+- The `core.sshcommand "plink"` configuration enables git to use PPK keys
+- Pageant must be running with the PPK key loaded for authentication
+- Command-line git is faster and doesn't show any GUI
+- TortoiseGitProc is only used as fallback if command-line git is not available
 
 Return ONLY a concise summary in this format:
 ✓ 操作结果 (成功/失败)
@@ -266,37 +259,52 @@ git diff --stat
 </commit_message_generation>
 
 <tortoisegit_commands>
-**TortoiseGitProc.exe command reference:**
+**Command reference for Git operations:**
 
-**Commit:**
+**推荐: 命令行 git (无 GUI，使用 plink + PPK)**
+
+Commit:
 ```bash
-TortoiseGitProc.exe /command:commit /path:"." /logmsg:"Message" /closeonend:1
+git commit -m "Your commit message"
 ```
 
-**Commit and push together:**
+Push:
 ```bash
-TortoiseGitProc.exe /command:commit /path:"." /logmsg:"Message" /push /closeonend:1
+git push
+# 推送到特定分支
+git push origin feature-branch
 ```
 
-**Push only:**
+一次性配置 (使用 PPK 密钥):
+```bash
+git config --global core.sshcommand "plink"
+```
+
+**备选: TortoiseGitProc.exe (图形界面，不推荐用于自动化)**
+
+Commit:
+```bash
+TortoiseGitProc.exe /command:commit /path:"." /logmsg:"Message" /closeonend:2
+```
+
+Push:
 ```bash
 TortoiseGitProc.exe /command:push /path:"." /closeonend:2
 ```
 
-**Parameters:**
+**Parameters (TortoiseGitProc):**
 - `/command:commit` - Execute commit operation
 - `/command:push` - Execute push operation
 - `/path:"."` - Repository directory ("." for current directory)
 - `/logmsg:"message"` - Commit message (must be quoted)
-- `/push` - Push after commit (optional)
-- `/closeonend:1` - Auto-close if successful, stay open on errors
-- `/closeonend:2` - Always auto-close
+- `/closeonend:2` - Always auto-close (recommended for automation)
+- `/silent` - Suppress all dialogs (may not always work)
 
-**Exit codes (/closeonend):**
-- 0 = Don't close (for debugging)
-- 1 = Auto-close if successful, keep open if errors (recommended)
-- 2 = Always auto-close (force)
-- 3 = Auto-close if no errors, conflicts, or merges
+**为什么优先使用命令行 git?**
+- 速度更快 (无 GUI 开销)
+- 完全静默 (不会弹出任何窗口)
+- 更可靠 (不依赖图形界面)
+- 相同的认证方式 (plink + PPK)
 </tortoisegit_commands>
 
 <usage_patterns>
@@ -344,36 +352,43 @@ Only stages and commits files matching the pattern.
 <error_handling>
 **Common errors and solutions:**
 
-**Error: "TortoiseGitProc.exe not found"**
-Solution:
-- Ensure TortoiseGit is installed
-- Add to PATH: `C:\Program Files\TortoiseGit\bin`
-- Or use full path in commands
-
 **Error: "Permission denied (publickey)"**
 Solution:
-- Ensure Pageant is running with PPK key loaded
-- Verify TortoiseGit SSH settings point to plink
-- Check remote URL: `git remote -v`
+- 确保 Pageant 正在运行: `tasklist | find /I "pageant.exe"`
+- 确保 PPK 密钥已加载到 Pageant
+- 验证 git 配置: `git config --global core.sshcommand` 应该显示 "plink"
+- 检查远程 URL: `git remote -v`
 
 **Error: "Nothing to commit"**
 Solution:
-- Check if files are staged: `git status`
-- Stage files: `git add -A`
-- Verify there are actual changes
+- 检查是否有暂存的文件: `git status`
+- 暂存文件: `git add -A`
+- 确认确实有更改
 
 **Error: "Push rejected"**
 Solution:
-- Pull first: `git pull --rebase`
-- Resolve conflicts if any
-- Try push again
+- 先拉取: `git pull --rebase`
+- 解决冲突 (如果有)
+- 再次尝试推送
 
 **Error: "Failed to push some refs"**
 Solution:
-- Check network connection
-- Verify remote repository exists
-- Ensure you have push permissions
-- Check if branch is protected
+- 检查网络连接
+- 验证远程仓库是否存在
+- 确保有推送权限
+- 检查分支是否受保护
+
+**Error: "plink not found"**
+Solution:
+- 安装 PuTTY (包含 plink)
+- 确保 PuTTY 安装目录在 PATH 中
+- 或使用完整路径配置: `git config --global core.sshcommand "C:\Program Files\PuTTY\plink.exe"`
+
+**Error: Pageant 未运行**
+Solution:
+- 启动 Pageant: 双击 Pageant.exe 或使用启动脚本
+- 加载 PPK 密钥: `pageant.exe "path\to\key.ppk"`
+- 验证 Pageant 运行: `tasklist | find /I "pageant.exe"`
 </error_handling>
 
 <security_checklist>
@@ -389,10 +404,12 @@ Solution:
 <success_criteria>
 Operation is successful when:
 - Subagent returns without errors
+- `core.sshcommand` is set to "plink" (one-time configuration)
+- Pageant is running with PPK key loaded
 - Commit message generated or used correctly
 - Files staged successfully
-- TortoiseGitProc commit exits with code 0
-- TortoiseGitProc push exits with code 0
+- git commit exits with code 0
+- git push exits with code 0
 - git log shows new commit
 - git status shows branch is up-to-date
 - Summary returned to user confirms success
