@@ -1,4 +1,4 @@
-# TortoiseGit Commit Skill - 问题总结和解决方案
+# Windows Git Commit Skill - 问题总结和解决方案
 
 ## 实际使用中遇到的问题
 

@@ -1,5 +1,5 @@
 ---
-name: tortoisegit-commit
+name: windows-git-commit
 description: Windows Git commit and push using command-line git with plink + PPK authentication. Automatically analyzes changes, generates commit messages, and executes operations in a subagent to preserve context. No GUI dialogs.
 ---
 
@@ -12,7 +12,7 @@ Automate Git commit and push operations on Windows using command-line git with p
 
 Invoke this skill with:
 ```
-Use tortoisegit-commit to commit and push my changes
+Use windows-git-commit to commit and push my changes
 ```
 
 The skill will:
@@ -38,13 +38,13 @@ The skill will:
 **With custom commit message:**
 
 ```
-Use tortoisegit-commit to commit with message "feat: add user authentication"
+Use windows-git-commit to commit with message "feat: add user authentication"
 ```
 
 **Commit specific files only:**
 
 ```
-Use tortoisegit-commit to commit changes in src/ and tests/
+Use windows-git-commit to commit changes in src/ and tests/
 ```
 </quick_start>
 
@@ -404,7 +404,7 @@ TortoiseGitProc.exe /command:push /path:"." /closeonend:2
 **Pattern 1: Quick automatic commit**
 
 ```
-Use tortoisegit-commit
+Use windows-git-commit
 ```
 
 Automatically stages, commits, and pushes all changes with an auto-generated message.
@@ -412,7 +412,7 @@ Automatically stages, commits, and pushes all changes with an auto-generated mes
 **Pattern 2: With custom message**
 
 ```
-Use tortoisegit-commit with message "feat: implement user login"
+Use windows-git-commit with message "feat: implement user login"
 ```
 
 Uses your specified message instead of auto-generating.
@@ -420,7 +420,7 @@ Uses your specified message instead of auto-generating.
 **Pattern 3: Commit without pushing**
 
 ```
-Use tortoisegit-commit to commit locally only
+Use windows-git-commit to commit locally only
 ```
 
 Skips the push step.
@@ -428,7 +428,7 @@ Skips the push step.
 **Pattern 4: Push existing commits**
 
 ```
-Use tortoisegit-commit to push existing commits
+Use windows-git-commit to push existing commits
 ```
 
 Only pushes, doesn't create new commit.
@@ -436,7 +436,7 @@ Only pushes, doesn't create new commit.
 **Pattern 5: Specific files**
 
 ```
-Use tortoisegit-commit for changes in web/src/
+Use windows-git-commit for changes in web/src/
 ```
 
 Only stages and commits files matching the pattern.

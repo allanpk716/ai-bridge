@@ -1,10 +1,10 @@
-# TortoiseGit Commit Skill - 改进总结
+# Windows Git Commit Skill - 改进总结
 
 ## 改进日期
 2026-02-08
 
 ## 改进目标
-解决使用 TortoiseGit commit 技能时遇到的实际问题，确保完全无 GUI 的命令行操作。
+解决使用 Windows Git commit 技能时遇到的实际问题，确保完全无 GUI 的命令行操作。
 
 ---
 
@@ -132,13 +132,13 @@ tasklist | grep -i pageant
 
 ### 测试场景 1: 正常提交和推送
 ```bash
-Use tortoisegit-commit to commit and push my changes
+Use windows-git-commit to commit and push my changes
 ```
 **期望**: 无 GUI 弹窗，静默完成
 
 ### 测试场景 2: 自定义提交信息
 ```bash
-Use tortoisegit-commit with message "feat: new feature"
+Use windows-git-commit with message "feat: new feature"
 ```
 **期望**: 使用指定信息，无 GUI
 

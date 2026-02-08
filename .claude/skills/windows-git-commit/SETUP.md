@@ -1,4 +1,4 @@
-# TortoiseGit 自动化配置指南
+# Windows Git 自动化配置指南
 
 ## 目标
 实现完全自动化的 Git 提交和推送,无需任何手动操作或对话框确认。
@@ -109,7 +109,7 @@ tasklist | find /I "pageant.exe"
 **原因:** TortoiseGitProc 命令缺少 `/silent` 参数
 
 **解决方案:**
-- 使用 `/tortoisegit-commit` 技能的最新版本
+- 使用 `/windows-git-commit` 技能的最新版本
 - 技能已更新使用 `/silent` 参数
 
 ### 问题 3: 找不到 PPK 密钥文件
@@ -141,7 +141,7 @@ tasklist | find /I "pageant.exe"
 
 ## 📋 配置检查清单
 
-在第一次使用 `/tortoisegit-commit` 技能前,确认:
+在第一次使用 `/windows-git-commit` 技能前,确认:
 
 - [ ] Git 配置使用 plink: `git config --global core.sshcommand`
 - [ ] Pageant 在运行: `tasklist | find /I pageant.exe`
@@ -153,7 +153,7 @@ tasklist | find /I "pageant.exe"
 
 ## 🎯 配置完成后的效果
 
-配置完成后,使用 `/tortoisegit-commit` 将:
+配置完成后,使用 `/windows-git-commit` 将:
 
 1. ✅ 自动分析代码改动
 2. ✅ 生成规范的提交信息
@@ -171,13 +171,13 @@ tasklist | find /I "pageant.exe"
 
 ```bash
 # 自动提交并推送(完全静默)
-/tortoisegit-commit
+/windows-git-commit
 
 # 使用自定义信息
-/tortoisegit-commit feat: add user authentication
+/windows-git-commit feat: add user authentication
 
 # 只提交不推送
-/tortoisegit-commit commit locally only
+/windows-git-commit commit locally only
 ```
 
 所有操作都在后台自动完成,无需任何干预! 🎉
