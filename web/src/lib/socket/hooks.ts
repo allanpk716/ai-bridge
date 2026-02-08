@@ -7,7 +7,7 @@
 
 import { useEffect, useState } from 'react';
 import { getSocket } from './socket';
-import type { ServerToClientEvents } from './events';
+import type { ServerToClientEvents, ClientToServerEvents } from './events';
 import type { Socket } from 'socket.io-client';
 
 /**
