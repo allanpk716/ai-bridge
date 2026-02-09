@@ -2,12 +2,12 @@
  * ChatInput Component
  *
  * Provides a textarea input for typing messages with a send button.
- * Supports keyboard shortcuts (Enter to send, Shift+Enter for newline)
+ * Supports keyboard shortcuts (Ctrl+Enter to send, Shift+Enter for newline)
  * and integrates with the messages API for sending.
  *
  * Features:
  * - Multi-line textarea with auto-resize
- * - Enter to send, Shift+Enter for new line
+ * - Ctrl+Enter (Mac: Cmd+Enter) to send, Shift+Enter for new line
  * - Send button disabled when empty or sending
  * - Loading state during message sending
  * - Clears input after successful send
@@ -45,7 +45,7 @@ export interface ChatInputProps {
 
   /**
    * Optional custom placeholder text
-   * @default "Type a message..."
+   * @default "Type a message... (Ctrl+Enter to send)"
    */
   placeholder?: string;
 }
@@ -78,7 +78,7 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(function ChatI
     sessionId,
     onSent,
     disabled = false,
-    placeholder = "Type a message...",
+    placeholder = "Type a message... (Ctrl+Enter to send)",
   }: ChatInputProps,
   ref
 ) {
@@ -127,15 +127,17 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(function ChatI
 
   /**
    * Handles keyboard shortcuts
-   * - Enter: Send message
+   * - Ctrl+Enter / Cmd+Enter: Send message
    * - Shift+Enter: New line
+   * - Enter: New line (default behavior)
    */
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLTextAreaElement>) => {
-      if (e.key === "Enter" && !e.shiftKey) {
+      if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         handleSend();
       }
+      // Shift+Enter and plain Enter use default behavior (new line)
     },
     [messageText]
   );
