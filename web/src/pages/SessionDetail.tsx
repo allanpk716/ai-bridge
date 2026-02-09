@@ -146,59 +146,59 @@ export default function SessionDetail() {
 
       {/* Loading header when session not loaded yet */}
       {!session && (
-        <div className="flex items-center gap-4 mb-6">
-          <Button variant="ghost" size="icon" onClick={handleBack}>
-            <Loader2 className="h-5 w-5" />
+        <header className="flex items-center gap-4 mb-6" role="status" aria-live="polite">
+          <Button variant="ghost" size="icon" onClick={handleBack} aria-label="返回会话列表">
+            <Loader2 className="h-5 w-5" aria-hidden="true" />
           </Button>
           <div className="flex-1">
             <div className="flex items-center gap-2">
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" aria-hidden="true" />
               <h1 className="text-2xl font-semibold text-muted-foreground">
                 Loading session...
               </h1>
             </div>
           </div>
-        </div>
+        </header>
       )}
 
       {/* Main content area */}
       {isLoading ? (
         // Loading state
-        <div className="flex-1 flex items-center justify-center">
+        <main className="flex-1 flex items-center justify-center" role="status" aria-live="polite" aria-label="正在加载会话数据">
           <div className="text-center">
-            <Loader2 className="h-12 w-12 animate-spin text-muted-foreground mx-auto mb-4" />
+            <Loader2 className="h-12 w-12 animate-spin text-muted-foreground mx-auto mb-4" aria-hidden="true" />
             <p className="text-muted-foreground text-lg">Loading session data...</p>
           </div>
-        </div>
+        </main>
       ) : error ? (
         // Error state
-        <div className="flex-1 flex items-center justify-center">
+        <main className="flex-1 flex items-center justify-center" role="alert" aria-live="assertive" aria-label="加载会话失败">
           <div className="text-center max-w-md">
-            <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
+            <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" aria-hidden="true" />
             <h2 className="text-xl font-semibold mb-2">Failed to load session</h2>
             <p className="text-muted-foreground mb-6">{error.message}</p>
-            <div className="flex gap-3 justify-center">
-              <Button variant="outline" onClick={navigateToSessionList}>
+            <div className="flex gap-3 justify-center" role="group" aria-label="错误操作按钮">
+              <Button variant="outline" onClick={navigateToSessionList} aria-label="返回会话列表">
                 Go Back
               </Button>
-              <Button onClick={() => window.location.reload()}>
+              <Button onClick={() => window.location.reload()} aria-label="重试加载">
                 Retry
               </Button>
             </div>
           </div>
-        </div>
+        </main>
       ) : session ? (
         // Session data loaded successfully
         <>
           {/* Session metadata - collapsible on mobile */}
-          <div className="shrink-0">
+          <section className="shrink-0" aria-label="会话元数据">
             <SessionMetadata session={session} />
-          </div>
+          </section>
 
           {/* Chat interface */}
           <div className="flex-1 flex flex-col min-h-0">
             {/* Message list */}
-            <div className="flex-1 min-h-0">
+            <section className="flex-1 min-h-0" aria-label="消息列表">
               <ChatMessageList
                 messages={messages}
                 streamingContent={streamingContent}
@@ -212,11 +212,11 @@ export default function SessionDetail() {
                   }
                 }}
               />
-            </div>
+            </section>
 
             {/* Streaming error card */}
             {streamingError && (
-              <div className="px-4 pb-2">
+              <div className="px-4 pb-2" role="alert" aria-live="assertive">
                 <StreamingErrorCard
                   error={streamingError}
                   onRetry={retryLastMessage}
@@ -231,7 +231,7 @@ export default function SessionDetail() {
             {/* Chat input with command trigger */}
             <div className="shrink-0">
               <div className="px-4 pt-2 pb-4">
-                <div className="flex gap-2">
+                <div className="flex gap-2" role="toolbar" aria-label="命令工具栏">
                   {/* Command executor trigger */}
                   <CommandExecutor
                     sessionId={id}

@@ -189,7 +189,7 @@ export default function SessionList() {
   return (
     <div className="h-full flex flex-col">
       {/* Header with title and action buttons */}
-      <div className="flex items-center justify-between mb-6">
+      <header className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-semibold">Sessions</h1>
           {selectionMode && (
@@ -198,56 +198,63 @@ export default function SessionList() {
               size="sm"
               onClick={handleBatchDeleteClick}
               disabled={selectedSessionIds.size === 0 || isBatchDeleting}
+              aria-label={`删除选中的 ${selectedSessionIds.size} 个会话`}
             >
               Delete Selected ({selectedSessionIds.size})
             </Button>
           )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2" role="toolbar" aria-label="会话操作工具栏">
           {selectionMode ? (
-            <Button variant="ghost" onClick={toggleSelectionMode}>
-              <X className="h-4 w-4 mr-2" />
+            <Button variant="ghost" onClick={toggleSelectionMode} aria-label="取消选择">
+              <X className="h-4 w-4 mr-2" aria-hidden="true" />
               Cancel Selection
             </Button>
           ) : (
             <>
-              <Button variant="ghost" onClick={toggleSelectionMode}>
-                <CheckSquare className="h-4 w-4 mr-2" />
+              <Button variant="ghost" onClick={toggleSelectionMode} aria-label="进入选择模式">
+                <CheckSquare className="h-4 w-4 mr-2" aria-hidden="true" />
                 Select
               </Button>
-              <Button onClick={() => setDialogOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
+              <Button onClick={() => setDialogOpen(true)} aria-label="创建新会话">
+                <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
                 New Session
               </Button>
             </>
           )}
         </div>
-      </div>
+      </header>
 
       {/* Filters - hide in selection mode */}
       {!selectionMode && (
-        <SessionListFilters
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          statusFilter={statusFilter}
-          onStatusFilterChange={setStatusFilter}
-          sortBy={sortBy}
-          onSortChange={setSortBy}
-        />
+        <section aria-label="会话筛选器">
+          <SessionListFilters
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            statusFilter={statusFilter}
+            onStatusFilterChange={setStatusFilter}
+            sortBy={sortBy}
+            onSortChange={setSortBy}
+          />
+        </section>
       )}
 
       {/* Content area */}
-      <div className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto" role="main" aria-label="会话列表">
         {/* Loading state */}
-        {isLoading && <SessionListSkeleton />}
+        {isLoading && (
+          <div role="status" aria-live="polite" aria-label="正在加载会话">
+            <SessionListSkeleton />
+          </div>
+        )}
 
         {/* Error state */}
         {!isLoading && error && (
-          <div className="flex flex-col items-center justify-center h-full gap-4">
+          <div className="flex flex-col items-center justify-center h-full gap-4" role="alert" aria-live="assertive">
             <p className="text-muted-foreground text-lg">
               Failed to load sessions
             </p>
-            <Button variant="outline" onClick={() => refetch()}>
+            <Button variant="outline" onClick={() => refetch()} aria-label="重试加载会话">
               Retry
             </Button>
           </div>
@@ -255,7 +262,7 @@ export default function SessionList() {
 
         {/* Empty state */}
         {!isLoading && !error && sessions.length === 0 && (
-          <div className="flex items-center justify-center h-full">
+          <div className="flex items-center justify-center h-full" role="status" aria-live="polite">
             <div className="text-center">
               <p className="text-muted-foreground text-lg">No sessions yet</p>
               <p className="text-muted-foreground text-sm mt-2">
@@ -270,7 +277,7 @@ export default function SessionList() {
           !error &&
           sessions.length > 0 &&
           filteredSessions.length === 0 && (
-            <div className="flex items-center justify-center h-full">
+            <div className="flex items-center justify-center h-full" role="status" aria-live="polite">
               <p className="text-muted-foreground text-lg">
                 No sessions match your filters
               </p>
@@ -279,27 +286,28 @@ export default function SessionList() {
 
         {/* Session list */}
         {!isLoading && !error && filteredSessions.length > 0 && (
-          <div className="space-y-3">
+          <ul className="space-y-3" role="list" aria-label="会话列表">
             {filteredSessions.map((session) => (
-              <SessionListItem
-                key={session.id}
-                session={session}
-                onClick={() => handleSessionClick(session.id)}
-                onDelete={() => handleDeleteClick(session)}
-                isDeleting={
-                  sessionToDelete?.id === session.id &&
-                  deleteSession.isPending
-                }
-                selectionMode={selectionMode}
-                isSelected={selectedSessionIds.has(session.id)}
-                onSelectionChange={(selected) =>
-                  toggleSessionSelection(session.id, selected)
-                }
-              />
+              <li key={session.id}>
+                <SessionListItem
+                  session={session}
+                  onClick={() => handleSessionClick(session.id)}
+                  onDelete={() => handleDeleteClick(session)}
+                  isDeleting={
+                    sessionToDelete?.id === session.id &&
+                    deleteSession.isPending
+                  }
+                  selectionMode={selectionMode}
+                  isSelected={selectedSessionIds.has(session.id)}
+                  onSelectionChange={(selected) =>
+                    toggleSessionSelection(session.id, selected)
+                  }
+                />
+              </li>
             ))}
-          </div>
+          </ul>
         )}
-      </div>
+      </main>
 
       {/* Create Session Dialog */}
       <CreateSessionDialog open={dialogOpen} onOpenChange={setDialogOpen} />
