@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "format": "prettier --write \"src/**/*.{ts,tsx,css}\""
+    "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
+    "analyze": "vite build --mode production && start dist\\stats.html"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.3.3",
