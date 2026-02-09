@@ -65,11 +65,16 @@ export function CliParametersForm({
         {/* Session Name */}
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <Label htmlFor="session-name">Session Name</Label>
+            <Label htmlFor="session-name">
+              Session Name
+              <span className="text-destructive ml-1" aria-label="必填项">
+                *
+              </span>
+            </Label>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                  <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" aria-hidden="true" />
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>A name to identify this session</p>
@@ -79,26 +84,33 @@ export function CliParametersForm({
           </div>
           <Input
             id="session-name"
+            name="sessionName"
             value={sessionName}
             onChange={(e) => onSessionNameChange(e.target.value)}
             placeholder="Session name"
+            required
+            aria-required="true"
+            aria-invalid={errors.sessionName ? 'true' : 'false'}
+            aria-describedby={errors.sessionName ? 'session-name-error' : undefined}
             className={errors.sessionName ? "border-destructive" : ""}
           />
           {errors.sessionName && (
-            <p className="text-sm text-destructive">{errors.sessionName}</p>
+            <p id="session-name-error" className="text-sm text-destructive" role="alert">
+              {errors.sessionName}
+            </p>
           )}
         </div>
 
         {/* --dangerously-skip-permissions */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Label htmlFor="skip-permissions">
+            <Label htmlFor="skip-permissions" className="cursor-pointer">
               Skip Permissions
             </Label>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                  <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" aria-hidden="true" />
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Skip all permission prompts. Use with caution.</p>
@@ -110,6 +122,7 @@ export function CliParametersForm({
             id="skip-permissions"
             checked={dangerouslySkipPermissions}
             onCheckedChange={onDangerouslySkipPermissionsChange}
+            aria-labelledby="skip-permissions-label"
           />
         </div>
 
@@ -150,11 +163,11 @@ export function CliParametersForm({
         {/* --diff */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Label htmlFor="diff">Show Diff Output</Label>
+            <Label htmlFor="diff" className="cursor-pointer">Show Diff Output</Label>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                  <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" aria-hidden="true" />
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Show diff output when files are modified</p>
@@ -166,6 +179,7 @@ export function CliParametersForm({
             id="diff"
             checked={diff}
             onCheckedChange={onDiffChange}
+            aria-labelledby="diff-label"
           />
         </div>
       </div>
@@ -177,19 +191,21 @@ export function CliParametersForm({
           variant="ghost"
           className="w-full justify-between px-0 h-auto"
           onClick={() => setAdvancedExpanded(!advancedExpanded)}
+          aria-expanded={advancedExpanded}
+          aria-controls="advanced-parameters"
         >
           <h3 className="text-sm font-medium text-muted-foreground">
             Advanced Parameters
           </h3>
           {advancedExpanded ? (
-            <ChevronUp className="h-4 w-4" />
+            <ChevronUp className="h-4 w-4" aria-hidden="true" />
           ) : (
-            <ChevronDown className="h-4 w-4" />
+            <ChevronDown className="h-4 w-4" aria-hidden="true" />
           )}
         </Button>
 
         {advancedExpanded && (
-          <div className="pl-4 border-l-2 border-muted text-sm text-muted-foreground">
+          <div id="advanced-parameters" className="pl-4 border-l-2 border-muted text-sm text-muted-foreground" role="region">
             <p>More advanced options coming soon...</p>
           </div>
         )}
