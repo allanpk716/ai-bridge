@@ -7,6 +7,7 @@ import {
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useState } from "react";
 import { toast } from "sonner";
+import { handleAPIError, isNetworkError, isRetryWorthy } from "@/lib/api/errorHandler";
 
 type QueryProviderProps = {
   children: React.ReactNode;
@@ -18,10 +19,10 @@ type QueryProviderProps = {
  * Provides QueryClient instance to entire app with production-ready defaults:
  * - 5min staleTime: data considered fresh for 5 minutes
  * - 30min gcTime: inactive data removed from cache after 30 minutes
- * - 3 retries with exponential backoff for failed requests
+ * - Smart retry logic: network errors retry 3x, client errors no retry
  * - Refetch on network reconnect (not on window focus)
  * - Global error logging via QueryCache
- * - Toast notifications for query and mutation errors
+ * - User-friendly Chinese toast notifications
  */
 export function QueryProvider({ children }: QueryProviderProps) {
   const [queryClient] = useState(
@@ -33,8 +34,24 @@ export function QueryProvider({ children }: QueryProviderProps) {
             staleTime: 1000 * 60 * 5,
             // Inactive data garbage collected after 30 minutes
             gcTime: 1000 * 60 * 30,
-            // Retry failed requests 3 times
-            retry: 3,
+            // Smart retry: network errors retry 3x, other errors no retry
+            retry: (failureCount, error) => {
+              // Network errors retry up to 3 times
+              if (isNetworkError(error)) {
+                return failureCount < 3;
+              }
+
+              // ApiError with retry-worthy status codes
+              if ("status" in (error as any)) {
+                const status = (error as any).status;
+                if (isRetryWorthy(status)) {
+                  return failureCount < 3;
+                }
+              }
+
+              // Don't retry other errors
+              return false;
+            },
             // Exponential backoff: 1s, 2s, 4s, ... max 30s
             retryDelay: (attemptIndex) =>
               Math.min(1000 * 2 ** attemptIndex, 30000),
@@ -43,17 +60,27 @@ export function QueryProvider({ children }: QueryProviderProps) {
             // Refetch when network reconnects
             refetchOnReconnect: true,
           },
+          mutations: {
+            // Don't retry mutations by default (they might not be idempotent)
+            retry: false,
+          },
         },
         queryCache: new QueryCache({
           onError: (error) => {
             console.error("[Query Error]", error);
-            toast.error(`Request failed: ${error.message}`);
+            const apiError = handleAPIError(error);
+            toast.error(apiError.message);
           },
         }),
         mutationCache: new MutationCache({
           onError: (error) => {
             console.error("[Mutation Error]", error);
-            toast.error(`Operation failed: ${error.message}`);
+            const apiError = handleAPIError(error);
+            toast.error(apiError.message);
+          },
+          onSuccess: () => {
+            // Optional: show success toast for all mutations
+            // toast.success("操作成功");
           },
         }),
       })
