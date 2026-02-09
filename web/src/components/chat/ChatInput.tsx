@@ -22,7 +22,7 @@
  * ```
  */
 
-import { useState, useCallback, type KeyboardEvent, type ChangeEvent } from "react";
+import { useState, useCallback, useRef, forwardRef, useImperativeHandle, type KeyboardEvent, type ChangeEvent } from "react";
 import { Send, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSendMessage } from "@/lib/api/messages";
@@ -51,17 +51,64 @@ export interface ChatInputProps {
 }
 
 /**
- * ChatInput - Message input component with send functionality
+ * Ref interface for ChatInput
+ * Allows parent components to control the textarea
  */
-export function ChatInput({
-  sessionId,
-  onSent,
-  disabled = false,
-  placeholder = "Type a message...",
-}: ChatInputProps) {
+export interface ChatInputRef {
+  /**
+   * Sets the textarea value and focuses it
+   */
+  setValue: (value: string) => void;
+  /**
+   * Gets the current textarea value
+   */
+  getValue: () => string;
+  /**
+   * Focuses the textarea
+   */
+  focus: () => void;
+}
+
+/**
+ * ChatInput - Message input component with send functionality
+ * Forwarded ref allows external control of textarea value and focus
+ */
+export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(function ChatInput(
+  {
+    sessionId,
+    onSent,
+    disabled = false,
+    placeholder = "Type a message...",
+  }: ChatInputProps,
+  ref
+) {
   const [messageText, setMessageText] = useState("");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const sendMessageMutation = useSendMessage(sessionId);
+
+  /**
+   * Expose methods to parent component via ref
+   */
+  useImperativeHandle(ref, () => ({
+    setValue: (value: string) => {
+      setMessageText(value);
+      // Focus textarea after setting value
+      setTimeout(() => {
+        if (textareaRef.current) {
+          textareaRef.current.focus();
+          // Place cursor at end of inserted text
+          textareaRef.current.setSelectionRange(value.length, value.length);
+        }
+      }, 0);
+    },
+    getValue: () => messageText,
+    focus: () => {
+      if (textareaRef.current) {
+        textareaRef.current.focus();
+      }
+    },
+  }));
 
   /**
    * Checks if send should be disabled
@@ -128,6 +175,7 @@ export function ChatInput({
   return (
     <div className="flex flex-row gap-2 items-end border-t bg-background p-4">
       <textarea
+        ref={textareaRef}
         value={messageText}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
@@ -154,4 +202,4 @@ export function ChatInput({
       </Button>
     </div>
   );
-}
+});
