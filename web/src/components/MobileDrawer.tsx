@@ -1,4 +1,4 @@
-import { useSwipeable } from 'react-swipeable';
+import { useEffect, useSwipeable } from 'react-swipeable';
 import { X } from 'lucide-react';
 import { Sidebar } from './Sidebar';
 import { Button } from './ui/button';
@@ -36,6 +36,20 @@ export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
     preventScrollOnSwipe: false, // Allow page scroll while swiping
   });
 
+  // Handle Escape key to close drawer
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isOpen, onClose]);
+
   // Don't render if closed (unless you want exit animation)
   if (!isOpen) {
     return null;
@@ -53,6 +67,9 @@ export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
       {/* Drawer Panel */}
       <div
         {...handlers}
+        role="dialog"
+        aria-modal="true"
+        aria-label="移动端侧边栏"
         className="fixed inset-y-0 left-0 w-[280px] z-50 shadow-lg transform transition-transform duration-300 ease-in-out border-r border-border"
         style={{
           backgroundColor: 'hsl(var(--card))',
@@ -65,9 +82,9 @@ export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
             size="icon"
             onClick={onClose}
             className="md:hidden"
-            aria-label="Close drawer"
+            aria-label="关闭侧边栏"
           >
-            <X className="h-5 w-5" />
+            <X className="h-5 w-5" aria-hidden="true" />
           </Button>
         </div>
 
