@@ -171,7 +171,7 @@ export async function sendMessage(
 }
 
 /**
- * React hook for sending a message to a session
+ * React hook for sending a message to a session with optimistic UI updates
  *
  * @param sessionId - The session ID
  * @returns Mutation object with trigger function and state
@@ -187,13 +187,41 @@ export function useSendMessage(sessionId: string) {
 
   return useMutation({
     mutationFn: (request: SendMessageRequest) => sendMessage(sessionId, request),
-    onSuccess: () => {
-      // Invalidate messages query to refresh after sending
-      queryClient.invalidateQueries({ queryKey: ["messages", sessionId] });
-      toast.success("Message sent successfully");
+    onMutate: async (newMessage) => {
+      // Cancel ongoing queries to avoid race conditions
+      await queryClient.cancelQueries({ queryKey: ["messages", sessionId] });
+
+      // Save previous messages for rollback on error
+      const previousMessages = queryClient.getQueryData<Message[]>(["messages", sessionId]);
+
+      // Optimistically add message to the UI
+      queryClient.setQueryData<Message[]>(
+        ["messages", sessionId],
+        (old = []) => [
+          ...old,
+          {
+            ...newMessage,
+            id: `temp-${Date.now()}`,
+            seq: -1, // Temporary seq until server responds
+            role: "user",
+            timestamp: new Date().toISOString(),
+            status: "sending",
+          } as Message,
+        ]
+      );
+
+      return { previousMessages };
     },
-    onError: (error: Error) => {
+    onError: (error, _newMessage, context) => {
+      // Rollback to previous state on error
+      if (context?.previousMessages) {
+        queryClient.setQueryData(["messages", sessionId], context.previousMessages);
+      }
       toast.error(`Failed to send message: ${error.message}`);
+    },
+    onSuccess: () => {
+      // Invalidate to get server-confirmed message
+      queryClient.invalidateQueries({ queryKey: ["messages", sessionId] });
     },
   });
 }
