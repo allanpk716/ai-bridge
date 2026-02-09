@@ -21,6 +21,8 @@ import { StreamingMessage } from "./StreamingMessage";
 import { StreamingIndicator } from "./StreamingIndicator";
 import { TypingIndicator } from "./TypingIndicator";
 import { Loader2 } from "lucide-react";
+import { PermissionCard } from "@/components/permissions";
+import type { PermissionWithStatus } from "@/hooks/usePermissionModal";
 
 export interface ChatMessageListProps {
   /** Array of messages to display */
@@ -39,6 +41,14 @@ export interface ChatMessageListProps {
   streamingContent?: string;
   /** Optional sequence number of the streaming message */
   streamingSeq?: number;
+  /** Optional permissions array for embedded permission cards */
+  permissions?: PermissionWithStatus[];
+  /** Optional callback when user approves permission */
+  onApprovePermission?: (requestId: string, scope: string) => void;
+  /** Optional callback when user denies permission */
+  onDenyPermission?: (requestId: string) => void;
+  /** Optional loading state for permission mutations */
+  isPermissionLoading?: boolean;
 }
 
 /**
@@ -114,6 +124,10 @@ export default function ChatMessageList({
   onStopStreaming,
   streamingContent,
   streamingSeq,
+  permissions = [],
+  onApprovePermission,
+  onDenyPermission,
+  isPermissionLoading = false,
 }: ChatMessageListProps) {
   // Loading state (initial fetch with no messages)
   if (isLoading && messages.length === 0) {
@@ -136,6 +150,20 @@ export default function ChatMessageList({
 
   return (
     <div className={clsx("h-full flex flex-col", className)}>
+      {/* Pending permission cards (embedded in message stream, non-blocking) */}
+      {permissions
+        .filter((p) => p.status === "pending")
+        .map((permission) => (
+          <PermissionCard
+            key={permission.requestId}
+            permission={permission}
+            onApprove={(scope) => onApprovePermission?.(permission.requestId, scope)}
+            onDeny={() => onDenyPermission?.(permission.requestId)}
+            isLoading={isPermissionLoading}
+            status="pending"
+          />
+        ))}
+
       {/* Streaming indicator (shown above streaming message) */}
       {isStreaming && (
         <StreamingIndicator
