@@ -9,13 +9,18 @@
  * - Category grouping with headings
  * - Fuzzy search filtering
  * - Keyboard navigation (arrow keys, Enter)
+ * - Detail view with command examples
  *
  * @see .planning/phases/04-real-time-chat/04-09-PLAN.md
+ * @see .planning/phases/04-real-time-chat/04-10-PLAN.md
  */
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Command } from "cmdk";
+import { ArrowLeft, Check } from "lucide-react";
 import { useCommands } from "@/lib/api/commands";
+import { CommandDetail } from "./CommandDetail";
+import { Button } from "@/components/ui/button";
 import type { Command as CommandType } from "@/types/api";
 
 interface CommandPaletteProps {
@@ -58,6 +63,9 @@ export function CommandPalette({
   // Fetch commands grouped by category
   const { data: commands, isLoading, error } = useCommands(sessionId);
 
+  // Detail view state
+  const [selectedCommand, setSelectedCommand] = useState<CommandType | null>(null);
+
   // Keyboard shortcut handler (Ctrl+K / Cmd+K)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -77,20 +85,48 @@ export function CommandPalette({
     };
   }, [open, onOpenChange]);
 
-  // Handle command selection
-  const handleSelect = (commandPath: string) => {
-    // Find the command object from the grouped data
-    if (!commands) return;
+  // Find command object by path
+  const findCommand = (commandPath: string): CommandType | null => {
+    if (!commands) return null;
 
     for (const categoryCommands of Object.values(commands)) {
       const command = categoryCommands.find((cmd) => cmd.path === commandPath);
       if (command) {
-        onSelectCommand(command);
-        onOpenChange(false); // Close palette after selection
-        return;
+        // Add category to command object
+        return { ...command, category: Object.keys(commands).find(key => commands[key].includes(command)) || command.category };
       }
     }
+    return null;
   };
+
+  // Handle command selection from list (show detail first)
+  const handleSelectItem = (commandPath: string) => {
+    const command = findCommand(commandPath);
+    if (command) {
+      setSelectedCommand(command);
+    }
+  };
+
+  // Handle confirm from detail view (execute command)
+  const handleConfirm = () => {
+    if (selectedCommand) {
+      onSelectCommand(selectedCommand);
+      setSelectedCommand(null);
+      onOpenChange(false);
+    }
+  };
+
+  // Handle back button (return to list)
+  const handleBack = () => {
+    setSelectedCommand(null);
+  };
+
+  // Reset detail view when palette closes
+  useEffect(() => {
+    if (!open) {
+      setSelectedCommand(null);
+    }
+  }, [open]);
 
   return (
     <Command.Dialog
@@ -105,16 +141,60 @@ export function CommandPalette({
       {/* Dialog container */}
       <div className="fixed left-[50%] top-[20%] translate-x-[-50%] z-50 w-full max-w-[600px]">
         <div className="overflow-hidden rounded-lg border bg-popover text-popover-foreground shadow-md">
-          {/* Search input */}
-          <div className="flex items-center border-b px-3">
-            <Command.Input
-              placeholder="Search commands..."
-              className="flex h-12 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
-            />
-          </div>
+          {/* Header with back button (in detail mode) */}
+          {selectedCommand && (
+            <div className="flex items-center border-b px-4 py-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleBack}
+                className="mr-2"
+              >
+                <ArrowLeft className="h-4 w-4 mr-1" />
+                Back
+              </Button>
+              <span className="text-sm font-medium text-muted-foreground">
+                Command Details
+              </span>
+            </div>
+          )}
 
-          {/* Command list */}
-          <Command.List className="max-h-[400px] overflow-y-auto p-2">
+          {/* Search input (only in list mode) */}
+          {!selectedCommand && (
+            <div className="flex items-center border-b px-3">
+              <Command.Input
+                placeholder="Search commands..."
+                className="flex h-12 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+              />
+            </div>
+          )}
+
+          {/* Content: List or Detail */}
+          {selectedCommand ? (
+            // Detail view
+            <div className="max-h-[500px] overflow-y-auto p-6">
+              <CommandDetail command={selectedCommand} />
+
+              {/* Action buttons */}
+              <div className="mt-6 flex justify-end gap-2 border-t pt-4">
+                <Button
+                  variant="outline"
+                  onClick={handleBack}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="default"
+                  onClick={handleConfirm}
+                >
+                  <Check className="h-4 w-4 mr-2" />
+                  Execute Command
+                </Button>
+              </div>
+            </div>
+          ) : (
+            // List view
+            <Command.List className="max-h-[400px] overflow-y-auto p-2">
             {isLoading && (
               <div className="py-6 text-center text-sm text-muted-foreground">
                 Loading commands...
@@ -152,7 +232,7 @@ export function CommandPalette({
                     <Command.Item
                       key={cmd.path}
                       value={cmd.path}
-                      onSelect={handleSelect}
+                      onSelect={handleSelectItem}
                       className="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
                     >
                       <div className="flex flex-1 items-center justify-between">
@@ -177,7 +257,8 @@ export function CommandPalette({
                 No commands found matching your search.
               </Command.Empty>
             )}
-          </Command.List>
+            </Command.List>
+          )}
         </div>
       </div>
     </Command.Dialog>
