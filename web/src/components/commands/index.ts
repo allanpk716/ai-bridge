@@ -5,7 +5,7 @@
  *
  * @example
  * ```tsx
- * import { CommandPalette } from '@/components/commands';
+ * import { CommandPalette, CommandExecutor } from '@/components/commands';
  * import { CommandDetail, CommandList } from '@/components/commands';
  * ```
  */
@@ -14,5 +14,6 @@
 export { CommandPalette } from './CommandPalette';
 
 // Named exports for individual components
+export { CommandExecutor } from './CommandExecutor';
 export { CommandDetail } from './CommandDetail';
 export { CommandList } from './CommandList';
