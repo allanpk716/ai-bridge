@@ -1,8 +1,8 @@
 import { createBrowserRouter, useNavigate } from "react-router";
 import { lazy, Suspense } from "react";
-import { Loader2 } from "lucide-react";
 import RootLayout from "@/layouts/RootLayout";
 import MainLayout from "@/layouts/MainLayout";
+import { SessionListPageSkeleton, SessionDetailPageSkeleton } from "@/pages/skeleton";
 
 // Lazy load page components
 const SessionList = lazy(() => import("@/pages/SessionList"));
@@ -10,13 +10,13 @@ const SessionDetail = lazy(() => import("@/pages/SessionDetail"));
 const ComponentTest = lazy(() => import("@/pages/ComponentTest"));
 
 /**
- * Loading fallback component for lazy-loaded routes
+ * Loading fallback component for component test page
  */
-function LoadingFallback() {
+function ComponentTestFallback() {
   return (
     <div className="flex items-center justify-center min-h-[400px]">
-      <Loader2 className="animate-spin h-8 w-8" />
-      <span className="ml-2">加载中...</span>
+      <div className="h-8 w-8 bg-muted rounded animate-pulse" />
+      <span className="ml-2 text-muted-foreground">加载中...</span>
     </div>
   );
 }
@@ -42,7 +42,7 @@ const router = createBrowserRouter([
           {
             index: true,
             element: (
-              <Suspense fallback={<LoadingFallback />}>
+              <Suspense fallback={<SessionListPageSkeleton />}>
                 <SessionList />
               </Suspense>
             ),
@@ -50,7 +50,7 @@ const router = createBrowserRouter([
           {
             path: "sessions/:id",
             element: (
-              <Suspense fallback={<LoadingFallback />}>
+              <Suspense fallback={<SessionDetailPageSkeleton />}>
                 <SessionDetail />
               </Suspense>
             ),
@@ -58,7 +58,7 @@ const router = createBrowserRouter([
           {
             path: "components",
             element: (
-              <Suspense fallback={<LoadingFallback />}>
+              <Suspense fallback={<ComponentTestFallback />}>
                 <ComponentTest />
               </Suspense>
             ),
