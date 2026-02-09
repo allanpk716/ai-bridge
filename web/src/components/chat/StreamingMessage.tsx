@@ -2,6 +2,7 @@ import React, { memo } from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import type { PluggableList } from 'unified';
+import { CodeBlock } from './CodeBlock';
 
 /**
  * StreamingMessage - A component for rendering markdown content with streaming support
@@ -84,7 +85,25 @@ const StreamingMessageComponent: React.FC<StreamingMessageProps> = ({
   return (
     <div className="relative">
       <div className={proseClasses}>
-        <Markdown remarkPlugins={[remarkGfm] as PluggableList}>{content}</Markdown>
+        <Markdown
+          remarkPlugins={[remarkGfm] as PluggableList}
+          components={{
+            code({ node, inline, className, children, ...props }) {
+              const match = /language-(\w+)/.exec(className || '');
+              const language = match ? match[1] : '';
+
+              return !inline && match ? (
+                <CodeBlock code={String(children).replace(/\n$/, '')} language={language} />
+              ) : (
+                <code className={className} {...props}>
+                  {children}
+                </code>
+              );
+            },
+          }}
+        >
+          {content}
+        </Markdown>
       </div>
 
       {/* Streaming cursor indicator */}
