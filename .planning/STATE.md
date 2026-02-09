@@ -12,16 +12,16 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 
 Phase: 3 of 7 completed, working on Phase 4
 UAT: Phase 1 ✅ passed, Phase 2 ✅ passed (67/67 must-haves verified), Phase 3 ✅ complete
-Last activity: 2026-02-09 — Completed 04-06 (Loading and Streaming Indicators)
+Last activity: 2026-02-09 — Completed 04-04 (SSE Incremental Message Sync)
 
 Progress: [██████████░] 49% (22/45 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 22
-- Average duration: 8.2 min
-- Total execution time: 3 hours
+- Total plans completed: 21
+- Average duration: 8.5 min
+- Total execution time: 2.9 hours
 
 **By Phase:**
 
@@ -30,13 +30,13 @@ Progress: [██████████░] 49% (22/45 plans)
 | 1 | 5 | 60min | 12min |
 | 2 | 5 | 50min | 10min |
 | 3 | 8 | 45min | 5.6min |
-| 4 | 4 | 29min | 7.3min |
+| 4 | 3 | 25min | 8.3min |
 | 5 | 0 | 0 | - |
 | 6 | 0 | 0 | - |
 
 **Recent Trend:**
-- Last 5 plans: 04-01 (5min), 04-02 (3min), 04-03 (17min), 04-06 (4min)
-- Trend: Phase 4 progressing steadily, visual feedback components complete
+- Last 5 plans: 03-06b (15min), 04-01 (5min), 04-02 (3min), 04-03 (17min), 04-04 (8min)
+- Trend: Phase 4 progressing steadily, SSE infrastructure ready for real-time updates
 
 *Updated after each plan completion*
 
@@ -77,6 +77,8 @@ Recent decisions affecting current work:
 - [04-01 - Virtualized Message List]: Installed react-virtuoso@4.18.1 for efficient rendering of 10,000+ messages, created ChatMessageList component with bubble-style layout (user right, assistant left), implemented auto-scroll with followOutput="smooth", added conditional auto-scroll to prevent interrupting history reading, created empty state and loading spinner, added barrel export for clean imports
 - [04-02 - Chat Input Component]: Created sendMessage API function with Zod validation and useSendMessage hook with query invalidation, built ChatInput component with textarea auto-resize (1-10 rows), Enter to send/Shift+Enter for newline shortcuts, loading state with Loader2 spinner, send button disabled when empty or sending, added toast notifications for success/error feedback
 - [04-03 - Streaming Message Component]: Installed streamdown, react-markdown, and remark-gfm for markdown rendering, created StreamingMessage component with incomplete syntax support and animated cursor indicator, integrated StreamingMessage into ChatMessageList for assistant messages, added streaming props (streamingContent, streamingSeq) for SSE integration, exported from barrel for clean imports
+- [04-04 - SSE Incremental Message Sync]: Created useSSE hook for EventSource management with proper cleanup to prevent memory leaks, built useChatMessages hook with maxSeq tracking, SSE since parameter for incremental sync, local message state management, and historical pagination via loadMore, integrated chat UI into SessionDetail with ChatMessageList and ChatInput, added StreamingErrorCard component for error display with retry/dismiss functionality, created barrel exports for hooks and chat components
+- [04-05 - CodeBlock Syntax Highlighting]: Installed react-syntax-highlighter@16.1.0 for Prism-based syntax highlighting, created CodeBlock component with language detection, copy button with visual feedback, and theme-aware styling (vscDarkPlus for dark, vs for light), integrated CodeBlock into StreamingMessage for fenced code blocks, added language alias mapping (js→javascript, ts→typescript, etc.)
 - [04-06 - Loading and Streaming Indicators]: Created TypingIndicator with three animated dots using staggered bounce animation, built StreamingIndicator with stop button and integrated TypingIndicator, enhanced ChatMessageList with loading state, streaming indicator, and typing indicator, created StreamingErrorCard with user-friendly error messages and retry functionality, exported all indicator components from barrel for clean imports
 
 ### Pending Todos
@@ -85,12 +87,14 @@ None yet.
 
 ### Blockers/Concerns
 
-None yet.
+- Testing infrastructure not set up - useSSE.test.ts created but cannot run without vitest and @testing-library/react
+- Backend SSE endpoint must be implemented and tested with frontend
+- Integration testing needed to verify SSE connection works with real backend
 
 ## Session Continuity
 
-Last session: 2026-02-09 02:14 UTC
-Stopped at: Phase 4-06 complete ✅ (22/45 plans done)
+Last session: 2026-02-09 02:17 UTC
+Stopped at: Phase 4-04 complete ✅ (21/45 plans done)
 Resume file: None
 
 ## Phase 3 总结
