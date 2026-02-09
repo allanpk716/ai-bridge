@@ -25,7 +25,9 @@
 import { useState, useCallback, useRef, forwardRef, useImperativeHandle, type KeyboardEvent, type ChangeEvent } from "react";
 import { Send, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useSendMessage } from "@/lib/api/messages";
+import { getModifierKey } from "@/features/keyboard/shortcuts";
 
 export interface ChatInputProps {
   /**
@@ -189,19 +191,28 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(function ChatI
           overflowY: calculateRows(messageText) >= 10 ? "auto" : "hidden",
         }}
       />
-      <Button
-        onClick={handleSend}
-        disabled={isSendDisabled}
-        size="icon"
-        className="h-9 w-9 shrink-0"
-        aria-label="Send message"
-      >
-        {sendMessageMutation.isPending ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          <Send className="h-4 w-4" />
-        )}
-      </Button>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              onClick={handleSend}
+              disabled={isSendDisabled}
+              size="icon"
+              className="h-9 w-9 shrink-0"
+              aria-label="Send message"
+            >
+              {sendMessageMutation.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>发送消息 ({getModifierKey()}+Enter)</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     </div>
   );
 });
