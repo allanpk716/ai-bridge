@@ -4,6 +4,7 @@ import { useSwipeable } from 'react-swipeable';
 import TopNav from '@/components/TopNav';
 import { Sidebar } from '@/components/Sidebar';
 import { MobileDrawer } from '@/components/MobileDrawer';
+import { useShortcutUI } from '@/App';
 
 /**
  * MainLayout component
@@ -21,6 +22,7 @@ import { MobileDrawer } from '@/components/MobileDrawer';
  */
 export default function MainLayout() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const { openShortcutHelp } = useShortcutUI();
 
   const handleMenuClick = () => {
     setIsDrawerOpen(true);
@@ -62,7 +64,7 @@ export default function MainLayout() {
       <MobileDrawer isOpen={isDrawerOpen} onClose={handleDrawerClose} />
 
       {/* TopNav (fixed at top) */}
-      <TopNav onMenuClick={handleMenuClick} />
+      <TopNav onMenuClick={handleMenuClick} onShortcutHelpClick={openShortcutHelp} />
 
       {/* Main content area (below TopNav, with sidebar offset) */}
       <div {...edgeSwipeHandlers} className="h-screen pt-16 md:pl-80">

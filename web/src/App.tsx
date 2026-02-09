@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, createContext, useContext } from "react";
 import { RouterProvider } from "react-router";
 import router from "@/router";
 import { ThemeProvider } from "@/providers/ThemeProvider";
@@ -13,13 +13,57 @@ import {
 } from "@/features/keyboard";
 
 /**
+ * Shortcut UI Context
+ *
+ * Provides functions to open shortcut-related modals/dialogs.
+ */
+interface ShortcutUIContextValue {
+  openShortcutHelp: () => void;
+}
+
+const ShortcutUIContext = createContext<ShortcutUIContextValue | null>(null);
+
+/**
+ * Hook to access shortcut UI functions
+ */
+export function useShortcutUI(): ShortcutUIContextValue {
+  const context = useContext(ShortcutUIContext);
+  if (!context) {
+    throw new Error('useShortcutUI must be used within ShortcutUIProvider');
+  }
+  return context;
+}
+
+/**
+ * ShortcutUIProvider Component
+ *
+ * Provides UI-related shortcut functions (opening modals, etc.)
+ */
+function ShortcutUIProvider({ children }: { children: React.ReactNode }) {
+  const [helpModalOpen, setHelpModalOpen] = useState(false);
+
+  const openShortcutHelp = () => setHelpModalOpen(true);
+
+  return (
+    <ShortcutUIContext.Provider value={{ openShortcutHelp }}>
+      {children}
+      <ShortcutHelpModal
+        open={helpModalOpen}
+        onOpenChange={setHelpModalOpen}
+        shortcuts={globalShortcuts as Shortcut[]}
+      />
+    </ShortcutUIContext.Provider>
+  );
+}
+
+/**
  * InnerApp Component
  *
  * Handles shortcut registration after ShortcutProvider is available.
  */
 function InnerApp() {
   const { registerShortcut } = useShortcuts();
-  const [helpModalOpen, setHelpModalOpen] = useState(false);
+  const { openShortcutHelp } = useShortcutUI();
 
   // Register global shortcuts on mount
   useEffect(() => {
@@ -33,7 +77,7 @@ function InnerApp() {
             // Command palette is handled by cmdk itself
             break;
           case 'ctrl+/':
-            setHelpModalOpen(true);
+            openShortcutHelp();
             break;
           case 'ctrl+shift+n':
             // TODO: Open create session dialog
@@ -55,18 +99,13 @@ function InnerApp() {
         // This is fine for global shortcuts
       });
     };
-  }, [registerShortcut]);
+  }, [registerShortcut, openShortcutHelp]);
 
   return (
     <>
       <OfflineBanner />
       <ConnectionDialog />
       <UpdatePrompt />
-      <ShortcutHelpModal
-        open={helpModalOpen}
-        onOpenChange={setHelpModalOpen}
-        shortcuts={globalShortcuts as Shortcut[]}
-      />
       <RouterProvider router={router} />
     </>
   );
@@ -76,7 +115,9 @@ function App() {
   return (
     <ShortcutProvider>
       <ThemeProvider>
-        <InnerApp />
+        <ShortcutUIProvider>
+          <InnerApp />
+        </ShortcutUIProvider>
       </ThemeProvider>
     </ShortcutProvider>
   );
