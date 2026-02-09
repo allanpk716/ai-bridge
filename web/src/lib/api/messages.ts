@@ -1,11 +1,12 @@
 /**
  * Message API Service
  *
- * Provides service functions and React hooks for fetching messages
+ * Provides service functions and React hooks for fetching and sending messages
  * with pagination support for incremental sync.
  *
  * Endpoints:
  * - GET /api/v1/sessions/:sessionId/messages?since=&before=&limit=
+ * - POST /api/v1/sessions/:sessionId/messages
  *
  * Pagination parameters:
  * - since: Get messages after this sequence number (incremental sync)
@@ -13,8 +14,9 @@
  * - limit: Maximum number of messages to return (default 50, max 100)
  */
 
-import { useQuery, type UseQueryResult } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, type UseQueryResult } from "@tanstack/react-query";
 import { z } from "zod";
+import { toast } from "sonner";
 import { getApiUrl, fetchWithErrorHandling } from "./client";
 import {
   MessageSchema,
@@ -119,5 +121,79 @@ export function useMessages(
     queryFn: () => fetchMessages(sessionId!, options),
     enabled: !!sessionId, // Only fetch when sessionId exists
     staleTime: 2000, // Consider data stale after 2 seconds (real-time data)
+  });
+}
+
+/**
+ * Zod schema for validating send message request
+ */
+const SendMessageRequestSchema = z.object({
+  content: z.string().min(1, "Message content cannot be empty"),
+});
+
+/**
+ * Send message request type
+ */
+export type SendMessageRequest = z.infer<typeof SendMessageRequestSchema>;
+
+/**
+ * Sends a message to a session
+ *
+ * @param sessionId - The session ID
+ * @param request - Message content
+ * @returns Promise resolving to sent message with assigned seq number
+ * @throws ApiError if request fails or response is invalid
+ *
+ * @example
+ * const message = await sendMessage("session-123", { content: "Hello, Claude!" });
+ * console.log(`Message sent with seq: ${message.seq}`);
+ */
+export async function sendMessage(
+  sessionId: string,
+  request: SendMessageRequest
+): Promise<Message> {
+  const url = getApiUrl(`sessions/${sessionId}/messages`);
+
+  // Validate request
+  const validatedRequest = SendMessageRequestSchema.parse(request);
+
+  const response = await fetchWithErrorHandling(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(validatedRequest),
+  });
+
+  const data = await response.json();
+  const validatedData = MessageSchema.parse(data);
+  return validatedData;
+}
+
+/**
+ * React hook for sending a message to a session
+ *
+ * @param sessionId - The session ID
+ * @returns Mutation object with trigger function and state
+ *
+ * @example
+ * const sendMessageMutation = useSendMessage("session-123");
+ * const handleSend = (content: string) => {
+ *   sendMessageMutation.mutate({ content });
+ * };
+ */
+export function useSendMessage(sessionId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (request: SendMessageRequest) => sendMessage(sessionId, request),
+    onSuccess: () => {
+      // Invalidate messages query to refresh after sending
+      queryClient.invalidateQueries({ queryKey: ["messages", sessionId] });
+      toast.success("Message sent successfully");
+    },
+    onError: (error: Error) => {
+      toast.error(`Failed to send message: ${error.message}`);
+    },
   });
 }
