@@ -13,6 +13,8 @@ export { default } from "./ChatMessageList";
 export { ChatInput } from "./ChatInput";
 export { StreamingMessage } from "./StreamingMessage";
 export { CodeBlock } from "./CodeBlock";
+export { StreamingIndicator } from "./StreamingIndicator";
+export { default as TypingIndicator } from "./TypingIndicator";
 export { StreamingErrorCard } from "./StreamingErrorCard";
 
 // Re-export chat-related hook for convenience
