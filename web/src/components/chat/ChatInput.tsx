@@ -1,0 +1,157 @@
+/**
+ * ChatInput Component
+ *
+ * Provides a textarea input for typing messages with a send button.
+ * Supports keyboard shortcuts (Enter to send, Shift+Enter for newline)
+ * and integrates with the messages API for sending.
+ *
+ * Features:
+ * - Multi-line textarea with auto-resize
+ * - Enter to send, Shift+Enter for new line
+ * - Send button disabled when empty or sending
+ * - Loading state during message sending
+ * - Clears input after successful send
+ *
+ * @example
+ * ```tsx
+ * <ChatInput
+ *   sessionId="session-123"
+ *   onSent={() => console.log('Message sent')}
+ *   placeholder="Type a message..."
+ * />
+ * ```
+ */
+
+import { useState, useCallback, type KeyboardEvent, type ChangeEvent } from "react";
+import { Send, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useSendMessage } from "@/lib/api/messages";
+
+export interface ChatInputProps {
+  /**
+   * The session ID to send messages to
+   */
+  sessionId: string;
+
+  /**
+   * Optional callback after successful message send
+   */
+  onSent?: () => void;
+
+  /**
+   * Optional external disable flag
+   */
+  disabled?: boolean;
+
+  /**
+   * Optional custom placeholder text
+   * @default "Type a message..."
+   */
+  placeholder?: string;
+}
+
+/**
+ * ChatInput - Message input component with send functionality
+ */
+export function ChatInput({
+  sessionId,
+  onSent,
+  disabled = false,
+  placeholder = "Type a message...",
+}: ChatInputProps) {
+  const [messageText, setMessageText] = useState("");
+
+  const sendMessageMutation = useSendMessage(sessionId);
+
+  /**
+   * Checks if send should be disabled
+   */
+  const isSendDisabled =
+    disabled ||
+    messageText.trim().length === 0 ||
+    sendMessageMutation.isPending;
+
+  /**
+   * Handles textarea input changes
+   */
+  const handleChange = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
+    setMessageText(e.target.value);
+  }, []);
+
+  /**
+   * Handles keyboard shortcuts
+   * - Enter: Send message
+   * - Shift+Enter: New line
+   */
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLTextAreaElement>) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleSend();
+      }
+    },
+    [messageText]
+  );
+
+  /**
+   * Sends the message to the backend API
+   */
+  const handleSend = useCallback(() => {
+    const trimmedContent = messageText.trim();
+
+    if (trimmedContent.length === 0 || sendMessageMutation.isPending) {
+      return;
+    }
+
+    sendMessageMutation.mutate(
+      { content: trimmedContent },
+      {
+        onSuccess: () => {
+          // Clear textarea on success
+          setMessageText("");
+          // Call optional callback
+          onSent?.();
+        },
+      }
+    );
+  }, [messageText, sendMessageMutation, onSent]);
+
+  /**
+   * Calculates textarea rows based on content length
+   * Min 1 row, max 10 rows
+   */
+  const calculateRows = useCallback((text: string): number => {
+    const lineCount = text.split("\n").length;
+    return Math.min(Math.max(lineCount, 1), 10);
+  }, []);
+
+  return (
+    <div className="flex flex-row gap-2 items-end border-t bg-background p-4">
+      <textarea
+        value={messageText}
+        onChange={handleChange}
+        onKeyDown={handleKeyDown}
+        placeholder={placeholder}
+        disabled={disabled}
+        rows={calculateRows(messageText)}
+        className="flex-1 resize-none rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 min-h-[36px] max-h-[240px]"
+        style={{
+          overflowY: calculateRows(messageText) >= 10 ? "auto" : "hidden",
+        }}
+      />
+      <Button
+        onClick={handleSend}
+        disabled={isSendDisabled}
+        size="icon"
+        className="h-9 w-9 shrink-0"
+        aria-label="Send message"
+      >
+        {sendMessageMutation.isPending ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <Send className="h-4 w-4" />
+        )}
+      </Button>
+    </div>
+  );
+}
