@@ -56,6 +56,35 @@ export default defineConfig({
     }
   },
   build: {
+    // Increase chunk size warning threshold (default is 500)
+    chunkSizeWarningLimit: 1000,
+
+    // Enable CSS code splitting
+    cssCodeSplit: true,
+
+    // Target browser support (ES2015 = IE11+, modern browsers)
+    target: 'es2015',
+
+    // Minification settings
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        // Remove console.log in production
+        drop_console: true,
+        // Remove debugger statements
+        drop_debugger: true,
+        // Remove dead code
+        dead_code: true,
+        // Remove comments
+        comments: false
+      },
+      format: {
+        // Remove comments from output
+        comments: false
+      }
+    },
+
+    // Rollup-specific options
     rollupOptions: {
       output: {
         manualChunks: {
