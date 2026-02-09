@@ -150,20 +150,34 @@ Decimal phases appear between their surrounding integers in numeric order.
 13. User can execute slash commands through UI
 14. System displays command execution results
 
-**Plans**: TBD
+**Status**: In Planning (2026-02-09)
 
-Plans:
-- [ ] 04-01: Message list component with virtualization (@tanstack/react-virtual)
-- [ ] 04-02: Message input component with send functionality
-- [ ] 04-03: Streaming message display with real-time updates
-- [ ] 04-04: Incremental message sync with since/before pagination
-- [ ] 04-05: Code block rendering with syntax highlighting
-- [ ] 04-06: Loading and streaming indicators
-- [ ] 04-07: Permission request modal with approve/deny actions
-- [ ] 04-08: Permission scope selection interface
-- [ ] 04-09: Slash command browser with category grouping
-- [ ] 04-10: Command detail view with examples
-- [ ] 04-11: Command execution interface with result display
+**Plans:**
+
+- [ ] 04-01-PLAN.md — Virtualized message list with react-virtuoso
+- [ ] 04-02-PLAN.md — Message input component with send functionality
+- [ ] 04-03-PLAN.md — Streaming message display with streamdown
+- [ ] 04-04-PLAN.md — Incremental message sync with SSE and pagination
+- [ ] 04-05-PLAN.md — Code block rendering with syntax highlighting
+- [ ] 04-06-PLAN.md — Loading and streaming indicators
+- [ ] 04-07-PLAN.md — Permission request modal with approve/deny
+- [ ] 04-08-PLAN.md — Permission scope selection interface
+- [ ] 04-09-PLAN.md — Slash command palette with cmdk
+- [ ] 04-10-PLAN.md — Command detail view with examples
+- [ ] 04-11-PLAN.md — Command execution interface
+
+**Plan Files:**
+- `.planning/phases/04-real-time-chat/04-01-PLAN.md`
+- `.planning/phases/04-real-time-chat/04-02-PLAN.md`
+- `.planning/phases/04-real-time-chat/04-03-PLAN.md`
+- `.planning/phases/04-real-time-chat/04-04-PLAN.md`
+- `.planning/phases/04-real-time-chat/04-05-PLAN.md`
+- `.planning/phases/04-real-time-chat/04-06-PLAN.md`
+- `.planning/phases/04-real-time-chat/04-07-PLAN.md`
+- `.planning/phases/04-real-time-chat/04-08-PLAN.md`
+- `.planning/phases/04-real-time-chat/04-09-PLAN.md`
+- `.planning/phases/04-real-time-chat/04-10-PLAN.md`
+- `.planning/phases/04-real-time-chat/04-11-PLAN.md`
 
 ---
 
@@ -256,10 +270,10 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 |-------|----------------|--------|-----------|
 | 1. Foundation & UI Infrastructure | 5/5 | ✅ Complete | 2026-02-07 |
 | 2. Backend Integration | 5/5 | ✅ Complete | 2026-02-07 |
-| 3. Session Management | 0/6 | Not started | - |
-| 4. Real-Time Chat | 0/11 | Not started | - |
+| 3. Session Management | 8/8 | ✅ Complete | 2026-02-08 |
+| 4. Real-Time Chat | 0/11 | In Planning | 2026-02-09 |
 | 5. PWA Features | 0/5 | Not started | - |
 | 6. Polish & Advanced Features | 0/7 | Not started | - |
 | 7. SDK & Integration | 0/6 | Not started | - |
 
-**Overall Progress:** 10/45 plans complete (22%)
+**Overall Progress:** 18/56 plans complete (32%)

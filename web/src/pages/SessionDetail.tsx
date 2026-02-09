@@ -9,7 +9,6 @@ import { SessionHeader } from '@/components/session/SessionHeader';
 import { ResumeSessionDialog } from '@/components/session/ResumeSessionDialog';
 import { DeleteSessionDialog } from '@/components/session/DeleteSessionDialog';
 import { toast } from 'sonner';
-import type { Session } from '@/types/api';
 
 /**
  * SessionDetail page
@@ -160,41 +159,40 @@ export default function SessionDetail() {
         </div>
       ) : session ? (
         // Session data loaded successfully
-        <div className="flex-1 flex flex-col gap-6 overflow-auto">
-          {/* Session metadata */}
-          <SessionMetadata session={session} />
+        <>
+          <div className="flex-1 flex flex-col gap-6 overflow-auto">
+            {/* Session metadata */}
+            <SessionMetadata session={session} />
 
-          {/* Message area placeholder (ready for Phase 4) */}
-          <div className="flex-1 flex items-center justify-center border rounded-lg bg-muted/20">
-            <div className="text-center">
-              <p className="text-muted-foreground text-lg">Session messages</p>
-              <p className="text-muted-foreground text-sm mt-2">
-                Messages will appear here (Phase 4)
-              </p>
+            {/* Message area placeholder (ready for Phase 4) */}
+            <div className="flex-1 flex items-center justify-center border rounded-lg bg-muted/20">
+              <div className="text-center">
+                <p className="text-muted-foreground text-lg">Session messages</p>
+                <p className="text-muted-foreground text-sm mt-2">
+                  Messages will appear here (Phase 4)
+                </p>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Dialogs */}
-        {session && (
-          <>
-            <ResumeSessionDialog
-              open={resumeDialogOpen}
-              onOpenChange={setResumeDialogOpen}
-              session={session}
-              onConfirm={handleResumeConfirm}
-              isResuming={resumeSession.isPending}
-            />
+          {/* Dialogs */}
+          <ResumeSessionDialog
+            open={resumeDialogOpen}
+            onOpenChange={setResumeDialogOpen}
+            session={session}
+            onConfirm={handleResumeConfirm}
+            isResuming={resumeSession.isPending}
+          />
 
-            <DeleteSessionDialog
-              open={deleteDialogOpen}
-              onOpenChange={setDeleteDialogOpen}
-              session={session}
-              isDeleting={deleteSession.isPending}
-              onConfirm={handleDeleteConfirm}
-            />
-          </>
-        )}
+          <DeleteSessionDialog
+            open={deleteDialogOpen}
+            onOpenChange={setDeleteDialogOpen}
+            session={session}
+            isDeleting={deleteSession.isPending}
+            onConfirm={handleDeleteConfirm}
+          />
+        </>
+      ) : null}
     </div>
   );
 }

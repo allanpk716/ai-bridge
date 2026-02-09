@@ -44,7 +44,7 @@ export function SessionListItem({
   selectionMode = false,
   isSelected = false,
   onSelectionChange,
-}: SessionListItemProps) => {
+}: SessionListItemProps) {
   const { id, status, metadata = {} } = session;
 
   // Extract metadata with defaults
