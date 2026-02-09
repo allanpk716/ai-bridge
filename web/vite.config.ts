@@ -74,13 +74,7 @@ export default defineConfig({
         // Remove debugger statements
         drop_debugger: true,
         // Remove dead code
-        dead_code: true,
-        // Remove comments
-        comments: false
-      },
-      format: {
-        // Remove comments from output
-        comments: false
+        dead_code: true
       }
     },
 
