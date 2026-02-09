@@ -6,22 +6,22 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 
 **Core value:** 功能完整性与性能表现双重验证 - 前端必须验证 AI-Bridge 后端所有 API 端点正常工作,同时在 10000+ 消息场景下验证增量同步性能
 
-**Current focus:** Phase 6: Polish & Advanced Features — In Progress (3/7 complete)
+**Current focus:** Phase 6: Polish & Advanced Features — In Progress (4/7 complete)
 
 ## Current Position
 
 Phase: 5 of 8 completed, Phase 6 in progress
 UAT: Phase 1 ✅ passed, Phase 2 ✅ passed (67/67 must-haves verified), Phase 3 ✅ complete, Phase 4 ✅ complete, Phase 5 ✅ complete (10/10 must-haves verified)
-Last activity: 2026-02-09 — Phase 6-06 ✅ complete (loading skeletons and optimistic UI updates)
+Last activity: 2026-02-09 — Phase 6-05 ✅ complete (error handling refinement with user-friendly messages)
 
-Progress: [██████████░] 55% (35/64 plans)
+Progress: [██████████░] 56% (36/64 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 35
+- Total plans completed: 36
 - Average duration: 6.9 min
-- Total execution time: ~4.0 hours
+- Total execution time: ~4.1 hours
 
 **By Phase:**
 
@@ -32,10 +32,10 @@ Progress: [██████████░] 55% (35/64 plans)
 | 3 | 8 | 45min | 5.6min |
 | 4 | 11 | 56min | 5.1min |
 | 5 | 3 | 12min | 4min |
-| 6 | 3 | 20min | 6.7min (in progress) |
+| 6 | 4 | 26min | 6.5min (in progress) |
 
 **Recent Trend:**
-- Last 5 plans: 05-03 (3min), 06-01 (8min partial), 06-02 (7min), 06-03 (9min), 06-06 (5min)
+- Last 5 plans: 06-01 (8min partial), 06-02 (7min), 06-03 (9min), 06-06 (5min), 06-05 (6min)
 - Trend: Phase 6 progressing steadily with polish features
 
 *Updated after each plan completion*
@@ -92,6 +92,7 @@ Recent decisions affecting current work:
 - [06-02 - Export to Markdown]: Created complete Markdown export system with file download and preview, built ExportButton with dropdown menu and ExportPreviewModal with ReactMarkdown rendering, implemented export history tracking with localStorage (max 20 entries), added shadcn/ui component infrastructure (Button, DropdownMenu, Dialog, Card), installed TanStack Query and Sonner for mutations and toasts, created comprehensive documentation and integration examples
 - [06-03 - Keyboard Shortcuts System]: Created ShortcutProvider context for global keyboard shortcut management, implemented useGlobalShortcuts hook with scope-based filtering (global/local), built ShortcutHelpModal with search and category grouping, changed ChatInput send shortcut from Enter to Ctrl+Enter (Mac: Cmd+Enter), added platform-aware key formatting (⌘ on Mac, Ctrl on Windows/Linux), integrated keyboard help button in TopNav with tooltip, registered global shortcuts: Ctrl+/ (help), Ctrl+K (command palette), Ctrl+Shift+N (new session TODO)
 - [06-06 - Loading Skeletons and Optimistic UI]: Installed react-loading-skeleton@^3.5.0 for skeleton screen components, created SessionListSkeleton, ChatMessageListSkeleton, CardSkeleton, TableSkeleton components matching actual content layouts, integrated skeletons into SessionList and ChatMessageList replacing Loader2 spinners, implemented optimistic UI updates in useSendMessage hook (onMutate for immediate display, onError rollback, onSuccess invalidate), created page-level skeletons (SessionListPageSkeleton, SessionDetailPageSkeleton) for Suspense route fallbacks, removed success toast on message send to reduce noise since UI updates immediately
+- [06-05 - Error Handling Refinement]: Created layered error boundary system (AppErrorBoundary + WidgetErrorBoundary) with Chinese user-friendly messages, enhanced TanStack Query with smart retry logic (network errors retry 3x, client errors no retry), implemented API error handler (handleAPIError, getStatusMessage, isNetworkError, isRetryWorthy), added retry hooks (useRetry, useManualRetry) with toast notifications, integrated NetworkStatusError component for offline detection with toast, documented error handling patterns with comprehensive README and examples
 
 ### Pending Todos
 
@@ -113,8 +114,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-09 14:03 UTC
-Stopped at: Completed Phase 6-06 ✅ (Loading Skeletons and Optimistic UI Updates)
+Last session: 2026-02-09 14:04 UTC
+Stopped at: Completed Phase 6-05 ✅ (Error Handling Refinement with User-Friendly Messages)
 Resume file: None
 
 ## Phase 3 总结
