@@ -7,6 +7,17 @@ import { SocketProvider } from "@/providers/SocketProvider";
 import { AppErrorBoundary } from "@/providers/ErrorBoundary";
 import { Toaster } from "@/components/ui/sonner";
 
+// Register Service Worker in production only
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  import('virtual:pwa-register/react').then(({ registerSW }) => {
+    registerSW({
+      onOfflineReady() {
+        console.log('App ready to work offline')
+      }
+    })
+  })
+}
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <AppErrorBoundary>
