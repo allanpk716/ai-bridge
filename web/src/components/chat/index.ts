@@ -5,7 +5,9 @@
  *
  * @example
  * import ChatMessageList from '@/components/chat';
+ * import { ChatInput } from '@/components/chat';
  */
 
 export { default as ChatMessageList } from "./ChatMessageList";
 export { default } from "./ChatMessageList";
+export { ChatInput } from "./ChatInput";
