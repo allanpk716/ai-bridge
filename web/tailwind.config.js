@@ -53,6 +53,9 @@ export default {
           '4': 'hsl(var(--chart-4))',
           '5': 'hsl(var(--chart-5))'
         }
+      },
+      ring: {
+        DEFAULT: '2px 2px 0 0 hsl(var(--ring))',
       }
     }
   },

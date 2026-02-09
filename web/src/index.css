@@ -87,6 +87,29 @@
   .no-transitions *::after {
     transition: none !important;
   }
+
+  /* Accessibility: Focus styles */
+  /* Remove default outline and use custom focus ring */
+  *:focus {
+    outline: none;
+  }
+
+  /* Show focus ring only for keyboard navigation */
+  *:focus-visible {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 2px;
+  }
+
+  /* Ensure focus is visible on interactive elements */
+  button:focus-visible,
+  [role="button"]:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 2px;
+  }
 }
 
 /* Button hover states */
