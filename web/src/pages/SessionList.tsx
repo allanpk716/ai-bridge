@@ -1,12 +1,13 @@
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Loader2, CheckSquare, X } from "lucide-react";
+import { Plus, CheckSquare, X } from "lucide-react";
 import { useSessions, useDeleteSession } from "@/lib/api/sessions";
 import { SessionListItem } from "@/components/session/SessionListItem";
 import { SessionListFilters } from "@/components/session/SessionListFilters";
 import { CreateSessionDialog } from "@/components/session/CreateSessionDialog";
 import { DeleteSessionDialog } from "@/components/session/DeleteSessionDialog";
 import { BatchDeleteDialog } from "@/components/session/BatchDeleteDialog";
+import { SessionListSkeleton } from "@/components/skeletons";
 import { useNavigateToSession } from "@/router";
 import type { Session } from "@/types/api";
 import { toast } from "sonner";
@@ -238,11 +239,7 @@ export default function SessionList() {
       {/* Content area */}
       <div className="flex-1 overflow-y-auto">
         {/* Loading state */}
-        {isLoading && (
-          <div className="flex items-center justify-center h-full">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          </div>
-        )}
+        {isLoading && <SessionListSkeleton />}
 
         {/* Error state */}
         {!isLoading && error && (
