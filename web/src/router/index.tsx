@@ -1,9 +1,25 @@
 import { createBrowserRouter, useNavigate } from "react-router";
+import { lazy, Suspense } from "react";
+import { Loader2 } from "lucide-react";
 import RootLayout from "@/layouts/RootLayout";
 import MainLayout from "@/layouts/MainLayout";
-import SessionList from "@/pages/SessionList";
-import SessionDetail from "@/pages/SessionDetail";
-import ComponentTest from "@/pages/ComponentTest";
+
+// Lazy load page components
+const SessionList = lazy(() => import("@/pages/SessionList"));
+const SessionDetail = lazy(() => import("@/pages/SessionDetail"));
+const ComponentTest = lazy(() => import("@/pages/ComponentTest"));
+
+/**
+ * Loading fallback component for lazy-loaded routes
+ */
+function LoadingFallback() {
+  return (
+    <div className="flex items-center justify-center min-h-[400px]">
+      <Loader2 className="animate-spin h-8 w-8" />
+      <span className="ml-2">加载中...</span>
+    </div>
+  );
+}
 
 /**
  * Router configuration for AI-Bridge web application
@@ -25,15 +41,27 @@ const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <SessionList />,
+            element: (
+              <Suspense fallback={<LoadingFallback />}>
+                <SessionList />
+              </Suspense>
+            ),
           },
           {
             path: "sessions/:id",
-            element: <SessionDetail />,
+            element: (
+              <Suspense fallback={<LoadingFallback />}>
+                <SessionDetail />
+              </Suspense>
+            ),
           },
           {
             path: "components",
-            element: <ComponentTest />,
+            element: (
+              <Suspense fallback={<LoadingFallback />}>
+                <ComponentTest />
+              </Suspense>
+            ),
           },
         ],
       },
