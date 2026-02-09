@@ -1,9 +1,9 @@
 /**
- * Permissions Components
+ * Permissions Barrel Export
  *
- * Exports permission-related UI components for managing
- * Claude Code CLI permission requests in the message stream.
+ * Exports all permission-related components for clean imports.
  */
 
-export { PermissionCard } from "./PermissionCard";
-export type { PermissionCardProps } from "./PermissionCard";
+export { PermissionModal } from "./PermissionModal";
+export { ScopeSelector } from "./ScopeSelector";
+export type { PermissionScope } from "./ScopeSelector";
