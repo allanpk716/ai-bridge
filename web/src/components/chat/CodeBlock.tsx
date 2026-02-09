@@ -1,10 +1,26 @@
-import React, { useState, useCallback } from 'react';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus, vs } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import React, { useState, useCallback, lazy, Suspense } from 'react';
 import { Check, Copy } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+
+// Lazy load syntax highlighter (heavy library)
+const Prism = lazy(() =>
+  import('react-syntax-highlighter').then(module => ({
+    default: module.Prism
+  }))
+);
+
+// Lazy load themes
+const loadThemes = async () => {
+  const module = await import('react-syntax-highlighter/dist/esm/styles/prism');
+  return {
+    vscDarkPlus: module.vscDarkPlus,
+    vs: module.vs
+  };
+};
+
+let themesCache: Awaited<ReturnType<typeof loadThemes>> | null = null;
 
 /**
  * CodeBlock - Syntax-highlighted code block component
@@ -71,11 +87,22 @@ function normalizeLanguage(lang?: string): string {
 const CodeBlockComponent: React.FC<CodeBlockProps> = ({ code, language, className }) => {
   const { resolvedTheme } = useTheme();
   const [copied, setCopied] = useState(false);
+  const [themes, setThemes] = useState(themesCache);
+
+  // Load themes on mount
+  React.useEffect(() => {
+    if (!themesCache) {
+      loadThemes().then(loadedThemes => {
+        themesCache = loadedThemes;
+        setThemes(loadedThemes);
+      });
+    }
+  }, []);
 
   // Normalize language and select theme based on current theme
   const normalizedLanguage = normalizeLanguage(language);
   const isDark = resolvedTheme === 'dark';
-  const theme = isDark ? vscDarkPlus : vs;
+  const theme = themes ? (isDark ? themes.vscDarkPlus : themes.vs) : null;
 
   /**
    * Copy code to clipboard with visual feedback
@@ -145,24 +172,41 @@ const CodeBlockComponent: React.FC<CodeBlockProps> = ({ code, language, classNam
 
       {/* Code content with syntax highlighting */}
       <div className="overflow-x-auto">
-        <SyntaxHighlighter
-          language={normalizedLanguage}
-          style={theme}
-          customStyle={{
-            margin: 0,
-            borderRadius: '0 0 0.5rem 0.5rem',
-            background: isDark ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.5)',
-            fontSize: '0.875rem',
-            lineHeight: '1.5',
-          }}
-          codeTagProps={{
-            style: {
-              fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace',
-            },
-          }}
+        <Suspense
+          fallback={
+            <pre
+              className={cn(
+                'p-4',
+                'bg-muted/30',
+                'text-sm',
+                isDark ? 'text-gray-300' : 'text-gray-700'
+              )}
+            >
+              {code}
+            </pre>
+          }
         >
-          {code}
-        </SyntaxHighlighter>
+          {theme && (
+            <Prism
+              language={normalizedLanguage}
+              style={theme}
+              customStyle={{
+                margin: 0,
+                borderRadius: '0 0 0.5rem 0.5rem',
+                background: isDark ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.5)',
+                fontSize: '0.875rem',
+                lineHeight: '1.5',
+              }}
+              codeTagProps={{
+                style: {
+                  fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace',
+                },
+              }}
+            >
+              {code}
+            </Prism>
+          )}
+        </Suspense>
       </div>
     </div>
   );
