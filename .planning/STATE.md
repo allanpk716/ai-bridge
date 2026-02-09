@@ -6,15 +6,15 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 
 **Core value:** 功能完整性与性能表现双重验证 - 前端必须验证 AI-Bridge 后端所有 API 端点正常工作,同时在 10000+ 消息场景下验证增量同步性能
 
-**Current focus:** Phase 4: Real-Time Chat (10 plans complete)
+**Current focus:** Phase 4: Real-Time Chat (11 plans complete)
 
 ## Current Position
 
 Phase: 3 of 7 completed, working on Phase 4
 UAT: Phase 1 ✅ passed, Phase 2 ✅ passed (67/67 must-haves verified), Phase 3 ✅ complete
-Last activity: 2026-02-09 — Completed 04-10 (Command Detail & List Views)
+Last activity: 2026-02-09 — Completed 04-11 (Command Executor Integration)
 
-Progress: [██████████░] 57% (27/47 plans)
+Progress: [██████████░] 60% (28/47 plans)
 
 ## Performance Metrics
 
@@ -35,7 +35,7 @@ Progress: [██████████░] 57% (27/47 plans)
 | 6 | 0 | 0 | - |
 
 **Recent Trend:**
-- Last 5 plans: 04-06 (4min), 04-07 (8min), 04-08 (4min), 04-09 (6min), 04-10 (3min)
+- Last 5 plans: 04-06 (4min), 04-07 (8min), 04-08 (4min), 04-11 (3min), 04-10 (3min)
 - Trend: Phase 4 progressing efficiently, command browsing complete
 
 *Updated after each plan completion*
@@ -83,6 +83,7 @@ Recent decisions affecting current work:
 - [04-07 - Embedded Permission Cards]: Created PermissionCard component with embedded card design (non-blocking, scrollable), built usePermissionModal hook for SSE-based permission state management with approve/deny handlers, integrated permission cards into ChatMessageList above Virtuoso list, added barrel exports for permissions components
 - [04-08 - Permission Scope Selector]: Created ScopeSelector component with 4 scope options (file-read, file-write, command-exec, network), RadioGroup-based single-choice selection with icons and descriptions, integrated into PermissionModal with smart default scope based on operation type, added RadioGroup and ScrollArea shadcn/ui components
 - [04-09 - Command Palette Component]: Installed cmdk@1.1.1 for accessible command menu, created CommandPalette component with Ctrl+K/Cmd+K keyboard shortcut, category grouping with headings, fuzzy search filtering via cmdk, keyboard navigation (arrow keys, Enter), auto-close after selection, loading/error states with user feedback, created barrel export for clean imports
+- [04-11 - Command Executor Integration]: Created CommandExecutor component with ref-forwarded ChatInput for command-to-input population, used React.forwardRef + useImperativeHandle pattern for external control, implemented setValue/focus/setSelectionRange for user-friendly text insertion, dual-mode execution (populate vs direct), integrated into SessionDetail with trigger button, added comprehensive integration tests
 - [04-10 - Command Detail & List Views]: Created CommandDetail component showing command path, category badge, description, and syntax-highlighted examples, built CommandList with searchable browsable list and color-coded badges, enhanced CommandPalette with two-view layout (list/detail), back/confirm navigation flow, category color coding (builtin blue, user green, project outline), CodeBlock reuse for examples
 
 ### Pending Todos
@@ -179,9 +180,10 @@ Resume file: None
 - ✅ 加载和流式指示器 (04-06)
 - ✅ 嵌入式权限卡片 (04-07)
 - ✅ 权限作用域选择器 (04-08)
+- ✅ 命令执行器集成 (04-11)
 - ✅ 命令面板组件 (04-09)
 
-**总耗时:** ~53 分钟 (9 个计划)
-**平均速度:** 5.9 分钟/计划
+**总耗时:** ~56 分钟 (11 个计划)
+**平均速度:** 5.1 分钟/计划
 
 **Phase 4 进行中**
