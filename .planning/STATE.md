@@ -30,13 +30,13 @@ Progress: [██████████░] 44% (20/45 plans)
 | 1 | 5 | 60min | 12min |
 | 2 | 5 | 50min | 10min |
 | 3 | 8 | 45min | 5.6min |
-| 4 | 1 | 5min | 5min |
+| 4 | 2 | 8min | 4min |
 | 5 | 0 | 0 | - |
 | 6 | 0 | 0 | - |
 
 **Recent Trend:**
-- Last 5 plans: 03-04 (6min), 03-06a (2min), 03-05a (8min), 03-05b (12min), 03-06b (15min), 04-01 (5min)
-- Trend: Phase 4 started, virtualized message list complete
+- Last 5 plans: 03-05a (8min), 03-05b (12min), 03-06b (15min), 04-01 (5min), 04-02 (3min)
+- Trend: Phase 4 progressing rapidly, chat UI components taking shape
 
 *Updated after each plan completion*
 
@@ -75,6 +75,7 @@ Recent decisions affecting current work:
 - [03-04 - Create Session Dialog]: Added Switch, Label, Select shadcn/ui components, created CliParametersForm with tooltips for session name, permission mode, skip permissions, diff toggle, created ConfirmStep showing configuration summary with edit buttons, created WorkingDirectoryPicker with manual input, browse, and recent directories, created ModelSelector with 3 Claude model cards, created CreateSessionDialog 4-step wizard with validation and navigation, integrated dialog in SessionList and Sidebar
 - [03-06a - Session Detail Page Foundation]: Added fetchSession function and useSession hook to sessions.ts API, created SessionMetadata component with card-based layout displaying status badges, working directory, model, git branch, message count, and created date, updated SessionDetail page with data fetching, loading/error states, and metadata display using TanStack Query and date-fns
 - [04-01 - Virtualized Message List]: Installed react-virtuoso@4.18.1 for efficient rendering of 10,000+ messages, created ChatMessageList component with bubble-style layout (user right, assistant left), implemented auto-scroll with followOutput="smooth", added conditional auto-scroll to prevent interrupting history reading, created empty state and loading spinner, added barrel export for clean imports
+- [04-02 - Chat Input Component]: Created sendMessage API function with Zod validation and useSendMessage hook with query invalidation, built ChatInput component with textarea auto-resize (1-10 rows), Enter to send/Shift+Enter for newline shortcuts, loading state with Loader2 spinner, send button disabled when empty or sending, added toast notifications for success/error feedback
 
 ### Pending Todos
 
@@ -86,8 +87,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-09 00:45 UTC
-Stopped at: Phase 4-01 complete ✅ (19/45 plans done)
+Last session: 2026-02-09 01:51 UTC
+Stopped at: Phase 4-02 complete ✅ (20/45 plans done)
 Resume file: None
 
 ## Phase 3 总结
@@ -161,8 +162,9 @@ Resume file: None
 
 **完成内容:**
 - ✅ 虚拟化消息列表 (04-01)
+- ✅ 聊天输入组件 (04-02)
 
-**总耗时:** ~5 分钟 (1 个计划)
-**平均速度:** 5 分钟/计划
+**总耗时:** ~8 分钟 (2 个计划)
+**平均速度:** 4 分钟/计划
 
 **Phase 4 进行中**
