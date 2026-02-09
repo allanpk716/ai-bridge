@@ -34,6 +34,7 @@
     "react-router": "7.9",
     "react-swipeable": "^7.0.2",
     "react-syntax-highlighter": "^16.1.0",
+    "react-virtuoso": "^4.18.1",
     "remark-gfm": "^4.0.1",
     "socket.io-client": "^4.8.3",
     "sonner": "^2.0.7",
