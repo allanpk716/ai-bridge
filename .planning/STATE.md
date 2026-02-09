@@ -6,22 +6,22 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 
 **Core value:** 功能完整性与性能表现双重验证 - 前端必须验证 AI-Bridge 后端所有 API 端点正常工作,同时在 10000+ 消息场景下验证增量同步性能
 
-**Current focus:** Phase 4: Real-Time Chat (4 plans complete)
+**Current focus:** Phase 4: Real-Time Chat (6 plans complete)
 
 ## Current Position
 
 Phase: 3 of 7 completed, working on Phase 4
 UAT: Phase 1 ✅ passed, Phase 2 ✅ passed (67/67 must-haves verified), Phase 3 ✅ complete
-Last activity: 2026-02-09 — Completed 04-04 (SSE Incremental Message Sync)
+Last activity: 2026-02-09 — Completed 04-05 (CodeBlock Syntax Highlighting)
 
-Progress: [██████████░] 49% (22/45 plans)
+Progress: [██████████░] 49% (23/47 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 21
-- Average duration: 8.5 min
-- Total execution time: 2.9 hours
+- Total plans completed: 23
+- Average duration: 8.2 min
+- Total execution time: 3.1 hours
 
 **By Phase:**
 
@@ -30,13 +30,13 @@ Progress: [██████████░] 49% (22/45 plans)
 | 1 | 5 | 60min | 12min |
 | 2 | 5 | 50min | 10min |
 | 3 | 8 | 45min | 5.6min |
-| 4 | 3 | 25min | 8.3min |
+| 4 | 6 | 40min | 6.7min |
 | 5 | 0 | 0 | - |
 | 6 | 0 | 0 | - |
 
 **Recent Trend:**
-- Last 5 plans: 03-06b (15min), 04-01 (5min), 04-02 (3min), 04-03 (17min), 04-04 (8min)
-- Trend: Phase 4 progressing steadily, SSE infrastructure ready for real-time updates
+- Last 5 plans: 04-01 (5min), 04-02 (3min), 04-03 (17min), 04-05 (5min), 04-06 (4min)
+- Trend: Phase 4 progressing steadily, streaming infrastructure complete
 
 *Updated after each plan completion*
 
@@ -77,8 +77,8 @@ Recent decisions affecting current work:
 - [04-01 - Virtualized Message List]: Installed react-virtuoso@4.18.1 for efficient rendering of 10,000+ messages, created ChatMessageList component with bubble-style layout (user right, assistant left), implemented auto-scroll with followOutput="smooth", added conditional auto-scroll to prevent interrupting history reading, created empty state and loading spinner, added barrel export for clean imports
 - [04-02 - Chat Input Component]: Created sendMessage API function with Zod validation and useSendMessage hook with query invalidation, built ChatInput component with textarea auto-resize (1-10 rows), Enter to send/Shift+Enter for newline shortcuts, loading state with Loader2 spinner, send button disabled when empty or sending, added toast notifications for success/error feedback
 - [04-03 - Streaming Message Component]: Installed streamdown, react-markdown, and remark-gfm for markdown rendering, created StreamingMessage component with incomplete syntax support and animated cursor indicator, integrated StreamingMessage into ChatMessageList for assistant messages, added streaming props (streamingContent, streamingSeq) for SSE integration, exported from barrel for clean imports
-- [04-04 - SSE Incremental Message Sync]: Created useSSE hook for EventSource management with proper cleanup to prevent memory leaks, built useChatMessages hook with maxSeq tracking, SSE since parameter for incremental sync, local message state management, and historical pagination via loadMore, integrated chat UI into SessionDetail with ChatMessageList and ChatInput, added StreamingErrorCard component for error display with retry/dismiss functionality, created barrel exports for hooks and chat components
 - [04-05 - CodeBlock Syntax Highlighting]: Installed react-syntax-highlighter@16.1.0 for Prism-based syntax highlighting, created CodeBlock component with language detection, copy button with visual feedback, and theme-aware styling (vscDarkPlus for dark, vs for light), integrated CodeBlock into StreamingMessage for fenced code blocks, added language alias mapping (js→javascript, ts→typescript, etc.)
+- [04-04 - SSE Incremental Message Sync]: Created useSSE hook for EventSource management with proper cleanup to prevent memory leaks, built useChatMessages hook with maxSeq tracking, SSE since parameter for incremental sync, local message state management, and historical pagination via loadMore, integrated chat UI into SessionDetail with ChatMessageList and ChatInput, added StreamingErrorCard component for error display with retry/dismiss functionality, created barrel exports for hooks and chat components
 - [04-06 - Loading and Streaming Indicators]: Created TypingIndicator with three animated dots using staggered bounce animation, built StreamingIndicator with stop button and integrated TypingIndicator, enhanced ChatMessageList with loading state, streaming indicator, and typing indicator, created StreamingErrorCard with user-friendly error messages and retry functionality, exported all indicator components from barrel for clean imports
 
 ### Pending Todos
@@ -93,8 +93,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-09 02:17 UTC
-Stopped at: Phase 4-04 complete ✅ (21/45 plans done)
+Last session: 2026-02-09 02:14 UTC
+Stopped at: Phase 4-05 complete ✅ (23/47 plans done)
 Resume file: None
 
 ## Phase 3 总结
@@ -170,9 +170,11 @@ Resume file: None
 - ✅ 虚拟化消息列表 (04-01)
 - ✅ 聊天输入组件 (04-02)
 - ✅ 流式消息组件 (04-03)
+- ✅ SSE 增量消息同步 (04-04)
+- ✅ 代码块语法高亮 (04-05)
 - ✅ 加载和流式指示器 (04-06)
 
-**总耗时:** ~29 分钟 (4 个计划)
-**平均速度:** 7.3 分钟/计划
+**总耗时:** ~40 分钟 (6 个计划)
+**平均速度:** 6.7 分钟/计划
 
 **Phase 4 进行中**
