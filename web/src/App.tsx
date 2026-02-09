@@ -4,6 +4,7 @@ import router from "@/router";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { ConnectionDialog } from "@/components/connection/ConnectionDialog";
 import { OfflineBanner, UpdatePrompt } from "@/components/pwa";
+import { NetworkStatusError } from "@/components/NetworkStatusError";
 import {
   ShortcutProvider,
   ShortcutHelpModal,
@@ -101,6 +102,7 @@ function InnerApp() {
 
   return (
     <>
+      <NetworkStatusError />
       <OfflineBanner />
       <ConnectionDialog />
       <UpdatePrompt />

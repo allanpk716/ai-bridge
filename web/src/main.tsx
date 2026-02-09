@@ -4,7 +4,7 @@ import "@/index.css";
 import App from "@/App.tsx";
 import { QueryProvider } from "@/providers/QueryProvider";
 import { SocketProvider } from "@/providers/SocketProvider";
-import { AppErrorBoundary } from "@/providers/ErrorBoundary";
+import { AppErrorBoundary } from "@/components/error-boundaries";
 import { Toaster } from "@/components/ui/sonner";
 
 // Register Service Worker in production only
