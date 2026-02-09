@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/providers/ThemeProvider";
 import { ConnectionDialog } from "@/components/connection/ConnectionDialog";
 import { OfflineBanner, UpdatePrompt } from "@/components/pwa";
 import { NetworkStatusError } from "@/components/NetworkStatusError";
+import { LiveAnnouncer } from "@/components/accessibility";
 import {
   ShortcutProvider,
   ShortcutHelpModal,
@@ -102,6 +103,7 @@ function InnerApp() {
 
   return (
     <>
+      <LiveAnnouncer />
       <NetworkStatusError />
       <OfflineBanner />
       <ConnectionDialog />
