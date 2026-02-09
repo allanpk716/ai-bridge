@@ -9,3 +9,4 @@ export { useSSE } from "./useSSE";
 export { useChatMessages } from "./useChatMessages";
 export { useTheme } from "./useTheme";
 export { useScrollDirection } from "./useScrollDirection";
+export { usePermissionModal, isPermissionMessage } from "./usePermissionModal";
