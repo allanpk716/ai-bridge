@@ -6,22 +6,22 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 
 **Core value:** 功能完整性与性能表现双重验证 - 前端必须验证 AI-Bridge 后端所有 API 端点正常工作,同时在 10000+ 消息场景下验证增量同步性能
 
-**Current focus:** Phase 3: Session Management (03-04 完成)
+**Current focus:** Phase 4: Real-Time Chat (2 plans complete)
 
 ## Current Position
 
-Phase: 2 of 7 completed, in Phase 3
-UAT: Phase 1 ✅ passed, Phase 2 ✅ passed (67/67 must-haves verified)
-Last activity: 2026-02-08 — Completed 03-04 (Create Session Dialog with Parameters and Confirmation)
+Phase: 3 of 7 completed, working on Phase 4
+UAT: Phase 1 ✅ passed, Phase 2 ✅ passed (67/67 must-haves verified), Phase 3 ✅ complete
+Last activity: 2026-02-09 — Completed 04-02 (Chat Input Component)
 
-Progress: [████████░░░] 31% (14/45 plans)
+Progress: [██████████░] 44% (20/45 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 14
-- Average duration: 8.9 min
-- Total execution time: 2.1 hours
+- Total plans completed: 16
+- Average duration: 8.4 min
+- Total execution time: 2.3 hours
 
 **By Phase:**
 
@@ -29,14 +29,14 @@ Progress: [████████░░░] 31% (14/45 plans)
 |-------|-------|-------|----------|
 | 1 | 5 | 60min | 12min |
 | 2 | 5 | 50min | 10min |
-| 3 | 4 | 13min | 3.3min |
-| 4 | 0 | 0 | - |
+| 3 | 8 | 45min | 5.6min |
+| 4 | 1 | 5min | 5min |
 | 5 | 0 | 0 | - |
 | 6 | 0 | 0 | - |
 
 **Recent Trend:**
-- Last 5 plans: 02-05 (17min), 03-01 (2min), 03-02 (3min), 03-06a (2min), 03-04 (6min)
-- Trend: Phase 3 progressing quickly with UI components
+- Last 5 plans: 03-04 (6min), 03-06a (2min), 03-05a (8min), 03-05b (12min), 03-06b (15min), 04-01 (5min)
+- Trend: Phase 4 started, virtualized message list complete
 
 *Updated after each plan completion*
 
@@ -74,6 +74,7 @@ Recent decisions affecting current work:
 - [03-02 - Session List UI]: Created SessionListItem component with status badges (idle/processing/waiting/stopped) and metadata display, SessionListFilters component for search/status/sort controls, updated SessionList page with useSessions data fetching, filtering logic with useMemo, and conditional rendering states (loading/error/empty/list)
 - [03-04 - Create Session Dialog]: Added Switch, Label, Select shadcn/ui components, created CliParametersForm with tooltips for session name, permission mode, skip permissions, diff toggle, created ConfirmStep showing configuration summary with edit buttons, created WorkingDirectoryPicker with manual input, browse, and recent directories, created ModelSelector with 3 Claude model cards, created CreateSessionDialog 4-step wizard with validation and navigation, integrated dialog in SessionList and Sidebar
 - [03-06a - Session Detail Page Foundation]: Added fetchSession function and useSession hook to sessions.ts API, created SessionMetadata component with card-based layout displaying status badges, working directory, model, git branch, message count, and created date, updated SessionDetail page with data fetching, loading/error states, and metadata display using TanStack Query and date-fns
+- [04-01 - Virtualized Message List]: Installed react-virtuoso@4.18.1 for efficient rendering of 10,000+ messages, created ChatMessageList component with bubble-style layout (user right, assistant left), implemented auto-scroll with followOutput="smooth", added conditional auto-scroll to prevent interrupting history reading, created empty state and loading spinner, added barrel export for clean imports
 
 ### Pending Todos
 
@@ -85,9 +86,25 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-08 00:07 UTC
-Stopped at: Completed 03-04 (Create Session Dialog with Parameters and Confirmation)
+Last session: 2026-02-09 00:45 UTC
+Stopped at: Phase 4-01 complete ✅ (19/45 plans done)
 Resume file: None
+
+## Phase 3 总结
+
+**完成内容:**
+- ✅ 会话路由和导航结构 (03-01)
+- ✅ 会话列表页面 (03-02)
+- ✅ 创建会话对话框 (03-03, 03-04)
+- ✅ 单个会话删除 (03-05a)
+- ✅ 批量会话删除 (03-05b)
+- ✅ 会话详情页面基础 (03-06a)
+- ✅ 会话恢复和停止功能 (03-06b)
+
+**总耗时:** ~45 分钟 (8 个计划)
+**平均速度:** 5.6 分钟/计划
+
+**Phase 3 已就绪进入 Phase 4**
 
 ## Phase 1 总结
 
@@ -139,3 +156,13 @@ Resume file: None
 **总耗时:** ~2小时 (包括bug修复)
 
 **Phase 1已就绪进入Phase 2**
+
+## Phase 4 总结
+
+**完成内容:**
+- ✅ 虚拟化消息列表 (04-01)
+
+**总耗时:** ~5 分钟 (1 个计划)
+**平均速度:** 5 分钟/计划
+
+**Phase 4 进行中**
