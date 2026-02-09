@@ -39,6 +39,7 @@ export function ExportExample({
   const handleConfirmExport = () => {
     exportMutation.mutate(
       {
+        sessionId,
         sessionName,
         messages,
       },

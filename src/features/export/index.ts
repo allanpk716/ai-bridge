@@ -17,3 +17,12 @@ export {
   sanitizeFileName,
   formatFileSize,
 } from './utils/markdownExporter';
+export {
+  loadExportHistory,
+  saveExportHistory,
+  addExportEntry,
+  clearExportHistory,
+  removeExportEntry,
+  getRecentExports,
+  wasRecentlyExported,
+} from './utils/exportHistory';
