@@ -6,22 +6,22 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 
 **Core value:** 功能完整性与性能表现双重验证 - 前端必须验证 AI-Bridge 后端所有 API 端点正常工作,同时在 10000+ 消息场景下验证增量同步性能
 
-**Current focus:** Phase 5: PWA Features (1/11 plans complete)
+**Current focus:** Phase 5: PWA Features (2/11 plans complete)
 
 ## Current Position
 
 Phase: 4 of 8 completed, working on Phase 5
 UAT: Phase 1 ✅ passed, Phase 2 ✅ passed (67/67 must-haves verified), Phase 3 ✅ complete, Phase 4 ✅ complete
-Last activity: 2026-02-09 — Completed Phase 5-01 ✅ (PWA Foundation with vite-plugin-pwa)
+Last activity: 2026-02-09 — Completed Phase 5-02 ✅ (Offline Detection and Banner)
 
-Progress: [████████░░] 45% (30/66 plans)
+Progress: [████████░░] 47% (31/66 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 28
-- Average duration: 7.4 min
-- Total execution time: 3.5 hours
+- Total plans completed: 31
+- Average duration: 7.2 min
+- Total execution time: 3.7 hours
 
 **By Phase:**
 
@@ -31,12 +31,12 @@ Progress: [████████░░] 45% (30/66 plans)
 | 2 | 5 | 50min | 10min |
 | 3 | 8 | 45min | 5.6min |
 | 4 | 11 | 56min | 5.1min |
-| 5 | 1 | 6min | 6min |
+| 5 | 2 | 9min | 4.5min |
 | 6 | 0 | 0 | - |
 
 **Recent Trend:**
-- Last 5 plans: 04-06 (4min), 04-07 (8min), 04-08 (4min), 04-11 (3min), 04-10 (3min), 05-01 (6min)
-- Trend: Phase 5 started with PWA foundation
+- Last 5 plans: 04-11 (3min), 04-10 (3min), 05-01 (6min), 05-02 (3min)
+- Trend: Phase 5 progressing efficiently (avg 4.5min/plan)
 
 *Updated after each plan completion*
 
@@ -86,6 +86,7 @@ Recent decisions affecting current work:
 - [04-11 - Command Executor Integration]: Created CommandExecutor component with ref-forwarded ChatInput for command-to-input population, used React.forwardRef + useImperativeHandle pattern for external control, implemented setValue/focus/setSelectionRange for user-friendly text insertion, dual-mode execution (populate vs direct), integrated into SessionDetail with trigger button, added comprehensive integration tests
 - [04-10 - Command Detail & List Views]: Created CommandDetail component showing command path, category badge, description, and syntax-highlighted examples, built CommandList with searchable browsable list and color-coded badges, enhanced CommandPalette with two-view layout (list/detail), back/confirm navigation flow, category color coding (builtin blue, user green, project outline), CodeBlock reuse for examples
 - [05-01 - PWA Foundation]: Installed vite-plugin-pwa@1.2.0 (upgraded from 0.17.0 for Vite 7 compatibility), configured VitePWA with prompt update strategy, manifest with app metadata and vite.svg icons, Workbox static asset caching (js, css, html, ico, png, svg, woff2), added TypeScript types for virtual:pwa-register/react module, implemented Service Worker registration in main.tsx with production guard and serviceWorker capability check, updated index.html with AI-Bridge title, description meta, and theme-color meta
+- [05-02 - Offline Detection]: Created useOnlineStatus hook using browser-native navigator.onLine API with event listeners for real-time network status detection, built OfflineBanner component with prominent red warning banner (bg-red-500 light, bg-red-900 dark) that persists while offline with no close button, established PWA component barrel export pattern for clean imports, integrated OfflineBanner in App.tsx above RouterProvider for visibility on all routes
 
 ### Pending Todos
 
@@ -106,8 +107,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-09 14:54 UTC
-Stopped at: Completed Phase 5-01 ✅ (PWA Foundation)
+Last session: 2026-02-09 15:07 UTC
+Stopped at: Completed Phase 5-02 ✅ (Offline Detection and Banner)
 Resume file: None
 
 ## Phase 3 总结
