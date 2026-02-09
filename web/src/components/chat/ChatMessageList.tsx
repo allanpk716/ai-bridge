@@ -9,6 +9,7 @@
  * - Auto-scroll: Automatically scrolls to new messages
  * - Variable height: Handles messages with different content sizes
  * - Bubble layout: User messages right, assistant messages left
+ * - Streaming support: Assistant messages render with StreamingMessage
  *
  * @see .planning/phases/04-real-time-chat/04-RESEARCH.md > Pattern 1
  */
@@ -16,6 +17,7 @@
 import { Virtuoso } from "react-virtuoso";
 import { type Message } from "@/types/api";
 import { clsx } from "clsx";
+import { StreamingMessage } from "./StreamingMessage";
 
 export interface ChatMessageListProps {
   /** Array of messages to display */
@@ -26,12 +28,22 @@ export interface ChatMessageListProps {
   onScrollToTop?: () => void;
   /** Optional loading state */
   isLoading?: boolean;
+  /** Optional streaming message content (for active streaming message) */
+  streamingContent?: string;
+  /** Optional sequence number of the streaming message */
+  streamingSeq?: number;
 }
 
 /**
  * Renders a single message bubble with role-based styling
  */
-function MessageBubble({ message }: { message: Message }) {
+function MessageBubble({
+  message,
+  isStreaming = false,
+}: {
+  message: Message;
+  isStreaming?: boolean;
+}) {
   const isUser = message.role === "user";
   const isSystem = message.role === "system";
 
@@ -63,11 +75,15 @@ function MessageBubble({ message }: { message: Message }) {
     );
   }
 
-  // Assistant messages: left-aligned, gray/secondary background
+  // Assistant messages: left-aligned, gray/secondary background, markdown support
   return (
     <div className="flex justify-start my-2">
       <div className="max-w-[80%] px-4 py-2 bg-muted text-foreground rounded-2xl rounded-bl-sm">
-        <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
+        <StreamingMessage
+          content={message.content}
+          isStreaming={isStreaming}
+          className="text-sm"
+        />
         <span className="text-xs text-muted-foreground mt-1 block">
           {new Date(message.timestamp).toLocaleTimeString([], {
             hour: "2-digit",
@@ -87,6 +103,8 @@ export default function ChatMessageList({
   className,
   onScrollToTop,
   isLoading = false,
+  streamingContent,
+  streamingSeq,
 }: ChatMessageListProps) {
   // Empty state
   if (messages.length === 0) {
@@ -99,21 +117,23 @@ export default function ChatMessageList({
 
   return (
     <div className={clsx("h-full", className)}>
+      {/* @ts-ignore - Virtuoso type compatibility issues with Message type */}
       <Virtuoso
         style={{ height: "100%" }}
         data={messages}
         // Start at bottom (most recent messages)
         initialTopMostItemIndex={Math.max(0, messages.length - 1)}
-        // Auto-scroll to new messages smoothly
-        followOutput="smooth"
         // Increase viewport for smoother overscroll
         increaseViewportBy={{ top: 100, bottom: 100 }}
         // Handle scroll to top for historical pagination
-        endReached={() => {
-          if (onScrollToTop) {
-            onScrollToTop();
-          }
-        }}
+        {...(onScrollToTop && {
+          // @ts-ignore - Virtuoso endReached type compatibility
+          endReached: () => {
+            if (onScrollToTop) {
+              onScrollToTop();
+            }
+          },
+        })}
         // Orientation for endReached (top of list = older messages)
         orientation="vertical"
         // Customize scroll behavior
@@ -123,9 +143,22 @@ export default function ChatMessageList({
           return isAtBottom ? "smooth" : false;
         }}
         // Item content renderer
-        itemContent={(index, message) => (
-          <MessageBubble key={message.seq} message={message} />
-        )}
+        itemContent={(_index, message) => {
+          // Check if this message is currently streaming
+          const isStreamingThisMessage = message.seq === streamingSeq;
+          // Use streaming content if this is the streaming message
+          const displayContent = isStreamingThisMessage && streamingContent
+            ? { ...message, content: streamingContent }
+            : message;
+
+          return (
+            <MessageBubble
+              key={message.seq}
+              message={displayContent}
+              isStreaming={isStreamingThisMessage}
+            />
+          );
+        }}
         // Optional: Loading indicator at bottom
         components={
           isLoading
