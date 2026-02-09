@@ -18,6 +18,9 @@ import { Virtuoso } from "react-virtuoso";
 import { type Message } from "@/types/api";
 import { clsx } from "clsx";
 import { StreamingMessage } from "./StreamingMessage";
+import { StreamingIndicator } from "./StreamingIndicator";
+import { TypingIndicator } from "./TypingIndicator";
+import { Loader2 } from "lucide-react";
 
 export interface ChatMessageListProps {
   /** Array of messages to display */
@@ -26,8 +29,12 @@ export interface ChatMessageListProps {
   className?: string;
   /** Optional callback when user scrolls to top (for pagination) */
   onScrollToTop?: () => void;
-  /** Optional loading state */
+  /** Optional loading state (initial fetch) */
   isLoading?: boolean;
+  /** Optional streaming state (AI response in progress) */
+  isStreaming?: boolean;
+  /** Optional callback when stop button is clicked */
+  onStopStreaming?: () => void;
   /** Optional streaming message content (for active streaming message) */
   streamingContent?: string;
   /** Optional sequence number of the streaming message */
@@ -103,9 +110,21 @@ export default function ChatMessageList({
   className,
   onScrollToTop,
   isLoading = false,
+  isStreaming = false,
+  onStopStreaming,
   streamingContent,
   streamingSeq,
 }: ChatMessageListProps) {
+  // Loading state (initial fetch with no messages)
+  if (isLoading && messages.length === 0) {
+    return (
+      <div className={clsx("flex flex-col items-center justify-center h-full gap-3", className)}>
+        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+        <p className="text-muted-foreground text-sm">Loading messages...</p>
+      </div>
+    );
+  }
+
   // Empty state
   if (messages.length === 0) {
     return (
@@ -116,7 +135,15 @@ export default function ChatMessageList({
   }
 
   return (
-    <div className={clsx("h-full", className)}>
+    <div className={clsx("h-full flex flex-col", className)}>
+      {/* Streaming indicator (shown above streaming message) */}
+      {isStreaming && (
+        <StreamingIndicator
+          isStreaming={isStreaming}
+          onStop={onStopStreaming}
+        />
+      )}
+
       {/* @ts-ignore - Virtuoso type compatibility issues with Message type */}
       <Virtuoso
         style={{ height: "100%" }}
@@ -159,13 +186,13 @@ export default function ChatMessageList({
             />
           );
         }}
-        // Optional: Loading indicator at bottom
+        // Optional: Loading indicator at bottom (for pagination)
         components={
           isLoading
             ? {
                 Footer: () => (
                   <div className="flex justify-center py-4">
-                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
+                    <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
                   </div>
                 ),
               }
