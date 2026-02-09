@@ -8,20 +8,26 @@ import { SessionMetadata } from '@/components/session/SessionMetadata';
 import { SessionHeader } from '@/components/session/SessionHeader';
 import { ResumeSessionDialog } from '@/components/session/ResumeSessionDialog';
 import { DeleteSessionDialog } from '@/components/session/DeleteSessionDialog';
+import { ChatMessageList } from '@/components/chat/ChatMessageList';
+import { ChatInput } from '@/components/chat/ChatInput';
+import { StreamingErrorCard } from '@/components/chat/StreamingErrorCard';
+import { useChatMessages } from '@/hooks/useChatMessages';
 import { toast } from 'sonner';
 
 /**
  * SessionDetail page
  *
- * Main content area displaying individual session with metadata
+ * Main content area displaying individual session with chat interface
  *
  * Features:
  * - Fetches and displays session data from API
  * - Shows session metadata in card layout
+ * - Virtualized message list with real-time SSE updates
+ * - Chat input for sending messages
+ * - Streaming error handling with retry
  * - Loading state with spinner while fetching
  * - Error state with retry and back options
  * - Back button (mobile only) to return to session list
- * - Placeholder message area (ready for Phase 4)
  * - Full height container with responsive layout
  */
 export default function SessionDetail() {
@@ -39,6 +45,19 @@ export default function SessionDetail() {
   // Dialog states
   const [resumeDialogOpen, setResumeDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+  // Chat messages state
+  const {
+    messages,
+    isLoading: isMessagesLoading,
+    streamingContent,
+    streamingSeq,
+    streamingError,
+    sendMessage,
+    loadMore,
+    retryLastMessage,
+    isSending,
+  } = useChatMessages(id);
 
   // Mutations
   const resumeSession = useResumeSession(id);
@@ -160,18 +179,54 @@ export default function SessionDetail() {
       ) : session ? (
         // Session data loaded successfully
         <>
-          <div className="flex-1 flex flex-col gap-6 overflow-auto">
-            {/* Session metadata */}
+          {/* Session metadata - collapsible on mobile */}
+          <div className="shrink-0">
             <SessionMetadata session={session} />
+          </div>
 
-            {/* Message area placeholder (ready for Phase 4) */}
-            <div className="flex-1 flex items-center justify-center border rounded-lg bg-muted/20">
-              <div className="text-center">
-                <p className="text-muted-foreground text-lg">Session messages</p>
-                <p className="text-muted-foreground text-sm mt-2">
-                  Messages will appear here (Phase 4)
-                </p>
+          {/* Chat interface */}
+          <div className="flex-1 flex flex-col min-h-0">
+            {/* Message list */}
+            <div className="flex-1 min-h-0">
+              <ChatMessageList
+                messages={messages}
+                streamingContent={streamingContent}
+                streamingSeq={streamingSeq ?? undefined}
+                isLoading={isMessagesLoading}
+                onScrollToTop={() => {
+                  // Load more messages when scrolling to top
+                  const oldestSeq = messages[0]?.seq;
+                  if (oldestSeq) {
+                    loadMore(oldestSeq);
+                  }
+                }}
+              />
+            </div>
+
+            {/* Streaming error card */}
+            {streamingError && (
+              <div className="px-4 pb-2">
+                <StreamingErrorCard
+                  error={streamingError}
+                  onRetry={retryLastMessage}
+                  onDismiss={() => {
+                    // Clear error on dismiss
+                    toast.info("Streaming error dismissed");
+                  }}
+                />
               </div>
+            )}
+
+            {/* Chat input */}
+            <div className="shrink-0">
+              <ChatInput
+                sessionId={id}
+                onSent={() => {
+                  // Message sent successfully, SSE will handle display
+                  toast.success("Message sent");
+                }}
+                disabled={isSending || session.status !== "idle"}
+              />
             </div>
           </div>
 
