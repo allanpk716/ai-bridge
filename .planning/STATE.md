@@ -6,22 +6,22 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 
 **Core value:** 功能完整性与性能表现双重验证 - 前端必须验证 AI-Bridge 后端所有 API 端点正常工作,同时在 10000+ 消息场景下验证增量同步性能
 
-**Current focus:** Phase 6: Polish & Advanced Features — In Progress (2/7 complete)
+**Current focus:** Phase 6: Polish & Advanced Features — In Progress (3/7 complete)
 
 ## Current Position
 
 Phase: 5 of 8 completed, Phase 6 in progress
 UAT: Phase 1 ✅ passed, Phase 2 ✅ passed (67/67 must-haves verified), Phase 3 ✅ complete, Phase 4 ✅ complete, Phase 5 ✅ complete (10/10 must-haves verified)
-Last activity: 2026-02-09 — Phase 6-02 ✅ complete (export to Markdown with preview modal and history)
+Last activity: 2026-02-09 — Phase 6-06 ✅ complete (loading skeletons and optimistic UI updates)
 
-Progress: [██████████░] 53% (34/64 plans)
+Progress: [██████████░] 55% (35/64 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 33
-- Average duration: 7.0 min
-- Total execution time: 3.9 hours
+- Total plans completed: 35
+- Average duration: 6.9 min
+- Total execution time: ~4.0 hours
 
 **By Phase:**
 
@@ -32,11 +32,11 @@ Progress: [██████████░] 53% (34/64 plans)
 | 3 | 8 | 45min | 5.6min |
 | 4 | 11 | 56min | 5.1min |
 | 5 | 3 | 12min | 4min |
-| 6 | 2 | 15min | 7.5min (in progress) |
+| 6 | 3 | 20min | 6.7min (in progress) |
 
 **Recent Trend:**
-- Last 5 plans: 05-01 (6min), 05-02 (3min), 05-03 (3min), 06-01 (8min partial), 06-02 (7min)
-- Trend: Phase 6 progressing well with search, export, and shadcn/ui infrastructure
+- Last 5 plans: 05-03 (3min), 06-01 (8min partial), 06-02 (7min), 06-03 (9min), 06-06 (5min)
+- Trend: Phase 6 progressing steadily with polish features
 
 *Updated after each plan completion*
 
@@ -91,6 +91,7 @@ Recent decisions affecting current work:
 - [06-01 - Search Interface]: Installed fuse.js@^7.0.0 and @radix-ui/react-scroll-area, created useFuseSearch hook with useMemo optimization, built SearchBar component with 300ms debounce and clear button, implemented SearchHighlight for keyword highlighting with regex escaping, created SearchResults with session/message grouping and navigation, added ScrollArea shadcn/ui component manually (CLI issues), barrel export for clean imports, integration tasks (TopNav, SessionList) deferred due to scope
 - [06-02 - Export to Markdown]: Created complete Markdown export system with file download and preview, built ExportButton with dropdown menu and ExportPreviewModal with ReactMarkdown rendering, implemented export history tracking with localStorage (max 20 entries), added shadcn/ui component infrastructure (Button, DropdownMenu, Dialog, Card), installed TanStack Query and Sonner for mutations and toasts, created comprehensive documentation and integration examples
 - [06-03 - Keyboard Shortcuts System]: Created ShortcutProvider context for global keyboard shortcut management, implemented useGlobalShortcuts hook with scope-based filtering (global/local), built ShortcutHelpModal with search and category grouping, changed ChatInput send shortcut from Enter to Ctrl+Enter (Mac: Cmd+Enter), added platform-aware key formatting (⌘ on Mac, Ctrl on Windows/Linux), integrated keyboard help button in TopNav with tooltip, registered global shortcuts: Ctrl+/ (help), Ctrl+K (command palette), Ctrl+Shift+N (new session TODO)
+- [06-06 - Loading Skeletons and Optimistic UI]: Installed react-loading-skeleton@^3.5.0 for skeleton screen components, created SessionListSkeleton, ChatMessageListSkeleton, CardSkeleton, TableSkeleton components matching actual content layouts, integrated skeletons into SessionList and ChatMessageList replacing Loader2 spinners, implemented optimistic UI updates in useSendMessage hook (onMutate for immediate display, onError rollback, onSuccess invalidate), created page-level skeletons (SessionListPageSkeleton, SessionDetailPageSkeleton) for Suspense route fallbacks, removed success toast on message send to reduce noise since UI updates immediately
 
 ### Pending Todos
 
@@ -112,8 +113,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-09 13:54 UTC
-Stopped at: Completed Phase 6-02 ✅ (Export to Markdown Functionality)
+Last session: 2026-02-09 14:03 UTC
+Stopped at: Completed Phase 6-06 ✅ (Loading Skeletons and Optimistic UI Updates)
 Resume file: None
 
 ## Phase 3 总结
