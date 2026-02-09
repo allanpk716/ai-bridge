@@ -261,10 +261,103 @@ Plans:
 - [ ] 07-05: TypeScript type definitions and documentation
 - [ ] 07-06: Error handling, reconnection, and recovery mechanisms
 
+---
+
+### Phase 8: Multi-Project Integration & Backend SDK
+
+**Goal**: Transform AI-Bridge into a reusable platform that can power multiple external applications (like PPT generators, code editors, documentation tools) through both Go backend SDK and embeddable React components. External apps can inject custom context (e.g., SVG elements, project state, user selections) that flows from host app → AI-Bridge frontend → backend → Claude Code CLI for processing.
+
+**Depends on**: Phase 7
+
+**Requirements**: INTEG-01, INTEG-02, INTEG-03, INTEG-04, INTEG-05, INTEG-06
+
+**Success Criteria** (what must be TRUE):
+1. External Golang applications can import AI-Bridge as a library/SDK to manage Claude Code CLI instances programmatically
+2. Multiple external applications can simultaneously create isolated Claude sessions via Go SDK with separate working directories
+3. External web apps can embed AI-Bridge React components (ChatInterface, PermissionModal, CommandPalette) with isolated state
+4. React components accept context injection (initial prompt, project metadata, custom tools) via props
+5. Backend provides multi-tenant session isolation per application ID with security boundaries
+6. Each external app can have multiple concurrent Claude instances (e.g., per-slide PPT generation) without cross-contamination
+7. **External apps can pass additional context (e.g., SVG elements, JSON data, file references) through embedded component props**
+8. **Injected context is serialized and transmitted to backend, then prepended to Claude Code CLI messages**
+9. **Frontend displays injected context preview (e.g., SVG thumbnails, JSON tree) so users understand what Claude sees**
+10. SDK documentation and example integrations demonstrate common patterns (PPT generation with SVG context, code review with file context)
+
+**Plans**:
+
+Plans:
+- [ ] 08-01: Go SDK package structure with clean public API for session management
+- [ ] 08-02: Multi-tenant backend architecture with application ID isolation
+- [ ] 08-03: React component library extraction with standalone build (component SDK)
+- [ ] 08-04: Context injection API for pre-configuring Claude sessions (initial prompts, tools, working dirs)
+- [ ] **08-04a: External context serialization and transmission protocol (props → frontend → backend → CLI)**
+- [ ] **08-04b: Context preview UI components (SVG thumbnails, JSON tree, file reference cards)**
+- [ ] **08-04c: Backend context injection into Claude Code CLI stdin/messages**
+- [ ] 08-05: Example integration with PPT generator project (multi-session per-slide generation with SVG context)
+- [ ] 08-06: SDK documentation with TypeScript definitions and Go godocs
+- [ ] 08-07: Integration testing suite for multi-application scenarios
+
+**Details:**
+This phase transforms AI-Bridge from a single-purpose web app into a platform that other applications can build upon. The use case: a PPT generation tool needs to run Claude Code for each slide independently, with different contexts (slide content, SVG elements, design templates, user selections).
+
+**Key Feature: External Context Flow**
+
+The integration supports external context injection through the following flow:
+
+```
+External App (PPT Generator)
+    ↓ props
+AI-Bridge Frontend Component
+    ↓ HTTP API / WebSocket
+AI-Bridge Backend
+    ↓ stdin / message prepend
+Claude Code CLI
+```
+
+**Example: PPT Slide Generation with SVG Context**
+
+```typescript
+// PPT 项目提取 SVG 元素作为上下文
+const slideElements = extractSVGElements(currentSlide);
+
+// 传递给 AI-Bridge 嵌入组件
+<AIChatInterface
+  appId="make-ppt-great-again"
+  sessionId={`slide-${slideId}`}
+  externalContext={{
+    // SVG 元素数据
+    svgElements: slideElements.map(el => ({
+      type: 'rect', 'circle', 'text', etc.
+      attributes: el.attrs,
+      content: el.textContent
+    })),
+
+    // 项目元数据
+    projectMetadata: {
+      slideNumber: slideId,
+      theme: currentTheme,
+      dimensions: { width: 1920, height: 1080 }
+    },
+
+    // 用户选择
+    userSelection: {
+      selectedElements: selectedIds,
+      focusArea: userViewport
+    }
+  }}
+  onClaudeResponse={(response) => {
+    // Claude 基于上下文返回修改建议
+    applySlideChanges(response.changes);
+  }}
+/>
+```
+
+The Go backend SDK lets external apps spawn isolated Claude instances programmatically, while the React component SDK provides UI components that can be embedded with rich context including SVG elements, project state, and user selections.
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -275,5 +368,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 5. PWA Features | 0/5 | Not started | - |
 | 6. Polish & Advanced Features | 0/7 | Not started | - |
 | 7. SDK & Integration | 0/6 | Not started | - |
+| 8. Multi-Project Integration & Backend SDK | 0/10 | Not started | - |
 
-**Overall Progress:** 29/56 plans complete (52%)
+**Overall Progress:** 29/66 plans complete (44%)

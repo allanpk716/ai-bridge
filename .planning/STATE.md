@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 
 ## Current Position
 
-Phase: 4 of 7 completed, ready for Phase 5
+Phase: 4 of 8 completed, ready for Phase 5
 UAT: Phase 1 ✅ passed, Phase 2 ✅ passed (67/67 must-haves verified), Phase 3 ✅ complete
 Last activity: 2026-02-09 — Phase 4 complete ✅ (11/11 plans)
 
-Progress: [██████████░] 52% (29/56 plans)
+Progress: [████████░░] 44% (29/66 plans)
 
 ## Performance Metrics
 
@@ -95,6 +95,11 @@ None yet.
 - Testing infrastructure not set up - useSSE.test.ts created but cannot run without vitest and @testing-library/react
 - Backend SSE endpoint must be implemented and tested with frontend
 - Integration testing needed to verify SSE connection works with real backend
+
+### Roadmap Evolution
+
+- [2026-02-09] Phase 8 added: Multi-Project Integration & Backend SDK - Transform AI-Bridge into a platform that can be embedded in external applications (e.g., PPT generators) with Go backend SDK and React component library
+- [2026-02-09] Phase 8 enhanced: Added external context injection support (08-04a, 08-04b, 08-04c) - Enables external apps to pass SVG elements, JSON data, file references through embedded components → backend → Claude Code CLI
 
 ## Session Continuity
 
