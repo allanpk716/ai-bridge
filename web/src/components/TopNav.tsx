@@ -31,11 +31,12 @@ export default function TopNav({ onMenuClick, onShortcutHelpClick }: TopNavProps
 
   return (
     <header
+      role="banner"
       className={`border-b bg-background shadow-sm transition-transform duration-300 ease-in-out fixed top-0 left-0 right-0 z-30 ${
         shouldHide ? '-translate-y-full' : 'translate-y-0'
       }`}
     >
-      <div className="flex h-16 items-center justify-between pl-4 pr-4 md:pl-[336px] md:pr-6">`
+      <nav className="flex h-16 items-center justify-between pl-4 pr-4 md:pl-[336px] md:pr-6" aria-label="主导航">
         {/* Left: Hamburger (mobile) / Logo (desktop) */}
         <div className="flex items-center">
           {/* Hamburger menu - mobile only */}
@@ -44,9 +45,9 @@ export default function TopNav({ onMenuClick, onShortcutHelpClick }: TopNavProps
             size="icon"
             onClick={onMenuClick}
             className="md:hidden"
-            aria-label="Open menu"
+            aria-label="打开菜单"
           >
-            <Menu className="h-6 w-6" />
+            <Menu className="h-6 w-6" aria-hidden="true" />
           </Button>
 
           {/* Logo - mobile only (desktop shows logo in sidebar) */}
@@ -54,7 +55,7 @@ export default function TopNav({ onMenuClick, onShortcutHelpClick }: TopNavProps
         </div>
 
         {/* Center: Breadcrumb - desktop only */}
-        <div className="flex-1 px-8 hidden md:block">
+        <div className="flex-1 px-8 hidden md:block" role="navigation" aria-label="面包屑导航">
           <div className="text-sm text-muted-foreground">Navigation</div>
         </div>
 
@@ -70,9 +71,9 @@ export default function TopNav({ onMenuClick, onShortcutHelpClick }: TopNavProps
                   variant="ghost"
                   size="icon"
                   onClick={onShortcutHelpClick}
-                  aria-label="Keyboard shortcuts"
+                  aria-label="打开键盘快捷键帮助"
                 >
-                  <Keyboard className="h-5 w-5" />
+                  <Keyboard className="h-5 w-5" aria-hidden="true" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -81,7 +82,7 @@ export default function TopNav({ onMenuClick, onShortcutHelpClick }: TopNavProps
             </Tooltip>
           </TooltipProvider>
         </div>
-      </div>
+      </nav>
     </header>
   );
 }

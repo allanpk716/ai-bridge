@@ -29,38 +29,39 @@ export function Sidebar({ children }: SidebarProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   return (
-    <div className="w-full md:w-80 flex flex-col h-full bg-background border-r">
+    <aside className="w-full md:w-80 flex flex-col h-full bg-background border-r" role="complementary" aria-label="侧边栏">
       {/* Header */}
-      <div className="flex h-16 items-center px-6 border-b flex-shrink-0">
-        <MessageSquare className="h-6 w-6 text-primary flex-shrink-0" />
+      <header className="flex h-16 items-center px-6 border-b flex-shrink-0">
+        <MessageSquare className="h-6 w-6 text-primary flex-shrink-0" aria-hidden="true" />
         <h1 className="ml-3 text-lg font-semibold truncate">AI-Bridge</h1>
-      </div>
+      </header>
 
       {/* Session List Area (placeholder) */}
-      <div className="flex-1 overflow-y-auto px-3 py-4">
+      <nav className="flex-1 overflow-y-auto px-3 py-4" aria-label="会话列表">
         <div className="text-sm text-muted-foreground text-center py-8">
           Session list will appear here
         </div>
         {children}
-      </div>
+      </nav>
 
       {/* Footer with Theme Toggle, Connection Status, and New Session */}
-      <div className="p-4 border-t space-y-3">
+      <footer className="p-4 border-t space-y-3">
         <Button
           className="w-full justify-start"
           onClick={() => setDialogOpen(true)}
+          aria-label="创建新会话"
         >
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
           New Session
         </Button>
         <div className="flex items-center justify-between">
           <ConnectionStatusIndicator />
           <ThemeToggle />
         </div>
-      </div>
+      </footer>
 
       {/* Create Session Dialog */}
       <CreateSessionDialog open={dialogOpen} onOpenChange={setDialogOpen} />
-    </div>
+    </aside>
   );
 }

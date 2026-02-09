@@ -177,13 +177,15 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(function ChatI
   }, []);
 
   return (
-    <div className="flex flex-row gap-2 items-end border-t bg-background p-4">
+    <div className="flex flex-row gap-2 items-end border-t bg-background p-4" role="region" aria-label="消息输入">
       <textarea
         ref={textareaRef}
         value={messageText}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
+        aria-label="消息输入框"
+        aria-describedby="chat-input-help"
         disabled={disabled}
         rows={calculateRows(messageText)}
         className="flex-1 resize-none rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 min-h-[36px] max-h-[240px]"
@@ -199,12 +201,12 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(function ChatI
               disabled={isSendDisabled}
               size="icon"
               className="h-9 w-9 shrink-0"
-              aria-label="Send message"
+              aria-label="发送消息"
             >
               {sendMessageMutation.isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
               ) : (
-                <Send className="h-4 w-4" />
+                <Send className="h-4 w-4" aria-hidden="true" />
               )}
             </Button>
           </TooltipTrigger>
@@ -213,6 +215,9 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(function ChatI
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
+      <span id="chat-input-help" className="sr-only">
+        输入消息后按 {getModifierKey()}+Enter 发送,Shift+Enter 换行
+      </span>
     </div>
   );
 });
