@@ -5,21 +5,17 @@
  * Replaces the existing ErrorBoundary with enhanced features.
  */
 
-import { ComponentProps } from "react";
-import { ErrorBoundary } from "react-error-boundary";
+import { ErrorBoundary, type FallbackProps } from "react-error-boundary";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 /**
  * ErrorFallback - Fallback UI for global errors
  */
-function AppErrorFallback({
-  error,
-  resetErrorBoundary,
-}: {
-  error: Error;
-  resetErrorBoundary: () => void;
-}) {
+function AppErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
+  const errorMessage = error instanceof Error ? error.message : "未知错误";
+  const errorStack = error instanceof Error ? error.stack : null;
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
       <div className="max-w-md w-full mx-4 text-center">
@@ -27,7 +23,7 @@ function AppErrorFallback({
         <h1 className="text-2xl font-bold mb-2">应用遇到了问题</h1>
         <p className="text-muted-foreground mb-6">
           {import.meta.env.DEV
-            ? error.message
+            ? errorMessage
             : "抱歉,应用遇到了意外错误。请尝试刷新页面或重新加载。"}
         </p>
         <div className="flex gap-3 justify-center">
@@ -42,13 +38,13 @@ function AppErrorFallback({
             刷新页面
           </Button>
         </div>
-        {import.meta.env.DEV && (
+        {import.meta.env.DEV && errorStack && (
           <details className="mt-6 text-left">
             <summary className="cursor-pointer text-sm text-muted-foreground">
               查看错误详情
             </summary>
             <pre className="mt-2 p-4 bg-muted rounded text-xs overflow-auto">
-              {error.stack}
+              {errorStack}
             </pre>
           </details>
         )}
