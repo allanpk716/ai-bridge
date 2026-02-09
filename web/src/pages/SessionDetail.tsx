@@ -1,5 +1,5 @@
 import { useParams } from 'react-router';
-import { useState } from 'react';
+import { useState, useRef, type RefObject } from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { useNavigateToSessionList, useNavigateToSession } from '@/router';
@@ -9,9 +9,10 @@ import { SessionHeader } from '@/components/session/SessionHeader';
 import { ResumeSessionDialog } from '@/components/session/ResumeSessionDialog';
 import { DeleteSessionDialog } from '@/components/session/DeleteSessionDialog';
 import { ChatMessageList } from '@/components/chat/ChatMessageList';
-import { ChatInput } from '@/components/chat/ChatInput';
+import { ChatInput, type ChatInputRef } from '@/components/chat/ChatInput';
 import { StreamingErrorCard } from '@/components/chat/StreamingErrorCard';
 import { useChatMessages } from '@/hooks/useChatMessages';
+import { CommandExecutor } from '@/components/commands';
 import { toast } from 'sonner';
 
 /**
@@ -45,6 +46,9 @@ export default function SessionDetail() {
   // Dialog states
   const [resumeDialogOpen, setResumeDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+  // Chat input ref for command population
+  const inputRef = useRef<ChatInputRef>(null);
 
   // Chat messages state
   const {
@@ -115,6 +119,13 @@ export default function SessionDetail() {
 
   const handleBack = () => {
     navigateToSessionList();
+  };
+
+  // Handle command insertion from CommandExecutor
+  const handleCommandInserted = (commandText: string) => {
+    if (inputRef.current) {
+      inputRef.current.setValue(commandText);
+    }
   };
 
   return (
@@ -217,9 +228,19 @@ export default function SessionDetail() {
               </div>
             )}
 
-            {/* Chat input */}
+            {/* Chat input with command trigger */}
             <div className="shrink-0">
+              <div className="px-4 pt-2 pb-4">
+                <div className="flex gap-2">
+                  {/* Command executor trigger */}
+                  <CommandExecutor
+                    sessionId={id}
+                    onCommandInserted={handleCommandInserted}
+                  />
+                </div>
+              </div>
               <ChatInput
+                ref={inputRef}
                 sessionId={id}
                 onSent={() => {
                   // Message sent successfully, SSE will handle display
