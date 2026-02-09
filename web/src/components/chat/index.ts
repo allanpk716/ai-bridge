@@ -1,0 +1,11 @@
+/**
+ * Chat Components Barrel Export
+ *
+ * Provides clean import paths for chat-related components.
+ *
+ * @example
+ * import ChatMessageList from '@/components/chat';
+ */
+
+export { default as ChatMessageList } from "./ChatMessageList";
+export { default } from "./ChatMessageList";
