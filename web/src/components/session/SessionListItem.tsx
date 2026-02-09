@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { type Session } from "@/types/api";
 import {
@@ -17,6 +18,10 @@ interface SessionListItemProps {
   onClick: () => void;
   onDelete?: () => void;
   isDeleting?: boolean;
+  // Selection mode props
+  selectionMode?: boolean;
+  isSelected?: boolean;
+  onSelectionChange?: (selected: boolean) => void;
 }
 
 /**
@@ -36,6 +41,9 @@ export function SessionListItem({
   onClick,
   onDelete,
   isDeleting = false,
+  selectionMode = false,
+  isSelected = false,
+  onSelectionChange,
 }: SessionListItemProps) => {
   const { id, status, metadata = {} } = session;
 
@@ -120,12 +128,28 @@ export function SessionListItem({
     <TooltipProvider>
       <div
         className={cn(
-          "group relative flex items-center gap-3 rounded-lg border bg-card p-4 transition-all hover:bg-accent/50 cursor-pointer",
-          "md:hover:shadow-sm",
+          "group relative flex items-center gap-3 rounded-lg border bg-card p-4 transition-all",
+          selectionMode ? "hover:bg-accent/50 cursor-pointer" : "hover:bg-accent/50 cursor-pointer md:hover:shadow-sm",
+          isSelected && selectionMode && "bg-accent border-primary/50",
           isDeleting && "opacity-50 pointer-events-none"
         )}
-        onClick={isDeleting ? undefined : onClick}
+        onClick={isDeleting ? undefined : (selectionMode ? () => onSelectionChange?.(!isSelected) : onClick)}
       >
+        {/* Selection checkbox */}
+        {selectionMode && (
+          <div className="flex items-center">
+            <Checkbox
+              checked={isSelected}
+              onCheckedChange={(checked) => {
+                const newValue = checked === true;
+                onSelectionChange?.(newValue);
+              }}
+              onClick={(e) => e.stopPropagation()}
+              className="shrink-0"
+            />
+          </div>
+        )}
+
         {/* Main content */}
         <div className="flex-1 min-w-0">
           {/* Session name and status */}

@@ -208,3 +208,109 @@ export function useDeleteSession() {
     },
   });
 }
+
+/**
+ * Resume a session with specified mode
+ *
+ * @param sessionId - Session ID to resume
+ * @param mode - Resume mode: 'continue', 'resume', or 'new'
+ * @returns Promise resolving to resumed/created Session object
+ * @throws ApiError if request fails
+ */
+export async function resumeSession(
+  sessionId: string,
+  mode: "continue" | "resume" | "new"
+): Promise<Session> {
+  const url = getApiUrl(`sessions/${sessionId}/resume`);
+  const response = await fetchWithErrorHandling<{ session: Session }>(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ mode }),
+  });
+  return response.session;
+}
+
+/**
+ * React hook for resuming a session
+ *
+ * @param sessionId - Session ID to resume
+ * @returns Mutation object with trigger function and state
+ *
+ * @example
+ * const resumeMutation = useResumeSession("abc123");
+ * const handleResume = (mode) => {
+ *   resumeMutation.mutate(mode);
+ * };
+ */
+export function useResumeSession(sessionId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (mode: "continue" | "resume" | "new") =>
+      resumeSession(sessionId, mode),
+    onSuccess: (data) => {
+      // Invalidate sessions query to refetch list
+      queryClient.invalidateQueries({ queryKey: ["sessions"] });
+      // Invalidate specific session query
+      queryClient.invalidateQueries({ queryKey: ["session", sessionId] });
+      // Show success toast
+      toast.success("Session resumed successfully");
+    },
+    onError: (error) => {
+      // Show error toast
+      toast.error(`Failed to resume session: ${error.message}`);
+    },
+  });
+}
+
+/**
+ * Stop a running session
+ *
+ * @param sessionId - Session ID to stop
+ * @returns Promise resolving to updated Session object
+ * @throws ApiError if request fails
+ */
+export async function stopSession(sessionId: string): Promise<Session> {
+  const url = getApiUrl(`sessions/${sessionId}/stop`);
+  const response = await fetchWithErrorHandling<{ session: Session }>(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.session;
+}
+
+/**
+ * React hook for stopping a session
+ *
+ * @param sessionId - Session ID to stop
+ * @returns Mutation object with trigger function and state
+ *
+ * @example
+ * const stopMutation = useStopSession("abc123");
+ * const handleStop = () => {
+ *   stopMutation.mutate();
+ * };
+ */
+export function useStopSession(sessionId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => stopSession(sessionId),
+    onSuccess: () => {
+      // Invalidate session query to refresh status
+      queryClient.invalidateQueries({ queryKey: ["session", sessionId] });
+      // Invalidate sessions list query
+      queryClient.invalidateQueries({ queryKey: ["sessions"] });
+      // Show success toast
+      toast.success("Session stopped successfully");
+    },
+    onError: (error) => {
+      // Show error toast
+      toast.error(`Failed to stop session: ${error.message}`);
+    },
+  });
+}

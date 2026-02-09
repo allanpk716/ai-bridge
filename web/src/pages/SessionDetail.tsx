@@ -1,10 +1,15 @@
 import { useParams } from 'react-router';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
-import { useNavigateToSessionList } from '@/router';
-import { useSession } from '@/lib/api/sessions';
+import { Loader2, AlertCircle } from 'lucide-react';
+import { useNavigateToSessionList, useNavigateToSession } from '@/router';
+import { useSession, useResumeSession, useStopSession, useDeleteSession } from '@/lib/api/sessions';
 import { SessionMetadata } from '@/components/session/SessionMetadata';
+import { SessionHeader } from '@/components/session/SessionHeader';
+import { ResumeSessionDialog } from '@/components/session/ResumeSessionDialog';
+import { DeleteSessionDialog } from '@/components/session/DeleteSessionDialog';
 import { toast } from 'sonner';
+import type { Session } from '@/types/api';
 
 /**
  * SessionDetail page
@@ -22,55 +27,110 @@ import { toast } from 'sonner';
  */
 export default function SessionDetail() {
   const { id } = useParams<{ id: string }>();
+  if (!id) {
+    throw new Error('Session ID is required');
+  }
+
   const navigateToSessionList = useNavigateToSessionList();
+  const navigateToSession = useNavigateToSession();
 
   // Fetch session data
   const { data: session, error, isLoading } = useSession(id);
+
+  // Dialog states
+  const [resumeDialogOpen, setResumeDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+  // Mutations
+  const resumeSession = useResumeSession(id);
+  const stopSession = useStopSession(id);
+  const deleteSession = useDeleteSession();
 
   // Handle error state
   if (error) {
     toast.error(`Failed to load session: ${error.message}`);
   }
 
+  // Action handlers
+  const handleResume = () => {
+    setResumeDialogOpen(true);
+  };
+
+  const handleResumeConfirm = (mode: 'continue' | 'resume' | 'new') => {
+    if (mode === 'new') {
+      // For new session, navigate to create dialog with pre-filled directory
+      // This would require passing state to the create dialog
+      toast.info('Create new session with same directory - to be implemented');
+      setResumeDialogOpen(false);
+      return;
+    }
+
+    // Resume with mode
+    resumeSession.mutate(mode, {
+      onSuccess: (data) => {
+        setResumeDialogOpen(false);
+        // Navigate to resumed session (if different ID)
+        if (data.id !== id) {
+          navigateToSession(data.id);
+        }
+      },
+    });
+  };
+
+  const handleStop = () => {
+    stopSession.mutate();
+  };
+
+  const handleDelete = () => {
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    deleteSession.mutate(id, {
+      onSuccess: () => {
+        setDeleteDialogOpen(false);
+        // Navigate back to session list
+        navigateToSessionList();
+      },
+    });
+  };
+
+  const handleBack = () => {
+    navigateToSessionList();
+  };
+
   return (
     <div className="h-full flex flex-col">
-      {/* Header with back button (mobile) and session info */}
-      <div className="flex items-center gap-4 mb-6">
-        {/* Back button - mobile only */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={navigateToSessionList}
-          className="md:hidden"
-          aria-label="Go back"
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
+      {/* Session Header with actions */}
+      {session && (
+        <SessionHeader
+          session={session}
+          onResume={handleResume}
+          onStop={handleStop}
+          onDelete={handleDelete}
+          isResuming={resumeSession.isPending}
+          isStopping={stopSession.isPending}
+          isDeleting={deleteSession.isPending}
+          onBack={handleBack}
+        />
+      )}
 
-        <div className="flex-1">
-          {isLoading ? (
+      {/* Loading header when session not loaded yet */}
+      {!session && (
+        <div className="flex items-center gap-4 mb-6">
+          <Button variant="ghost" size="icon" onClick={handleBack}>
+            <Loader2 className="h-5 w-5" />
+          </Button>
+          <div className="flex-1">
             <div className="flex items-center gap-2">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
               <h1 className="text-2xl font-semibold text-muted-foreground">
                 Loading session...
               </h1>
             </div>
-          ) : session ? (
-            <div>
-              <h1 className="text-2xl font-semibold">
-                Session {session.id.slice(0, 8)}
-              </h1>
-              <p className="text-sm text-muted-foreground">ID: {session.id}</p>
-            </div>
-          ) : (
-            <div>
-              <h1 className="text-2xl font-semibold text-muted-foreground">
-                Session not found
-              </h1>
-            </div>
-          )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Main content area */}
       {isLoading ? (
@@ -114,7 +174,27 @@ export default function SessionDetail() {
             </div>
           </div>
         </div>
-      ) : null}
+
+        {/* Dialogs */}
+        {session && (
+          <>
+            <ResumeSessionDialog
+              open={resumeDialogOpen}
+              onOpenChange={setResumeDialogOpen}
+              session={session}
+              onConfirm={handleResumeConfirm}
+              isResuming={resumeSession.isPending}
+            />
+
+            <DeleteSessionDialog
+              open={deleteDialogOpen}
+              onOpenChange={setDeleteDialogOpen}
+              session={session}
+              isDeleting={deleteSession.isPending}
+              onConfirm={handleDeleteConfirm}
+            />
+          </>
+        )}
     </div>
   );
 }
