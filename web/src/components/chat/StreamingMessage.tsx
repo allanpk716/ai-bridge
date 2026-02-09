@@ -88,14 +88,18 @@ const StreamingMessageComponent: React.FC<StreamingMessageProps> = ({
         <Markdown
           remarkPlugins={[remarkGfm] as PluggableList}
           components={{
-            code({ node, inline, className, children, ...props }) {
+            code(props) {
+              const { node, className, children, ...rest } = props;
               const match = /language-(\w+)/.exec(className || '');
               const language = match ? match[1] : '';
 
-              return !inline && match ? (
+              // Check if it's a code block (has language class) or inline code
+              const isCodeBlock = match !== null;
+
+              return isCodeBlock ? (
                 <CodeBlock code={String(children).replace(/\n$/, '')} language={language} />
               ) : (
-                <code className={className} {...props}>
+                <code className={className} {...rest}>
                   {children}
                 </code>
               );

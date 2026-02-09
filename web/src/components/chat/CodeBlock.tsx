@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDark, vs } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { vscDarkPlus, vs } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Check, Copy } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
@@ -75,7 +75,7 @@ const CodeBlockComponent: React.FC<CodeBlockProps> = ({ code, language, classNam
   // Normalize language and select theme based on current theme
   const normalizedLanguage = normalizeLanguage(language);
   const isDark = resolvedTheme === 'dark';
-  const theme = isDark ? vscDark : vs;
+  const theme = isDark ? vscDarkPlus : vs;
 
   /**
    * Copy code to clipboard with visual feedback
