@@ -5,6 +5,7 @@ import TopNav from '@/components/TopNav';
 import { Sidebar } from '@/components/Sidebar';
 import { MobileDrawer } from '@/components/MobileDrawer';
 import { useShortcutUI } from '@/App';
+import { SkipLink } from '@/components/accessibility/SkipLink';
 
 /**
  * MainLayout component
@@ -55,6 +56,9 @@ export default function MainLayout() {
 
   return (
     <>
+      {/* Skip to main content link for accessibility */}
+      <SkipLink />
+
       {/* Desktop Sidebar (fixed, hidden on mobile) */}
       <div className="hidden md:flex md:fixed md:inset-y-0 md:z-20">
         <Sidebar />
@@ -68,7 +72,12 @@ export default function MainLayout() {
 
       {/* Main content area (below TopNav, with sidebar offset) */}
       <div {...edgeSwipeHandlers} className="h-screen pt-16 md:pl-80">
-        <main className="h-full overflow-auto p-4 md:p-6">
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className="h-full overflow-auto p-4 md:p-6"
+          role="main"
+        >
           <Outlet />
         </main>
       </div>
