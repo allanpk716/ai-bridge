@@ -94,10 +94,8 @@ function InnerApp() {
 
     // Cleanup on unmount
     return () => {
-      shortcuts.forEach((s) => {
-        // Note: ShortcutProvider doesn't have cleanup yet
-        // This is fine for global shortcuts
-      });
+      // Note: ShortcutProvider doesn't have cleanup yet
+      // This is fine for global shortcuts
     };
   }, [registerShortcut, openShortcutHelp]);
 

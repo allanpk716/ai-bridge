@@ -10,7 +10,6 @@
 import { useState, useMemo } from 'react';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { formatKeyCombo, type Shortcut } from '../shortcuts';
 
 interface ShortcutSheetProps {
@@ -82,7 +81,7 @@ export function ShortcutSheet({ shortcuts }: ShortcutSheetProps) {
       </div>
 
       {/* Shortcuts list */}
-      <ScrollArea className="flex-1">
+      <div className="flex-1 overflow-y-auto">
         <div className="p-4">
           {Object.keys(groupedShortcuts).length === 0 ? (
             <div className="py-8 text-center text-sm text-muted-foreground">
@@ -127,7 +126,7 @@ export function ShortcutSheet({ shortcuts }: ShortcutSheetProps) {
             ))
           )}
         </div>
-      </ScrollArea>
+      </div>
     </div>
   );
 }
