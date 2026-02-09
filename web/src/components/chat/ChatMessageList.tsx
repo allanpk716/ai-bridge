@@ -20,7 +20,7 @@ import { clsx } from "clsx";
 import { StreamingMessage } from "./StreamingMessage";
 import { StreamingIndicator } from "./StreamingIndicator";
 import { TypingIndicator } from "./TypingIndicator";
-import { Loader2 } from "lucide-react";
+import { ChatMessageListSkeleton } from "@/components/skeletons";
 import { PermissionCard } from "@/components/permissions";
 import type { PermissionWithStatus } from "@/hooks/usePermissionModal";
 
@@ -131,12 +131,7 @@ export default function ChatMessageList({
 }: ChatMessageListProps) {
   // Loading state (initial fetch with no messages)
   if (isLoading && messages.length === 0) {
-    return (
-      <div className={clsx("flex flex-col items-center justify-center h-full gap-3", className)}>
-        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-        <p className="text-muted-foreground text-sm">Loading messages...</p>
-      </div>
-    );
+    return <ChatMessageListSkeleton className={className} />;
   }
 
   // Empty state

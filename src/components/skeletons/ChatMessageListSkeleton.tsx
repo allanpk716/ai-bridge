@@ -1,8 +1,14 @@
 import Skeleton from 'react-loading-skeleton';
+import { clsx } from 'clsx';
 
-export function ChatMessageListSkeleton({ count = 3 }: { count?: number }) {
+export interface ChatMessageListSkeletonProps {
+  count?: number;
+  className?: string;
+}
+
+export function ChatMessageListSkeleton({ count = 3, className }: ChatMessageListSkeletonProps) {
   return (
-    <div className="space-y-4 p-4">
+    <div className={clsx("space-y-4 p-4", className)}>
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
