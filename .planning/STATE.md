@@ -6,15 +6,15 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 
 **Core value:** 功能完整性与性能表现双重验证 - 前端必须验证 AI-Bridge 后端所有 API 端点正常工作,同时在 10000+ 消息场景下验证增量同步性能
 
-**Current focus:** Phase 5: PWA Features ✅ COMPLETE
+**Current focus:** Phase 6: Polish & Advanced Features — In Progress (1/7 complete)
 
 ## Current Position
 
-Phase: 5 of 8 completed, ready for Phase 6
+Phase: 5 of 8 completed, Phase 6 in progress
 UAT: Phase 1 ✅ passed, Phase 2 ✅ passed (67/67 must-haves verified), Phase 3 ✅ complete, Phase 4 ✅ complete, Phase 5 ✅ complete (10/10 must-haves verified)
-Last activity: 2026-02-09 — Phase 5 complete ✅ (3/3 plans, 12 minutes total)
+Last activity: 2026-02-09 — Phase 6-01 partial ✅ (base infrastructure complete, integration pending)
 
-Progress: [██████████] 50% (32/64 plans)
+Progress: [██████████░] 52% (33/64 plans)
 
 ## Performance Metrics
 
@@ -32,11 +32,11 @@ Progress: [██████████] 50% (32/64 plans)
 | 3 | 8 | 45min | 5.6min |
 | 4 | 11 | 56min | 5.1min |
 | 5 | 3 | 12min | 4min |
-| 6 | 0 | 0 | - |
+| 6 | 1 | 8min | 8min (in progress) |
 
 **Recent Trend:**
-- Last 5 plans: 05-01 (6min), 05-02 (3min), 05-03 (3min)
-- Trend: Phase 5 progressing efficiently (avg 4min/plan)
+- Last 5 plans: 05-01 (6min), 05-02 (3min), 05-03 (3min), 06-01 (8min partial)
+- Trend: Phase 6 started with search infrastructure
 
 *Updated after each plan completion*
 
@@ -88,6 +88,7 @@ Recent decisions affecting current work:
 - [05-01 - PWA Foundation]: Installed vite-plugin-pwa@1.2.0 (upgraded from 0.17.0 for Vite 7 compatibility), configured VitePWA with prompt update strategy, manifest with app metadata and vite.svg icons, Workbox static asset caching (js, css, html, ico, png, svg, woff2), added TypeScript types for virtual:pwa-register/react module, implemented Service Worker registration in main.tsx with production guard and serviceWorker capability check, updated index.html with AI-Bridge title, description meta, and theme-color meta
 - [05-02 - Offline Detection]: Created useOnlineStatus hook using browser-native navigator.onLine API with event listeners for real-time network status detection, built OfflineBanner component with prominent red warning banner (bg-red-500 light, bg-red-900 dark) that persists while offline with no close button, established PWA component barrel export pattern for clean imports, integrated OfflineBanner in App.tsx above RouterProvider for visibility on all routes
 - [05-03 - Update Prompt]: Created UpdatePrompt component using useRegisterSW hook from virtual:pwa-register/react for Service Worker lifecycle management, configured modal dialog with Chinese messaging ("新版本可用", "应用已更新,请刷新以获取最新版本"), implemented single "立即更新" button (no dismiss/later options per CONTEXT.md), added periodic update checks (hourly in production) via setInterval(registration.update()), integrated UpdatePrompt in App.tsx at same level as ConnectionDialog for global modal availability
+- [06-01 - Search Interface]: Installed fuse.js@^7.0.0 and @radix-ui/react-scroll-area, created useFuseSearch hook with useMemo optimization, built SearchBar component with 300ms debounce and clear button, implemented SearchHighlight for keyword highlighting with regex escaping, created SearchResults with session/message grouping and navigation, added ScrollArea shadcn/ui component manually (CLI issues), barrel export for clean imports, integration tasks (TopNav, SessionList) deferred due to scope
 
 ### Pending Todos
 
@@ -95,11 +96,12 @@ None yet.
 
 ### Blockers/Concerns
 
-- Build fails due to missing shadcn/ui components (checkbox, scroll-area, radio-group) - referenced in Phase 3/4 but not installed
+- ~~Build fails due to missing shadcn/ui components~~ (scroll-area added in 06-01, checkbox/radio-group still missing)
 - Service Worker files (sw.js, workbox-*.js) will be generated once build succeeds
 - Testing infrastructure not set up - useSSE.test.ts created but cannot run without vitest and @testing-library/react
 - Backend SSE endpoint must be implemented and tested with frontend
 - Integration testing needed to verify SSE connection works with real backend
+- Phase 6 has 7 large plans - completing all in one session may cause context overflow
 
 ### Roadmap Evolution
 
