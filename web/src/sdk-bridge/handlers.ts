@@ -55,13 +55,16 @@ const sdkMessageHandler = createSdkMessageHandler();
  * 发送消息到 SDK
  */
 export function sendToSdk(message: SdkOutgoingMessage): boolean {
-  if (!state.parentOrigin || !window.parent) {
+  if (!window.parent) {
     console.warn('[SdkBridge] Cannot send message: no parent window');
     return false;
   }
 
+  // 如果 parentOrigin 未知,使用 "*" 允许任何源(仅在开发模式)
+  const targetOrigin = state.parentOrigin || '*';
+
   try {
-    window.parent.postMessage(message, state.parentOrigin);
+    window.parent.postMessage(message, targetOrigin);
     return true;
   } catch (error) {
     console.error('[SdkBridge] Failed to send message:', error);
@@ -181,9 +184,16 @@ export function setupSdkMessageListener(config: SdkModeConfig): () => void {
     return () => {};
   }
 
+  // 使用配置的 parentOrigin,如果为 null 则在第一条消息时从 event.origin 获取
   state.parentOrigin = config.parentOrigin;
 
   const messageHandler = (event: MessageEvent): void => {
+    // 如果 parentOrigin 未设置,使用第一条消息的 origin
+    if (!state.parentOrigin && event.origin) {
+      state.parentOrigin = event.origin;
+      console.log('[SdkBridge] Detected parent origin from first message:', event.origin);
+    }
+
     // 验证来源
     if (state.parentOrigin && event.origin !== state.parentOrigin) {
       return;
@@ -232,10 +242,13 @@ export function sendErrorToSdk(
   code?: string,
   details?: unknown
 ): boolean {
-  if (!state.parentOrigin || !window.parent) {
+  if (!window.parent) {
     console.warn('[SdkBridge] Cannot send error: no parent window');
     return false;
   }
+
+  // 如果 parentOrigin 未知,使用 "*" 允许任何源
+  const targetOrigin = state.parentOrigin || '*';
 
   try {
     window.parent.postMessage(
@@ -248,7 +261,7 @@ export function sendErrorToSdk(
           timestamp: Date.now(),
         },
       },
-      state.parentOrigin
+      targetOrigin
     );
     return true;
   } catch (error) {
