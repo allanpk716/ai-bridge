@@ -1,9 +1,8 @@
-import { ConnectionState } from '../types/events';
 import type { SDKConfig, SdkMessageResponse } from '../types/config';
 import type { SdkMessage, IframeResponse, MessageResponse } from '../types/messages';
-import { IframeResponseSchema, SdkMessageSchema } from '../types/messages';
-import { z } from 'zod';
 import { IframeManager } from './IframeManager';
+import { MessageBridge } from './Bridge';
+import { ConnectionManager, ConnectionState } from './Connection';
 
 /**
  * AI-Bridge SDK 主客户端类
@@ -17,23 +16,41 @@ import { IframeManager } from './IframeManager';
  */
 export class AIBridgeSDK {
   private iframeManager: IframeManager;
+  private bridge: MessageBridge;
+  private connection: ConnectionManager;
   private config: SDKConfig;
-  private state: ConnectionState = ConnectionState.CONNECTING;
-  private messageQueue: Map<string, {
-    resolve: (value: MessageResponse) => void;
-    reject: (error: Error) => void;
-    timeout: ReturnType<typeof setTimeout>;
-  }> = new Map();
   private messageId = 0;
-  private messageHandler: ((event: MessageEvent) => void) | null = null;
 
-  // iframe 元素引用(便于外部挂载)
+  // iframe 元素引用
   public readonly iframe: HTMLIFrameElement;
 
   constructor(config: SDKConfig) {
     this.config = config;
     this.iframeManager = new IframeManager(config);
     this.iframe = this.iframeManager.createIframe();
+
+    // 创建桥接器
+    this.bridge = new MessageBridge({
+      targetOrigin: config.targetOrigin,
+      getContentWindow: () => this.iframeManager.getContentWindow(),
+      onMessage: this.handleBridgeMessage.bind(this),
+      onError: config.onError,
+    });
+
+    // 创建连接管理器
+    this.connection = new ConnectionManager(
+      () => this.iframeManager.getContentWindow(),
+      config.targetOrigin
+    );
+
+    // 监听连接状态变化
+    this.connection.on((event) => {
+      if (event.type === 'stateChange') {
+        this.config.onStateChange?.(event.state);
+      } else if (event.type === 'error') {
+        this.config.onError?.(event.error);
+      }
+    });
 
     this.init();
   }
@@ -46,85 +63,47 @@ export class AIBridgeSDK {
       // 等待 iframe 加载
       await this.iframeManager.waitForLoad();
 
-      // 设置消息监听器
-      this.setupMessageListener();
+      // 启动桥接器
+      this.bridge.start();
+
+      // 启动连接管理器
+      this.connection.start();
 
       // 发送初始化消息
-      this.sendInitMessage();
+      await this.sendInitMessage();
 
     } catch (error) {
-      this.setState(ConnectionState.ERROR);
       this.config.onError?.(error as Error);
     }
   }
 
   /**
-   * 设置 postMessage 消息监听器
+   * 处理来自桥接器的消息
    */
-  private setupMessageListener(): void {
-    this.messageHandler = this.handleMessage.bind(this);
-    window.addEventListener('message', this.messageHandler);
-  }
+  private handleBridgeMessage(response: IframeResponse): void {
+    switch (response.type) {
+      case 'ready':
+        // 连接管理器会处理状态变化
+        break;
 
-  /**
-   * 处理来自 iframe 的消息
-   */
-  private handleMessage(event: MessageEvent): void {
-    // 验证来源
-    if (event.origin !== this.config.targetOrigin) {
-      return;
+      case 'messageResponse':
+        this.config.onMessage?.(response.payload);
+        break;
+
+      case 'error':
+        this.config.onError?.(new Error(response.payload.message));
+        break;
+
+      case 'heartbeatAck':
+        this.connection.handleHeartbeatAck();
+        break;
     }
-
-    // 验证消息结构
-    try {
-      const response = IframeResponseSchema.parse(event.data);
-
-      switch (response.type) {
-        case 'ready':
-          this.setState(ConnectionState.CONNECTED);
-          break;
-
-        case 'messageResponse':
-          this.handleMessageResponse(response.payload);
-          break;
-
-        case 'error':
-          this.handleError(response.payload);
-          break;
-      }
-    } catch (error) {
-      // 忽略无效消息
-      console.warn('[AIBridgeSDK] Invalid message received:', error);
-    }
-  }
-
-  /**
-   * 处理消息响应
-   */
-  private handleMessageResponse(response: MessageResponse): void {
-    const pending = this.messageQueue.get(response.messageId);
-    if (pending) {
-      clearTimeout(pending.timeout);
-      this.messageQueue.delete(response.messageId);
-      pending.resolve(response);
-    }
-
-    // 触发消息回调
-    this.config.onMessage?.(response as SdkMessageResponse);
-  }
-
-  /**
-   * 处理错误
-   */
-  private handleError(errorPayload: { message: string; code?: string }): void {
-    const error = new Error(errorPayload.message);
-    this.config.onError?.(error);
   }
 
   /**
    * 发送初始化消息
    */
-  private sendInitMessage(): void {
+  private async sendInitMessage(): Promise<void> {
     const message: SdkMessage = {
       type: 'init',
       payload: {
@@ -134,83 +113,50 @@ export class AIBridgeSDK {
       },
     };
 
-    this.postMessage(message);
-  }
-
-  /**
-   * 发送 postMessage
-   */
-  private postMessage(message: SdkMessage): void {
-    const win = this.iframeManager.getContentWindow();
-    if (win) {
-      win.postMessage(message, this.config.targetOrigin);
-    }
-  }
-
-  /**
-   * 设置连接状态
-   */
-  private setState(state: ConnectionState): void {
-    if (this.state !== state) {
-      this.state = state;
-      this.config.onStateChange?.(state);
-    }
+    await this.bridge.sendAndWait(message, 5000);
   }
 
   /**
    * 发送消息到 Claude
    */
   async sendMessage(text: string): Promise<MessageResponse> {
-    if (this.state !== ConnectionState.CONNECTED) {
+    if (!this.connection.isConnected()) {
       throw new Error('SDK not connected');
     }
 
     const messageId = `msg_${Date.now()}_${this.messageId++}`;
 
-    return new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => {
-        this.messageQueue.delete(messageId);
-        reject(new Error('Message timeout'));
-      }, 30000);
+    const message: SdkMessage = {
+      type: 'sendMessage',
+      payload: {
+        text,
+        sessionId: this.config.context?.sessionId,
+        messageId,
+      },
+    };
 
-      this.messageQueue.set(messageId, { resolve, reject, timeout });
+    const response = await this.bridge.sendAndWait(message, 30000);
 
-      const message: SdkMessage = {
-        type: 'sendMessage',
-        payload: {
-          text,
-          sessionId: this.config.context?.sessionId,
-          messageId,
-        },
-      };
+    if (response.type === 'messageResponse') {
+      return response.payload;
+    }
 
-      this.postMessage(message);
-    });
+    throw new Error('Unexpected response type');
   }
 
   /**
    * 销毁 SDK
    */
   destroy(): void {
-    // 移除消息监听器
-    if (this.messageHandler) {
-      window.removeEventListener('message', this.messageHandler);
-    }
-
-    // 清理消息队列
-    this.messageQueue.forEach(({ timeout }) => clearTimeout(timeout));
-    this.messageQueue.clear();
-
-    // 销毁 iframe
+    this.bridge.stop();
+    this.connection.stop();
     this.iframeManager.destroy();
-
-    this.setState(ConnectionState.DISCONNECTED);
   }
 
   /**
    * 获取当前连接状态
    */
   getState(): ConnectionState {
-    return this.state;
+    return this.connection.getState();
   }
 }

@@ -59,6 +59,6 @@ export interface SdkMessageResponse {
   metadata?: {
     model: string;
     tokensUsed: number;
-    duration: number;
+    duration?: number;
   };
 }

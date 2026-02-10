@@ -22,6 +22,7 @@ export const MessageResponseSchema = z.object({
   metadata: z.object({
     model: z.string(),
     tokensUsed: z.number(),
+    duration: z.number().optional(),
   }).optional(),
 });
 
@@ -68,6 +69,12 @@ export const IframeResponseSchema = z.discriminatedUnion('type', [
     payload: z.object({
       message: z.string(),
       code: z.string().optional(),
+    }),
+  }),
+  z.object({
+    type: z.literal('heartbeatAck'),
+    payload: z.object({
+      timestamp: z.number().optional(),
     }),
   }),
 ]);
