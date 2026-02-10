@@ -13,6 +13,7 @@ import { ChatInput, type ChatInputRef } from '@/components/chat/ChatInput';
 import { StreamingErrorCard } from '@/components/chat/StreamingErrorCard';
 import { useChatMessages } from '@/hooks/useChatMessages';
 import { CommandExecutor } from '@/components/commands';
+import { ExportButton, ExportPreviewModal, useExportMutation } from '@/features/export';
 import { toast } from 'sonner';
 
 /**
@@ -67,6 +68,10 @@ export default function SessionDetail() {
   const resumeSession = useResumeSession(id);
   const stopSession = useStopSession(id);
   const deleteSession = useDeleteSession();
+  const exportMutation = useExportMutation();
+
+  // Export dialog state
+  const [exportPreviewOpen, setExportPreviewOpen] = useState(false);
 
   // Handle error state
   if (error) {
@@ -126,6 +131,29 @@ export default function SessionDetail() {
     if (inputRef.current) {
       inputRef.current.setValue(commandText);
     }
+  };
+
+  // Export handlers
+  const handleExportClick = () => {
+    setExportPreviewOpen(true);
+  };
+
+  const handleExportConfirm = () => {
+    if (!session) return;
+
+    exportMutation.mutate(
+      {
+        sessionId: session.id,
+        sessionName: session.metadata?.name as string || session.id,
+        messages: messages
+      },
+      {
+        onSuccess: () => {
+          toast.success('会话已导出为 Markdown');
+          setExportPreviewOpen(false);
+        }
+      }
+    );
   };
 
   return (
@@ -237,6 +265,12 @@ export default function SessionDetail() {
                     sessionId={id}
                     onCommandInserted={handleCommandInserted}
                   />
+
+                  {/* Export button */}
+                  <ExportButton
+                    onExportMarkdown={handleExportClick}
+                    disabled={exportMutation.isPending || !session}
+                  />
                 </div>
               </div>
               <ChatInput
@@ -266,6 +300,15 @@ export default function SessionDetail() {
             session={session}
             isDeleting={deleteSession.isPending}
             onConfirm={handleDeleteConfirm}
+          />
+
+          {/* Export preview dialog */}
+          <ExportPreviewModal
+            open={exportPreviewOpen}
+            onOpenChange={setExportPreviewOpen}
+            sessionName={session?.metadata?.name as string || session?.id || 'Session'}
+            messages={messages}
+            onConfirm={handleExportConfirm}
           />
         </>
       ) : null}
