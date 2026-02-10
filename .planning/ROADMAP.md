@@ -226,18 +226,19 @@ Decimal phases appear between their surrounding integers in numeric order.
 5. Application handles errors gracefully with recovery options
 6. Application provides loading skeletons during data fetching
 
-**Status**: ⚠ Partially Complete (2026-02-09) - 4/6 must-haves verified, 2 integration gaps found
+**Status**: ⚠ Partially Complete (2026-02-10) - 5/6 must-haves verified, integration completed but TypeScript errors remain
 
 **Plans**:
 
-- [x] 06-01: Search interface with session and message search ⚠ (components created but not integrated into web app)
-- [x] 06-02: Export to markdown functionality ⚠ (components created but not integrated into web app)
+- [x] 06-01: Search interface with session and message search ✅
+- [x] 06-02: Export to markdown functionality ✅
 - [x] 06-03: Keyboard shortcuts system with help modal ✅
 - [x] 06-04: Performance optimization (code splitting, lazy loading, bundle analysis) ✅
 - [x] 06-05: Error handling refinement with user-friendly messages ✅
 - [x] 06-06: Loading skeletons and optimistic UI updates ✅
 - [x] 06-07: Accessibility audit and improvements ✅
-- [ ] 06-08: Integration fixes (search and export components into web app) - Planned gap closure
+- [x] 06-08: Frontend crash fixes (import errors, type imports) ✅
+- [ ] 06-09: TypeScript type errors (50+ errors remaining) - In Progress
 
 **Plan Files:**
 - `.planning/phases/06-polish-advanced-features/06-01-PLAN.md` → executed in `.planning/phases/06-polish/06-01-PLAN.md`

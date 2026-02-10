@@ -11,13 +11,18 @@ import { ApiError } from "./client";
  * Enhanced API Error class with user-friendly messages
  */
 export class APIError extends Error {
+  statusCode: number;
+  details?: unknown;
+
   constructor(
     message: string,
-    public statusCode: number,
-    public details?: unknown
+    statusCode: number,
+    details?: unknown
   ) {
     super(message);
     this.name = "APIError";
+    this.statusCode = statusCode;
+    this.details = details;
   }
 }
 

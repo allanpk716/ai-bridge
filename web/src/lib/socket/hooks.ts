@@ -90,11 +90,12 @@ export function useSocketEvent<K extends keyof ServerToClientEvents>(
   const { socket } = useSocket();
 
   useEffect(() => {
-    socket.on(event, callback);
+    // Type assertion to handle Socket.IO's complex type system
+    socket.on(event, callback as (...args: any[]) => void);
 
     // Cleanup: Remove event listener on unmount or when callback changes
     return () => {
-      socket.off(event, callback);
+      socket.off(event, callback as (...args: any[]) => void);
     };
   }, [socket, event, callback]);
 }

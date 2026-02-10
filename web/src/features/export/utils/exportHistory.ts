@@ -1,4 +1,4 @@
-import { ExportHistoryEntry } from '@/types/export';
+import type { ExportHistoryEntry } from '@/types/export';
 
 const EXPORT_HISTORY_KEY = 'ai-bridge-export-history';
 const MAX_HISTORY_ENTRIES = 20;

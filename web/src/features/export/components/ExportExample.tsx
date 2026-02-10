@@ -16,7 +16,7 @@ import { useState } from 'react';
 import { ExportButton } from './ExportButton';
 import { ExportPreviewModal } from './ExportPreviewModal';
 import { useExportMutation } from '../hooks/useExportMutation';
-import { Message } from '@/types/export';
+import type { Message } from '@/types/export';
 
 interface ExportExampleProps {
   sessionId: string;

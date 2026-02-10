@@ -1,4 +1,4 @@
-import { Message } from '@/types/export';
+import type { Message } from '@/types/export';
 
 export function exportSessionToMarkdown(
   sessionName: string,

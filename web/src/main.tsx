@@ -9,12 +9,9 @@ import { Toaster } from "@/components/ui/sonner";
 
 // Register Service Worker in production only
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {
-  import('virtual:pwa-register/react').then(({ registerSW }) => {
-    registerSW({
-      onOfflineReady() {
-        console.log('App ready to work offline')
-      }
-    })
+  import('virtual:pwa-register/react').then(() => {
+    // Service Worker is auto-registered by Vite PWA plugin
+    console.log('Service Worker ready')
   })
 }
 

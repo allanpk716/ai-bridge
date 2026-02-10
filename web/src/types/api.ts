@@ -37,9 +37,12 @@ export const SessionSchema = z.object({
  */
 export const MessageSchema = z.object({
   seq: z.number(), // Monotonically increasing sequence number
+  id: z.string().optional(), // Message unique ID (optional for backward compatibility)
+  sessionId: z.string().optional(), // Parent session ID (optional for backward compatibility)
   role: z.enum(["user", "assistant", "system"]),
   content: z.string(),
   timestamp: z.string(), // ISO datetime string
+  createdAt: z.string().optional(), // ISO creation time (optional for backward compatibility)
 });
 
 /**

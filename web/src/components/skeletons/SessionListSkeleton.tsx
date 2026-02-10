@@ -12,14 +12,16 @@
  * @see .planning/phases/06-polish-advanced-features/06-06-PLAN.md
  */
 
-import { CardSkeleton } from "./CardSkeleton";
+export interface SessionListSkeletonProps {
+  className?: string;
+}
 
-export function SessionListSkeleton() {
+export function SessionListSkeleton({ className }: SessionListSkeletonProps) {
   return (
-    <div className="space-y-3">
+    <div className={className ?? "space-y-3"}>
       {/* Show 5 skeleton cards */}
       {Array.from({ length: 5 }).map((_, index) => (
-        <CardSkeleton key={index} className="h-24 w-full" />
+        <div key={index} className="h-24 w-full bg-muted animate-pulse rounded-md" />
       ))}
     </div>
   );

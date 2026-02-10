@@ -67,10 +67,8 @@ const getScopeForOperation = (operation: string): PermissionScope => {
   return "file-read";
 };
 
-export const PermissionModal = React.forwardRef<
-  React.ElementRef<typeof Dialog>,
-  PermissionModalProps
->(({ permission, isOpen, onApprove, onDeny, onClose, isProcessing = false }, ref) => {
+export const PermissionModal: React.FC<PermissionModalProps> =
+  ({ permission, isOpen, onApprove, onDeny, onClose, isProcessing = false }) => {
   const [selectedScope, setSelectedScope] = React.useState<PermissionScope>("file-read");
 
   // Set smart default scope when permission changes
@@ -95,7 +93,7 @@ export const PermissionModal = React.forwardRef<
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose} ref={ref}>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -150,6 +148,6 @@ export const PermissionModal = React.forwardRef<
       </DialogContent>
     </Dialog>
   );
-});
+};
 
 PermissionModal.displayName = "PermissionModal";

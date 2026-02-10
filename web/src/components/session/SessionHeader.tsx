@@ -1,9 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { ArrowLeft, Play, Square, Trash, MoreVertical, Loader2 } from "lucide-react";
+import { ArrowLeft, Play, Square, Trash, Loader2 } from "lucide-react";
 import { type Session } from "@/types/api";
-import { cn } from "@/lib/utils";
 
 interface SessionHeaderProps {
   session: Session;

@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { FolderOpen, Clock, AlertCircle, GitBranch } from "lucide-react";
+import { FolderOpen, Clock, AlertCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -93,8 +93,8 @@ export function WorkingDirectoryPicker({
         <input
           ref={fileInputRef}
           type="file"
-          webkitdirectory
-          directory
+          {...({ webkitdirectory: true } as React.HTMLAttributes<HTMLInputElement>)}
+          {...({ directory: true } as React.HTMLAttributes<HTMLInputElement>)}
           className="hidden"
           onChange={handleFileSelect}
         />

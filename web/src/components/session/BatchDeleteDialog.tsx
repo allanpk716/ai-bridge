@@ -12,12 +12,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   AlertCircle,
   Loader2,
-  Check,
   X,
   TriangleAlert,
 } from "lucide-react";
 import { type Session } from "@/types/api";
-import { cn } from "@/lib/utils";
 
 interface BatchDeleteDialogProps {
   open: boolean;

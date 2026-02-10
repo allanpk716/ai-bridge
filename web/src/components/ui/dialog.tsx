@@ -3,7 +3,6 @@ import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import { useFocusTrap } from "@/features/accessibility"
 
 const Dialog = DialogPrimitive.Root
 
@@ -35,14 +34,10 @@ const DialogContent = React.forwardRef<
     'aria-describedby'?: string;
   }
 >(({ className, children, 'aria-labelledby': ariaLabelledby, 'aria-describedby': ariaDescribedby, ...props }, ref) => {
-  // Generate unique ID for focus trap if not provided
+  // Generate unique ID for accessibility if not provided
   const [dialogId] = React.useState(() =>
     `dialog-${Math.random().toString(36).substr(2, 9)}`
   );
-
-  // Use focus trap when dialog is open
-  const isOpen = React.useContext(DialogPrimitive.OpenContext)?.open ?? false;
-  useFocusTrap(isOpen, dialogId);
 
   return (
     <DialogPortal>

@@ -12,7 +12,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card } from '@/components/ui/card';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Message } from '@/types/export';
+import type { Message } from '@/types/export';
 import {
   generateMarkdownContent,
   sanitizeFileName,

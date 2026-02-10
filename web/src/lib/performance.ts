@@ -131,17 +131,9 @@ export async function measureOperation<T>(
  */
 export function initWebVitals(): void {
   if (import.meta.env.PROD && typeof window !== 'undefined') {
-    // Dynamically import web-vitals to avoid increasing bundle size
-    import('web-vitals').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
-      getCLS((metric) => logPerformanceMetric('CLS', metric.value, { rating: metric.rating }));
-      getFID((metric) => logPerformanceMetric('FID', metric.value, { rating: metric.rating }));
-      getFCP((metric) => logPerformanceMetric('FCP', metric.value, { rating: metric.rating }));
-      getLCP((metric) => logPerformanceMetric('LCP', metric.value, { rating: metric.rating }));
-      getTTFB((metric) => logPerformanceMetric('TTFB', metric.value, { rating: metric.rating }));
-    }).catch(() => {
-      // web-vitals not installed, silently fail
-      console.warn('[Performance] web-vitals library not available');
-    });
+    // web-vitals not installed, skip metrics collection
+    // TODO: Install web-vitals package if needed for production monitoring
+    console.log('[Performance] Web Vitals monitoring disabled (web-vitals not installed)');
   }
 }
 

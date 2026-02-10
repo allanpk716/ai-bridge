@@ -22,6 +22,7 @@ import StreamingIndicator from "./StreamingIndicator";
 import { ChatMessageListSkeleton } from "@/components/skeletons";
 import { PermissionCard } from "@/components/permissions";
 import type { PermissionWithStatus } from "@/hooks/usePermissionModal";
+import { Loader2 } from "lucide-react";
 
 export interface ChatMessageListProps {
   /** Array of messages to display */
@@ -183,8 +184,6 @@ export default function ChatMessageList({
             }
           },
         })}
-        // Orientation for endReached (top of list = older messages)
-        orientation="vertical"
         // Customize scroll behavior
         followOutput={(isAtBottom) => {
           // Only auto-scroll if we're already at bottom

@@ -222,14 +222,14 @@ export async function resumeSession(
   mode: "continue" | "resume" | "new"
 ): Promise<Session> {
   const url = getApiUrl(`sessions/${sessionId}/resume`);
-  const response = await fetchWithErrorHandling<{ session: Session }>(url, {
+  const response = await fetchWithErrorHandling(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ mode }),
   });
-  return response.session;
+  return response as unknown as Session;
 }
 
 /**
@@ -274,13 +274,13 @@ export function useResumeSession(sessionId: string) {
  */
 export async function stopSession(sessionId: string): Promise<Session> {
   const url = getApiUrl(`sessions/${sessionId}/stop`);
-  const response = await fetchWithErrorHandling<{ session: Session }>(url, {
+  const response = await fetchWithErrorHandling(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
   });
-  return response.session;
+  return response as unknown as Session;
 }
 
 /**

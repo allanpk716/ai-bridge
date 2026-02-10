@@ -11,8 +11,7 @@ interface SearchBarProps {
 
 export function SearchBar({ onSearch, resultCount, isSearching }: SearchBarProps) {
   const [query, setQuery] = useState('');
-  const [debouncedQuery, setDebouncedQuery] = useState('');
-  const debounceRef = useRef<NodeJS.Timeout>();
+  const debounceRef = useRef<number | undefined>();
 
   // Debounce search input (300ms)
   useEffect(() => {
@@ -20,8 +19,7 @@ export function SearchBar({ onSearch, resultCount, isSearching }: SearchBarProps
       clearTimeout(debounceRef.current);
     }
 
-    debounceRef.current = setTimeout(() => {
-      setDebouncedQuery(query);
+    debounceRef.current = window.setTimeout(() => {
       onSearch(query);
     }, 300);
 
@@ -34,7 +32,6 @@ export function SearchBar({ onSearch, resultCount, isSearching }: SearchBarProps
 
   const handleClear = useCallback(() => {
     setQuery('');
-    setDebouncedQuery('');
     onSearch('');
   }, [onSearch]);
 

@@ -28,7 +28,6 @@ import {
  */
 export function UpdatePrompt() {
   const {
-    offlineReady: [offlineReady, setOfflineReady],
     needRefresh: [needRefresh, setNeedRefresh],
     updateServiceWorker,
   } = useRegisterSW({
@@ -49,7 +48,6 @@ export function UpdatePrompt() {
   })
 
   const close = () => {
-    setOfflineReady(false)
     setNeedRefresh(false)
   }
 

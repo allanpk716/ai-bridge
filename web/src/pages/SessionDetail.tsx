@@ -1,5 +1,5 @@
 import { useParams } from 'react-router';
-import { useState, useRef, type RefObject } from 'react';
+import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { useNavigateToSessionList, useNavigateToSession } from '@/router';
@@ -147,7 +147,7 @@ export default function SessionDetail() {
       {
         sessionId: session.id,
         sessionName: session.metadata?.name as string || session.id,
-        messages: messages
+        messages: messages as any
       },
       {
         onSuccess: () => {
@@ -309,7 +309,7 @@ export default function SessionDetail() {
             open={exportPreviewOpen}
             onOpenChange={setExportPreviewOpen}
             sessionName={session?.metadata?.name as string || session?.id || 'Session'}
-            messages={messages}
+            messages={messages as any}
             onConfirm={handleExportConfirm}
           />
         </>

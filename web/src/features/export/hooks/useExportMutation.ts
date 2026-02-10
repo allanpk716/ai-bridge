@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { exportSessionToMarkdown, sanitizeFileName } from '../utils/markdownExporter';
 import { addExportEntry } from '../utils/exportHistory';
-import { Message } from '@/types/export';
+import type { Message } from '@/types/export';
 
 interface ExportVariables {
   sessionId: string;
@@ -12,10 +12,10 @@ interface ExportVariables {
 
 export function useExportMutation() {
   return useMutation<string, Error, ExportVariables>({
-    mutationFn: async ({ sessionId, sessionName, messages }: ExportVariables) => {
+    mutationFn: async ({ sessionName, messages }: ExportVariables) => {
       return exportSessionToMarkdown(sessionName, messages);
     },
-    onSuccess: (markdown, variables) => {
+    onSuccess: (_markdown, variables) => {
       toast.success(`已导出: ${variables.sessionName}`);
 
       // Add to export history
