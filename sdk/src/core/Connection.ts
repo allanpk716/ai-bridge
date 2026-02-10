@@ -13,12 +13,44 @@ export enum ConnectionState {
 }
 
 /**
+ * 错误类型
+ */
+export enum ConnectionErrorType {
+  /** 网络错误 */
+  NETWORK = 'network',
+  /** 超时 */
+  TIMEOUT = 'timeout',
+  /** iframe 加载失败 */
+  IFRAME_LOAD_FAILED = 'iframe_load_failed',
+  /** 未授权 */
+  UNAUTHORIZED = 'unauthorized',
+  /** 未知错误 */
+  UNKNOWN = 'unknown',
+}
+
+/**
+ * 连接错误
+ */
+export class ConnectionError extends Error {
+  constructor(
+    public type: ConnectionErrorType,
+    message: string,
+    public retryable: boolean = true
+  ) {
+    super(message);
+    this.name = 'ConnectionError';
+  }
+}
+
+/**
  * 连接事件类型
  */
 export type ConnectionEvent =
   | { type: 'stateChange'; state: ConnectionState }
-  | { type: 'error'; error: Error }
-  | { type: 'heartbeat' };
+  | { type: 'error'; error: ConnectionError; attempts?: number }
+  | { type: 'heartbeat' }
+  | { type: 'reconnecting'; attempt: number; maxAttempts: number }
+  | { type: 'reconnectFailed'; error: ConnectionError };
 
 /**
  * 连接事件监听器
@@ -168,25 +200,110 @@ export class ConnectionManager {
    */
   private attemptReconnect(): void {
     if (this.reconnectAttempts >= this.config.maxReconnectAttempts) {
+      const error = new ConnectionError(
+        ConnectionErrorType.NETWORK,
+        'Max reconnection attempts reached',
+        false
+      );
       this.setState(ConnectionState.ERROR);
       this.emit({
-        type: 'error',
-        error: new Error('Max reconnection attempts reached'),
+        type: 'reconnectFailed',
+        error,
       });
       return;
     }
 
     this.reconnectAttempts++;
-    const delay = Math.min(
-      this.config.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1),
-      30000
+
+    // 发送重连事件
+    this.emit({
+      type: 'reconnecting',
+      attempt: this.reconnectAttempts,
+      maxAttempts: this.config.maxReconnectAttempts,
+    });
+
+    // 计算延迟时间(指数退避)
+    const baseDelay = this.config.reconnectDelay;
+    const exponentialDelay = Math.min(
+      baseDelay * Math.pow(2, this.reconnectAttempts - 1),
+      30000 // 最大 30 秒
+    );
+
+    // 添加随机抖动(避免雷鸣效应)
+    const jitter = Math.random() * 1000;
+    const finalDelay = exponentialDelay + jitter;
+
+    console.log(
+      `[ConnectionManager] Reconnect attempt ${this.reconnectAttempts}/${this.config.maxReconnectAttempts} in ${Math.round(finalDelay)}ms`
     );
 
     this.reconnectTimer = setTimeout(() => {
-      console.log(`[ConnectionManager] Reconnect attempt ${this.reconnectAttempts}`);
       this.setState(ConnectionState.CONNECTING);
       this.startHeartbeat();
-    }, delay);
+    }, finalDelay);
+  }
+
+  /**
+   * 处理致命错误
+   */
+  private handleFatalError(errorType: ConnectionErrorType, message: string): void {
+    const error = new ConnectionError(errorType, message, false);
+    this.setState(ConnectionState.ERROR);
+    this.stopHeartbeat();
+    this.stopReconnect();
+    this.emit({
+      type: 'error',
+      error,
+    });
+  }
+
+  /**
+   * 处理可恢复错误
+   */
+  private handleRecoverableError(errorType: ConnectionErrorType, message: string): void {
+    const error = new ConnectionError(errorType, message, true);
+    this.emit({
+      type: 'error',
+      error,
+    });
+    // 不立即断开,让心跳机制处理
+  }
+
+  /**
+   * 重置重连计数
+   */
+  public resetReconnectAttempts(): void {
+    this.reconnectAttempts = 0;
+  }
+
+  /**
+   * 手动触发重连
+   */
+  public reconnect(): void {
+    this.stopReconnect();
+    this.reconnectAttempts = 0;
+    this.setState(ConnectionState.CONNECTING);
+    this.startHeartbeat();
+  }
+
+  /**
+   * 检查连接是否健康
+   */
+  public isHealthy(): boolean {
+    return this.state === ConnectionState.CONNECTED &&
+      this.missedHeartbeats < Math.floor(this.config.maxMissedHeartbeats / 2);
+  }
+
+  /**
+   * 获取连接统计信息
+   */
+  public getStats() {
+    return {
+      state: this.state,
+      missedHeartbeats: this.missedHeartbeats,
+      reconnectAttempts: this.reconnectAttempts,
+      isHealthy: this.isHealthy(),
+    };
   }
 
   /**

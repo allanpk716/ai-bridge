@@ -3,6 +3,34 @@ import { SdkIncomingMessageSchema } from './types';
 import { createSdkMessageHandler, sendResultToSdk } from './messageIntegration';
 
 /**
+ * SDK 桥接错误类型
+ */
+export enum SdkBridgeErrorType {
+  /** 消息验证失败 */
+  VALIDATION_ERROR = 'VALIDATION_ERROR',
+  /** API 调用失败 */
+  API_ERROR = 'API_ERROR',
+  /** 消息发送失败 */
+  SEND_ERROR = 'SEND_ERROR',
+  /** 未授权 */
+  UNAUTHORIZED = 'UNAUTHORIZED',
+}
+
+/**
+ * SDK 桥接错误
+ */
+export class SdkBridgeError extends Error {
+  constructor(
+    public type: SdkBridgeErrorType,
+    message: string,
+    public details?: unknown
+  ) {
+    super(message);
+    this.name = 'SdkBridgeError';
+  }
+}
+
+/**
  * SDK 桥接状态
  */
 interface SdkBridgeState {
@@ -71,6 +99,21 @@ async function handleSendMessageRequest(message: SdkIncomingMessage & { type: 's
   const { payload: msgPayload } = message;
 
   try {
+    // 验证消息内容
+    if (!msgPayload.text || msgPayload.text.trim().length === 0) {
+      throw new SdkBridgeError(
+        SdkBridgeErrorType.VALIDATION_ERROR,
+        'Message text cannot be empty'
+      );
+    }
+
+    if (msgPayload.text.length > 10000) {
+      throw new SdkBridgeError(
+        SdkBridgeErrorType.VALIDATION_ERROR,
+        'Message text too long (max 10000 characters)'
+      );
+    }
+
     // 使用集成层发送消息
     const result = await sdkMessageHandler.handle(
       msgPayload.text,
@@ -80,8 +123,16 @@ async function handleSendMessageRequest(message: SdkIncomingMessage & { type: 's
 
     // 发送结果到 SDK(集成层会处理)
     sendResultToSdk(result);
+
   } catch (error) {
+    // 记录详细错误
+    console.error('[SdkBridge] Message send error:', error);
+
     // 发送错误到 SDK
+    const errorCode = error instanceof SdkBridgeError
+      ? error.type
+      : 'UNKNOWN_ERROR';
+
     sendToSdk({
       type: 'messageResponse',
       payload: {
@@ -90,6 +141,13 @@ async function handleSendMessageRequest(message: SdkIncomingMessage & { type: 's
         error: error instanceof Error ? error.message : 'Unknown error',
       },
     });
+
+    // 也可以发送专门的错误消息
+    sendErrorToSdk(
+      error instanceof Error ? error.message : 'Unknown error',
+      errorCode,
+      error instanceof SdkBridgeError ? error.details : undefined
+    );
   }
 }
 
@@ -169,10 +227,68 @@ export function setupSdkMessageListener(config: SdkModeConfig): () => void {
 /**
  * 发送错误到 SDK
  */
-export function sendErrorToSdk(message: string, code?: string): void {
-  sendToSdk({
-    type: 'error',
-    payload: { message, code },
+export function sendErrorToSdk(
+  message: string,
+  code?: string,
+  details?: unknown
+): boolean {
+  if (!state.parentOrigin || !window.parent) {
+    console.warn('[SdkBridge] Cannot send error: no parent window');
+    return false;
+  }
+
+  try {
+    window.parent.postMessage(
+      {
+        type: 'error',
+        payload: {
+          message,
+          code,
+          details,
+          timestamp: Date.now(),
+        },
+      },
+      state.parentOrigin
+    );
+    return true;
+  } catch (error) {
+    console.error('[SdkBridge] Failed to send error:', error);
+    return false;
+  }
+}
+
+/**
+ * 处理并记录错误
+ */
+export function handleBridgeError(
+  error: unknown,
+  context?: string
+): void {
+  const message = error instanceof Error ? error.message : 'Unknown error';
+
+  console.error(`[SdkBridge] ${context || 'Error'}:`, error);
+
+  // 如果是已连接状态,尝试发送错误给 SDK
+  if (state.isConnected) {
+    sendErrorToSdk(message, context);
+  }
+
+  // 可以在这里添加错误上报逻辑
+  // 例如发送到错误追踪服务
+}
+
+/**
+ * 设置全局错误处理
+ */
+export function setupGlobalErrorHandling(): void {
+  // 处理未捕获的 Promise 错误
+  window.addEventListener('unhandledrejection', (event) => {
+    handleBridgeError(event.reason, 'Unhandled Promise Rejection');
+  });
+
+  // 处理未捕获的错误
+  window.addEventListener('error', (event) => {
+    handleBridgeError(event.error, 'Unhandled Error');
   });
 }
 

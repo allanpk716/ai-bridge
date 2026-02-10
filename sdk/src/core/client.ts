@@ -2,7 +2,37 @@ import type { SDKConfig, SdkMessageResponse } from '../types/config';
 import type { SdkMessage, IframeResponse, MessageResponse } from '../types/messages';
 import { IframeManager } from './IframeManager';
 import { MessageBridge } from './Bridge';
-import { ConnectionManager, ConnectionState } from './Connection';
+import { ConnectionManager, ConnectionState, ConnectionError } from './Connection';
+
+/**
+ * SDK 错误类型
+ */
+export enum SDKErrorType {
+  /** iframe 未就绪 */
+  IFRAME_NOT_READY = 'IFRAME_NOT_READY',
+  /** 连接断开 */
+  DISCONNECTED = 'DISCONNECTED',
+  /** 消息超时 */
+  MESSAGE_TIMEOUT = 'MESSAGE_TIMEOUT',
+  /** 无效响应 */
+  INVALID_RESPONSE = 'INVALID_RESPONSE',
+  /** 发送失败 */
+  SEND_FAILED = 'SEND_FAILED',
+}
+
+/**
+ * SDK 错误
+ */
+export class SDKError extends Error {
+  constructor(
+    public type: SDKErrorType,
+    message: string,
+    public originalError?: unknown
+  ) {
+    super(message);
+    this.name = 'SDKError';
+  }
+}
 
 /**
  * AI-Bridge SDK 主客户端类
@@ -17,13 +47,15 @@ import { ConnectionManager, ConnectionState } from './Connection';
 export class AIBridgeSDK {
   private iframeManager: IframeManager;
   private bridge: MessageBridge;
-  private connection: ConnectionManager;
   private config: SDKConfig;
   private messageId = 0;
   private messageHistory: MessageResponse[] = [];
 
   // iframe 元素引用
   public readonly iframe: HTMLIFrameElement;
+
+  // 暴露 connection 供外部访问
+  public readonly connection: ConnectionManager;
 
   constructor(config: SDKConfig) {
     this.config = config;
@@ -46,10 +78,40 @@ export class AIBridgeSDK {
 
     // 监听连接状态变化
     this.connection.on((event) => {
-      if (event.type === 'stateChange') {
-        this.config.onStateChange?.(event.state);
-      } else if (event.type === 'error') {
-        this.config.onError?.(event.error);
+      switch (event.type) {
+        case 'stateChange':
+          this.config.onStateChange?.(event.state);
+
+          // 如果从连接状态变为断开,通知等待中的消息
+          if (event.state === ConnectionState.DISCONNECTED ||
+              event.state === ConnectionState.ERROR) {
+            this.rejectPendingMessages(new SDKError(
+              SDKErrorType.DISCONNECTED,
+              'Connection lost while waiting for response'
+            ));
+          }
+          break;
+
+        case 'error':
+          // 转换连接错误为 SDK 错误
+          this.config.onError?.(new SDKError(
+            SDKErrorType.DISCONNECTED,
+            event.error.message,
+            event.error
+          ));
+          break;
+
+        case 'reconnecting':
+          console.log(`[AIBridgeSDK] Reconnecting... (${event.attempt}/${event.maxAttempts})`);
+          break;
+
+        case 'reconnectFailed':
+          this.config.onError?.(new SDKError(
+            SDKErrorType.DISCONNECTED,
+            'Reconnection failed',
+            event.error
+          ));
+          break;
       }
     });
 
@@ -120,37 +182,96 @@ export class AIBridgeSDK {
   /**
    * 发送消息到 Claude
    */
-  async sendMessage(text: string): Promise<MessageResponse> {
+  async sendMessage(text: string, options?: {
+    timeout?: number;
+    retry?: number;
+  }): Promise<MessageResponse> {
+    const timeout = options?.timeout ?? 30000;
+    const maxRetries = options?.retry ?? 1;
+
+    // 检查连接状态
     if (!this.connection.isConnected()) {
-      throw new Error('SDK not connected');
+      throw new SDKError(
+        SDKErrorType.DISCONNECTED,
+        'SDK not connected. Wait for the connection to be established.',
+      );
     }
 
-    const messageId = `msg_${Date.now()}_${this.messageId++}`;
-
-    const message: SdkMessage = {
-      type: 'sendMessage',
-      payload: {
-        text,
-        sessionId: this.config.context?.sessionId,
-        messageId,
-      },
-    };
-
-    const response = await this.bridge.sendAndWait(message, 30000);
-
-    if (response.type === 'messageResponse') {
-      const messageResponse = response.payload;
-
-      // 记录到历史
-      this.messageHistory.push(messageResponse);
-
-      // 触发回调
-      this.config.onMessage?.(messageResponse);
-
-      return messageResponse;
+    // 验证输入
+    if (!text || text.trim().length === 0) {
+      throw new SDKError(
+        SDKErrorType.INVALID_RESPONSE,
+        'Message text cannot be empty',
+      );
     }
 
-    throw new Error('Unexpected response type');
+    if (text.length > 10000) {
+      throw new SDKError(
+        SDKErrorType.INVALID_RESPONSE,
+        'Message text too long (max 10000 characters)',
+      );
+    }
+
+    let lastError: Error | null = null;
+
+    // 重试逻辑
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        const messageId = `msg_${Date.now()}_${this.messageId++}`;
+
+        const message: SdkMessage = {
+          type: 'sendMessage',
+          payload: {
+            text,
+            sessionId: this.config.context?.sessionId,
+            messageId,
+          },
+        };
+
+        const response = await this.bridge.sendAndWait(message, timeout);
+
+        if (response.type === 'messageResponse') {
+          const messageResponse = response.payload;
+
+          // 记录到历史
+          this.messageHistory.push(messageResponse);
+
+          // 触发回调
+          this.config.onMessage?.(messageResponse);
+
+          return messageResponse;
+        } else {
+          throw new SDKError(
+            SDKErrorType.INVALID_RESPONSE,
+            `Unexpected response type: ${response.type}`,
+          );
+        }
+      } catch (error) {
+        lastError = error as Error;
+
+        // 如果是最后一次尝试,不继续重试
+        if (attempt === maxRetries) {
+          break;
+        }
+
+        // 某些错误不应该重试
+        if (error instanceof SDKError) {
+          if (error.type === SDKErrorType.INVALID_RESPONSE) {
+            break;
+          }
+        }
+
+        // 等待后重试
+        await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+      }
+    }
+
+    // 所有重试都失败
+    throw new SDKError(
+      SDKErrorType.SEND_FAILED,
+      `Failed to send message after ${maxRetries + 1} attempts`,
+      lastError
+    );
   }
 
   /**
@@ -233,6 +354,75 @@ export class AIBridgeSDK {
    */
   clearHistory(): void {
     this.messageHistory = [];
+  }
+
+  /**
+   * 拒绝所有待处理的消息
+   */
+  private rejectPendingMessages(error: SDKError): void {
+    // 注意: 这需要在 Bridge 类中实现获取待处理消息的方法
+    // 或者在这里维护一个额外的消息队列
+    this.config.onError?.(error);
+  }
+
+  /**
+   * 检查 SDK 是否可用
+   */
+  isAvailable(): boolean {
+    return this.connection.isConnected() &&
+      this.bridge.isActive();
+  }
+
+  /**
+   * 等待 SDK 连接就绪
+   */
+  async ready(timeout = 30000): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (this.connection.isConnected()) {
+        resolve();
+        return;
+      }
+
+      const timeoutId = setTimeout(() => {
+        cleanup();
+        reject(new SDKError(
+          SDKErrorType.MESSAGE_TIMEOUT,
+          'SDK ready timeout'
+        ));
+      }, timeout);
+
+      const unsubscribe = this.connection.on((event) => {
+        if (event.type === 'stateChange' &&
+            event.state === ConnectionState.CONNECTED) {
+          cleanup();
+          resolve();
+        } else if (event.type === 'reconnectFailed') {
+          cleanup();
+          reject(new SDKError(
+            SDKErrorType.DISCONNECTED,
+            'Failed to connect'
+          ));
+        }
+      });
+
+      const cleanup = () => {
+        clearTimeout(timeoutId);
+        unsubscribe();
+      };
+    });
+  }
+
+  /**
+   * 获取诊断信息
+   */
+  getDiagnostics() {
+    return {
+      state: this.connection.getState(),
+      stats: this.connection.getStats(),
+      pendingMessages: this.bridge.getPendingCount(),
+      messageHistoryLength: this.messageHistory.length,
+      iframeAttached: !!this.iframe.parentNode,
+    };
   }
 
   /**
