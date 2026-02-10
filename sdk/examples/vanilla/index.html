@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI-Bridge SDK - Vanilla JS Example</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>AI-Bridge SDK 原生 JavaScript 示例</h1>
+        <div id="connection-status" class="status status-connecting">连接中...</div>
+      </header>
+
+      <main>
+        <section class="chat-section">
+          <div id="messages" class="messages">
+            <div class="empty-state">开始与 AI-Bridge 对话吧!</div>
+          </div>
+
+          <form id="input-form" class="input-form">
+            <input
+              type="text"
+              id="message-input"
+              placeholder="输入消息..."
+              disabled
+            />
+            <button type="submit" id="send-button" disabled>发送</button>
+          </form>
+        </section>
+
+        <section class="iframe-section">
+          <h2>嵌入的 AI-Bridge</h2>
+          <div id="ai-bridge-container"></div>
+        </section>
+      </main>
+    </div>
+
+    <script type="module">
+      // 根据实际部署路径调整 SDK 导入
+      import { AIBridgeSDK, ConnectionState } from '../../dist/ai-bridge-sdk.es.js';
+
+      // 状态
+      let sdk = null;
+      let isLoading = false;
+
+      // DOM 元素
+      const container = document.getElementById('ai-bridge-container');
+      const statusEl = document.getElementById('connection-status');
+      const messagesEl = document.getElementById('messages');
+      const inputEl = document.getElementById('message-input');
+      const formEl = document.getElementById('input-form');
+      const sendButton = document.getElementById('send-button');
+
+      // 更新连接状态
+      function updateConnectionState(state) {
+        statusEl.className = 'status';
+        statusEl.classList.add(`status-${state}`);
+
+        switch (state) {
+          case ConnectionState.CONNECTING:
+            statusEl.textContent = '连接中...';
+            inputEl.disabled = true;
+            sendButton.disabled = true;
+            break;
+          case ConnectionState.CONNECTED:
+            statusEl.textContent = '已连接';
+            inputEl.disabled = false;
+            sendButton.disabled = false;
+            break;
+          case ConnectionState.DISCONNECTED:
+            statusEl.textContent = '已断开';
+            inputEl.disabled = true;
+            sendButton.disabled = true;
+            break;
+          case ConnectionState.ERROR:
+            statusEl.textContent = '错误';
+            inputEl.disabled = true;
+            sendButton.disabled = true;
+            break;
+        }
+      }
+
+      // 添加消息到聊天
+      function addMessage(role, content) {
+        // 移除空状态提示
+        const emptyState = messagesEl.querySelector('.empty-state');
+        if (emptyState) {
+          emptyState.remove();
+        }
+
+        const messageEl = document.createElement('div');
+        messageEl.className = `message message-${role}`;
+        messageEl.innerHTML = `<div class="message-content">${escapeHtml(content)}</div>`;
+        messagesEl.appendChild(messageEl);
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+      }
+
+      // HTML 转义
+      function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      // 发送消息
+      async function sendMessage(text) {
+        if (!text.trim() || isLoading) return;
+
+        isLoading = true;
+        sendButton.disabled = true;
+
+        // 添加用户消息
+        addMessage('user', text);
+        inputEl.value = '';
+
+        // 添加加载指示器
+        const loadingEl = document.createElement('div');
+        loadingEl.className = 'message message-assistant loading';
+        loadingEl.innerHTML = '<div class="message-content">AI 正在思考...</div>';
+        loadingEl.id = 'loading-indicator';
+        messagesEl.appendChild(loadingEl);
+
+        try {
+          await sdk.sendMessage(text.trim());
+        } catch (error) {
+          console.error('Send error:', error);
+          addMessage('assistant', '发送失败,请重试');
+        } finally {
+          // 移除加载指示器
+          const loadingIndicator = document.getElementById('loading-indicator');
+          if (loadingIndicator) {
+            loadingIndicator.remove();
+          }
+          isLoading = false;
+          sendButton.disabled = false;
+        }
+      }
+
+      // 初始化 SDK
+      function init() {
+        try {
+          sdk = new AIBridgeSDK({
+            url: 'http://localhost:3000',
+            targetOrigin: 'http://localhost:3000',
+            context: {
+              theme: 'light',
+              locale: 'zh-CN',
+            },
+            onStateChange: updateConnectionState,
+            onMessage: (message) => {
+              if (message.success && message.content) {
+                addMessage('assistant', message.content);
+              }
+            },
+            onError: (error) => {
+              console.error('SDK Error:', error);
+            },
+          });
+
+          // 添加 iframe 到页面
+          container.appendChild(sdk.iframe);
+
+        } catch (error) {
+          console.error('SDK init error:', error);
+          updateConnectionState(ConnectionState.ERROR);
+        }
+      }
+
+      // 表单提交事件
+      formEl.addEventListener('submit', (e) => {
+        e.preventDefault();
+        sendMessage(inputEl.value);
+      });
+
+      // 页面加载时初始化
+      init();
+
+      // 页面卸载时清理
+      window.addEventListener('beforeunload', () => {
+        if (sdk) {
+          sdk.destroy();
+        }
+      });
+    </script>
+  </body>
+</html>
