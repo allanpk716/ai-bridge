@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SDK Embed Test</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 20px;
+    }
+    .test-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .iframe-container {
+      width: 100%;
+      height: 600px;
+      border: 2px solid #333;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    .controls {
+      margin: 20px 0;
+      padding: 15px;
+      background: #f5f5f5;
+      border-radius: 8px;
+    }
+    button {
+      padding: 10px 20px;
+      margin-right: 10px;
+      border: none;
+      border-radius: 4px;
+      background: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .log {
+      margin-top: 20px;
+      padding: 10px;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      max-height: 200px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 12px;
+    }
+    .log-entry {
+      margin: 2px 0;
+      padding: 2px 5px;
+    }
+    .log-entry.info { color: #007bff; }
+    .log-entry.success { color: #28a745; }
+    .log-entry.error { color: #dc3545; }
+  </style>
+</head>
+<body>
+  <div class="test-container">
+    <h1>SDK Embed Mode Test</h1>
+    <p>This page tests the ai-bridge-web application in embedded iframe mode.</p>
+
+    <div class="controls">
+      <button id="testInit">Test Init Message</button>
+      <button id="testSendMessage">Test Send Message</button>
+      <button id="testDisconnect">Test Disconnect</button>
+      <button id="reloadIframe">Reload Iframe</button>
+    </div>
+
+    <div class="iframe-container">
+      <iframe
+        id="ai-bridge-iframe"
+        src="http://localhost:3000/?embed=true&theme=dark&sessionId=test-session-123"
+        allow="clipboard-read; clipboard-write"
+      ></iframe>
+    </div>
+
+    <div class="log" id="log"></div>
+  </div>
+
+  <script>
+    const iframe = document.getElementById('ai-bridge-iframe');
+    const log = document.getElementById('log');
+    const TARGET_ORIGIN = 'http://localhost:3000';
+
+    let messageIdCounter = 0;
+
+    function addLog(message, type = 'info') {
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${type}`;
+      entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      log.appendChild(entry);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    // Listen for messages from iframe
+    window.addEventListener('message', (event) => {
+      // Verify origin for security
+      if (event.origin !== TARGET_ORIGIN) {
+        addLog(`Rejected message from untrusted origin: ${event.origin}`, 'error');
+        return;
+      }
+
+      addLog(`Received message: ${JSON.stringify(event.data)}`, 'success');
+
+      // Handle different message types
+      switch (event.data.type) {
+        case 'ready':
+          addLog('Iframe is ready!', 'success');
+          break;
+        case 'messageResponse':
+          addLog(`Message response: ${event.data.payload.success ? 'Success' : 'Failed'}`, 'info');
+          if (event.data.payload.content) {
+            addLog(`Content: ${event.data.payload.content.substring(0, 100)}...`, 'info');
+          }
+          break;
+        case 'error':
+          addLog(`Error: ${event.data.payload.message}`, 'error');
+          break;
+      }
+    });
+
+    // Test functions
+    document.getElementById('testInit').addEventListener('click', () => {
+      iframe.contentWindow.postMessage({
+        type: 'init',
+        payload: {
+          sessionId: 'test-session-' + Date.now(),
+          theme: 'light',
+          locale: 'en-US',
+        }
+      }, TARGET_ORIGIN);
+      addLog('Sent init message', 'info');
+    });
+
+    document.getElementById('testSendMessage').addEventListener('click', () => {
+      const messageId = `msg_${Date.now()}_${messageIdCounter++}`;
+      iframe.contentWindow.postMessage({
+        type: 'sendMessage',
+        payload: {
+          text: 'Hello from SDK test!',
+          sessionId: 'test-session-123',
+          messageId: messageId,
+        }
+      }, TARGET_ORIGIN);
+      addLog(`Sent message: ${messageId}`, 'info');
+    });
+
+    document.getElementById('testDisconnect').addEventListener('click', () => {
+      iframe.contentWindow.postMessage({
+        type: 'disconnect',
+      }, TARGET_ORIGIN);
+      addLog('Sent disconnect message', 'info');
+    });
+
+    document.getElementById('reloadIframe').addEventListener('click', () => {
+      iframe.src = iframe.src;
+      addLog('Reloaded iframe', 'info');
+    });
+
+    // Iframe load handler
+    iframe.addEventListener('load', () => {
+      addLog('Iframe loaded successfully', 'success');
+    });
+
+    // Initial log
+    addLog('Test page loaded. Waiting for iframe...', 'info');
+  </script>
+</body>
+</html>

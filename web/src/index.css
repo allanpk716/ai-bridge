@@ -152,3 +152,27 @@
     color: hsl(var(--accent-foreground));
   }
 }
+
+/* SDK Embed Mode Styles */
+@layer utilities {
+  /* Remove margin and padding when embedded in iframe */
+  .embed-mode {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  /* Remove borders in embed mode */
+  .embed-mode body {
+    margin: 0;
+    padding: 0;
+    border: none;
+  }
+
+  /* Hide unnecessary UI elements in embed mode */
+  .embed-mode .embed-hidden {
+    display: none !important;
+  }
+}
