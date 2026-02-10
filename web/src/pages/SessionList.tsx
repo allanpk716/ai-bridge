@@ -9,6 +9,7 @@ import { DeleteSessionDialog } from "@/components/session/DeleteSessionDialog";
 import { BatchDeleteDialog } from "@/components/session/BatchDeleteDialog";
 import { SessionListSkeleton } from "@/components/skeletons";
 import { useNavigateToSession } from "@/router";
+import { useFuseSearch } from "@/features/search";
 import type { Session } from "@/types/api";
 import { toast } from "sonner";
 
@@ -68,14 +69,22 @@ export default function SessionList() {
   const filteredSessions = useMemo(() => {
     let filtered = [...sessions];
 
-    // Filter by search query
+    // Use Fuse.js for fuzzy search
+    const searchResults = useFuseSearch(
+      filtered,
+      searchQuery,
+      {
+        keys: [
+          'metadata.name',
+          'metadata.workingDir',
+          'id'
+        ],
+        threshold: 0.3
+      }
+    );
+
     if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter((session) => {
-        const name =
-          (session.metadata?.name as string | undefined) || session.id;
-        return name.toLowerCase().includes(query);
-      });
+      filtered = searchResults;
     }
 
     // Filter by status
