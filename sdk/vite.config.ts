@@ -20,8 +20,7 @@ export default defineConfig({
         globals: {
           zod: 'Zod'
         }
-      },
-      external: ['zod']
+      }
     }
   },
   resolve: {
