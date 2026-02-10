@@ -1,12 +1,16 @@
-import { Menu, Keyboard } from 'lucide-react';
+import { Menu, Keyboard, Search } from 'lucide-react';
 import { Button } from './ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { useScrollDirection } from '../hooks/useScrollDirection';
 import { ConnectionStatusIndicator } from './connection/StatusIndicator';
+import { SearchBar } from '@/features/search';
 
 interface TopNavProps {
   onMenuClick?: () => void;
   onShortcutHelpClick?: () => void;
+  onSearchChange?: (query: string) => void;
+  resultCount?: number;
+  isSearching?: boolean;
 }
 
 /**
@@ -23,7 +27,13 @@ interface TopNavProps {
  * - Hamburger menu visible only on mobile (md:hidden)
  * - Keyboard shortcuts help button on desktop
  */
-export default function TopNav({ onMenuClick, onShortcutHelpClick }: TopNavProps) {
+export default function TopNav({
+  onMenuClick,
+  onShortcutHelpClick,
+  onSearchChange,
+  resultCount,
+  isSearching
+}: TopNavProps) {
   const scrollDirection = useScrollDirection();
 
   // Auto-hide on scroll down (mobile only)
@@ -38,7 +48,7 @@ export default function TopNav({ onMenuClick, onShortcutHelpClick }: TopNavProps
     >
       <nav className="flex h-16 items-center justify-between pl-4 pr-4 md:pl-[336px] md:pr-6" aria-label="主导航">
         {/* Left: Hamburger (mobile) / Logo (desktop) */}
-        <div className="flex items-center">
+        <div className="flex items-center gap-2">
           {/* Hamburger menu - mobile only */}
           <Button
             variant="ghost"
@@ -52,6 +62,23 @@ export default function TopNav({ onMenuClick, onShortcutHelpClick }: TopNavProps
 
           {/* Logo - mobile only (desktop shows logo in sidebar) */}
           <h1 className="md:hidden text-xl font-bold">AI-Bridge</h1>
+
+          {/* Search icon - mobile only */}
+          {onSearchChange && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden"
+              onClick={() => {
+                // For mobile: could open a full-screen search dialog
+                // For now, just focus on the search input in filters
+                onSearchChange('');
+              }}
+              aria-label="搜索"
+            >
+              <Search className="h-5 w-5" aria-hidden="true" />
+            </Button>
+          )}
         </div>
 
         {/* Center: Breadcrumb - desktop only */}
@@ -59,8 +86,17 @@ export default function TopNav({ onMenuClick, onShortcutHelpClick }: TopNavProps
           <div className="text-sm text-muted-foreground">Navigation</div>
         </div>
 
-        {/* Right: Connection status + Help - desktop only */}
+        {/* Right: Search + Connection status + Help - desktop only */}
         <div className="hidden md:flex items-center gap-2">
+          {/* Search bar */}
+          {onSearchChange && (
+            <SearchBar
+              onSearch={onSearchChange}
+              resultCount={resultCount}
+              isSearching={isSearching}
+            />
+          )}
+
           <ConnectionStatusIndicator />
 
           {/* Keyboard shortcuts help button */}
