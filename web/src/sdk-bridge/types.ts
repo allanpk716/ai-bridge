@@ -108,7 +108,14 @@ export function detectSdkMode(): SdkModeConfig {
       parentOrigin = window.parent.location.origin;
     } catch {
       // 跨源情况,使用 document.referrer
-      parentOrigin = new URL(document.referrer).origin;
+      if (document.referrer) {
+        try {
+          parentOrigin = new URL(document.referrer).origin;
+        } catch {
+          // document.referrer 也是无效 URL,使用 null
+          parentOrigin = null;
+        }
+      }
     }
   }
 
