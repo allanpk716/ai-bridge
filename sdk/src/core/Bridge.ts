@@ -110,7 +110,20 @@ export class MessageBridge {
           this.messageQueue.delete(response.payload.messageId);
           pending.resolve(response);
         }
+      } else if (response.type === 'ready') {
+        // 处理 init 消息的 ready 响应
+        // init 消息的 messageId 格式是 bridge_timestamp_index
+        // 找到最早的一个待处理的请求（应该是 init）
+        for (const [messageId, pending] of this.messageQueue.entries()) {
+          if (messageId.startsWith('bridge_')) {
+            clearTimeout(pending.timeout);
+            this.messageQueue.delete(messageId);
+            pending.resolve(response);
+            break; // 只处理第一个匹配的（init 应该是第一个）
+          }
+        }
       }
+      // heartbeatAck 响应由 ConnectionManager 单独处理，不需要在这里 resolve
     } catch (error) {
       // 无效消息,忽略
       console.warn('[MessageBridge] Invalid message:', error);

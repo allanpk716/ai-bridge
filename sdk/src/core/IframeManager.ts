@@ -31,9 +31,13 @@ export class IframeManager {
       Object.assign(this.iframe.style, this.config.containerStyle);
     }
 
-    // 设置安全属性(移除 allow-same-origin 以支持跨域 postMessage)
-    // 注意: 对于跨域 iframe,需要移除 allow-same-origin 才能正常通信
-    this.iframe.setAttribute('sandbox', 'allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox');
+    // 设置安全属性
+    // allow-same-origin: 允许同源访问（必需，否则无法加载 JavaScript）
+    // allow-scripts: 允许执行脚本
+    // allow-forms: 允许提交表单
+    // allow-popups: 允许弹出窗口
+    // allow-popups-to-escape-sandbox: 允许弹出窗口脱离沙箱
+    this.iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox');
 
     return this.iframe;
   }
