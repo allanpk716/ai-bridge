@@ -22,7 +22,7 @@ const state: SdkBridgeState = {
 /**
  * 发送消息到 SDK
  */
-function sendToSdk(message: SdkOutgoingMessage): boolean {
+export function sendToSdk(message: SdkOutgoingMessage): boolean {
   if (!state.parentOrigin || !window.parent) {
     console.warn('[SdkBridge] Cannot send message: no parent window');
     return false;
