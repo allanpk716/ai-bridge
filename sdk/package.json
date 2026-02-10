@@ -1,0 +1,33 @@
+{
+  "name": "@ai-bridge/sdk",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "JavaScript SDK for embedding AI-Bridge-Web via iframe",
+  "files": ["dist"],
+  "main": "./dist/ai-bridge-sdk.umd.cjs",
+  "module": "./dist/ai-bridge-sdk.es.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/ai-bridge-sdk.es.js",
+      "require": "./dist/ai-bridge-sdk.umd.cjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite build --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "typescript": "~5.9.3",
+    "vite": "^7.2.4"
+  },
+  "peerDependencies": {
+    "typescript": ">=5.0.0"
+  }
+}
