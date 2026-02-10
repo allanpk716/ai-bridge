@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SDK 诊断</title>
+  <style>
+    body {
+      font-family: monospace;
+      padding: 20px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .section {
+      background: #f5f5f5;
+      border: 1px solid #ddd;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 4px;
+    }
+    .section h2 {
+      margin-top: 0;
+      color: #333;
+    }
+    .status-ok { color: green; font-weight: bold; }
+    .status-error { color: red; font-weight: bold; }
+    .status-warning { color: orange; font-weight: bold; }
+    pre {
+      background: #fff;
+      padding: 10px;
+      border: 1px solid #ddd;
+      overflow-x: auto;
+    }
+    .fix {
+      background: #e3f2fd;
+      border-left: 4px solid #2196f3;
+      padding: 10px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>AI-Bridge SDK 诊断工具</h1>
+
+  <div class="section">
+    <h2>1. 页面访问方式</h2>
+    <div id="access-method"></div>
+  </div>
+
+  <div class="section">
+    <h2>2. Origin 信息</h2>
+    <pre id="origin-info"></pre>
+  </div>
+
+  <div class="section">
+    <h2>3. Web 服务器状态</h2>
+    <pre id="server-status"></pre>
+  </div>
+
+  <div class="section">
+    <h2>4. 推荐操作</h2>
+    <div id="recommendations"></div>
+  </div>
+
+  <script>
+    // 获取页面信息
+    const pageInfo = {
+      href: window.location.href,
+      protocol: window.location.protocol,
+      host: window.location.host,
+      origin: window.location.origin
+    };
+
+    // 检查访问方式
+    const accessMethodDiv = document.getElementById('access-method');
+    if (pageInfo.protocol === 'file:') {
+      accessMethodDiv.innerHTML = `
+        <p class="status-error">❌ 错误：你正在使用 file:// 协议打开页面</p>
+        <div class="fix">
+          <strong>解决方法：</strong><br>
+          不要直接双击 HTML 文件打开！请按照以下步骤操作：<br><br>
+          1. 确保开发服务器正在运行（<code>npm run dev</code>）<br>
+          2. 在浏览器中访问：<a href="http://localhost:3000/test-sdk.html" target="_blank">http://localhost:3000/test-sdk.html</a><br>
+          3. 不要直接打开文件：<code>file:///C:/WorkSpace/ai-bridge/web/public/test-sdk.html</code>
+        </div>
+      `;
+    } else if (pageInfo.host === 'localhost:3000' || pageInfo.host === '127.0.0.1:3000') {
+      accessMethodDiv.innerHTML = `
+        <p class="status-ok">✅ 正确：你正在使用 HTTP 服务器访问页面</p>
+        <p>当前访问：<code>${pageInfo.href}</code></p>
+      `;
+    } else {
+      accessMethodDiv.innerHTML = `
+        <p class="status-warning">⚠️ 警告：你使用的端口可能不正确</p>
+        <p>当前访问：<code>${pageInfo.href}</code></p>
+        <p>建议使用端口 <strong>3000</strong></p>
+      `;
+    }
+
+    // 显示 Origin 信息
+    document.getElementById('origin-info').textContent = JSON.stringify(pageInfo, null, 2);
+
+    // 检查服务器状态
+    const serverStatusDiv = document.getElementById('server-status');
+    fetch('/sdk/ai-bridge-sdk.es.js', { method: 'HEAD' })
+      .then(response => {
+        if (response.ok) {
+          serverStatusDiv.innerHTML = `<p class="status-ok">✅ SDK 文件可访问</p>`;
+        } else {
+          serverStatusDiv.innerHTML = `<p class="status-error">❌ SDK 文件不可访问 (状态码: ${response.status})</p>`;
+        }
+      })
+      .catch(error => {
+        serverStatusDiv.innerHTML = `<p class="status-error">❌ 无法检查服务器状态: ${error.message}</p>`;
+      });
+
+    // 推荐操作
+    const recDiv = document.getElementById('recommendations');
+    recDiv.innerHTML = `
+      <div class="fix">
+        <strong>完整测试步骤：</strong><br>
+        <ol>
+          <li>确保在 <code>web</code> 目录下运行：<code>npm run dev</code></li>
+          <li>确认服务器运行在 <code>http://localhost:3000</code></li>
+          <li>在浏览器中访问：<a href="http://localhost:3000/test-sdk.html">http://localhost:3000/test-sdk.html</a></li>
+          <li>等待 5-10 秒，查看连接状态是否变为"已连接"</li>
+        </ol>
+      </div>
+    `;
+
+    // 实时日志
+    console.log('=== SDK 诊断信息 ===');
+    console.log('Page URL:', window.location.href);
+    console.log('Page Origin:', window.location.origin);
+    console.log('Protocol:', window.location.protocol);
+    console.log('Host:', window.location.host);
+  </script>
+</body>
+</html>
