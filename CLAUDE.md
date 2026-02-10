@@ -26,6 +26,142 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **前后端分离**: 对于前后端分离的项目,使用浏览器技能(dev-browser)进行前后端通信和交互测试
 - **真实环境**: 优先在真实浏览器环境中验证功能
 
+### 测试与提交规范 (Testing & Commit Guidelines)
+
+#### Git 提交后必须测试
+
+每次提交代码后，必须运行以下测试流程：
+
+##### 1. 快速检查 (Quick Check)
+
+```batch
+# 检查服务状态
+.claude\skills\ai-bridge-debug\scripts\check-services.bat
+
+# 如果服务未运行，启动后端
+.claude\skills\ai-bridge-debug\scripts\start-backend.bat
+```
+
+##### 2. 自动化测试 (Automated Tests)
+
+```bash
+# 运行单元测试
+make test-unit
+
+# 运行集成测试
+make test-integration
+```
+
+##### 3. 功能验证 (Functional Verification)
+
+根据修改的内容选择相应的验证步骤：
+
+**后端修改**：
+```bash
+# 测试 API 端点
+curl http://localhost:8080/health
+
+# 查看后端日志（Windows PowerShell）
+Get-Content logs\ai-bridge-*.log -Tail 20
+
+# 或使用 CMD
+powershell -Command "Get-Content logs\ai-bridge-*.log -Tail 20"
+```
+
+**前端修改**：
+```bash
+# 确保前端服务运行中
+cd web
+npm run dev
+
+# 打开浏览器测试
+# 访问 http://localhost:3000
+# 检查控制台错误
+```
+
+**SDK 修改**：
+```bash
+# 构建 SDK
+cd sdk
+npm run build
+
+# 验证 SDK 文件
+# 检查 web/public/sdk/ai-bridge-sdk.es.js
+
+# 测试 SDK 集成
+# 访问 http://localhost:3000/test-sdk.html
+# 验证连接成功
+```
+
+**WebSocket/API 修改**：
+```bash
+# 完整诊断测试
+# 使用 ai-bridge-debug 技能
+/ai-bridge-debug test integration
+```
+
+##### 4. 使用调试技能 (Debug Skill)
+
+对于复杂问题或不确定的影响范围：
+
+```bash
+# 使用 ai-bridge-debug 技能进行完整诊断
+/ai-bridge-debug 测试提交后的功能
+
+# 技能会自动：
+# - 检查并启动必要的服务
+# - 分析日志错误
+# - 浏览器自动化测试
+# - 提供诊断报告
+```
+
+#### 测试检查清单 (Test Checklist)
+
+**提交前确认**：
+- [ ] 代码编译通过（Go: `go build`, Frontend: `npm run build`）
+- [ ] 单元测试通过（`make test-unit`）
+- [ ] 后端服务启动正常
+- [ ] 前端页面加载正常
+- [ ] 控制台无错误日志
+- [ ] 功能验证通过
+
+**提交后确认**：
+- [ ] 服务运行稳定
+- [ ] 日志无新增错误
+- [ ] 相关功能正常工作
+
+#### 调试技能使用指南
+
+```bash
+# 快速健康检查
+/ai-bridge-debug --health
+
+# 完整诊断
+/ai-bridge-debug <问题描述>
+
+# SDK 测试
+/ai-bridge-debug test sdk
+
+# 后端调试
+/ai-bridge-debug backend error
+
+# 前端调试
+/ai-bridge-debug frontend error
+
+# 集成调试
+/ai-bridge-debug integration failed
+```
+
+#### 服务管理脚本速查
+
+| 脚本 | 功能 | 使用场景 |
+|------|------|----------|
+| `check-services.bat` | 检查前后端服务状态 | 验证服务是否运行 |
+| `start-backend.bat` | 启动后端服务 | 后端未运行时 |
+| `stop-backend.bat` | 停止后端服务 | 需要重启后端时 |
+| `health-check.bat` | 健康检查 | 验证服务健康状况 |
+| `analyze-logs.bat` | 分析后端日志 | 查找错误和问题 |
+
 ### 日志规范 (Logging Standards)
 - **日志库**: Go 项目统一使用 `github.com/WQGroup/logger`
 - **基本用法**:

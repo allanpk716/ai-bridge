@@ -45,7 +45,8 @@ description: AI-Bridge 项目专用自动化调试技能 - 协调后端 Go 调�
 3. API 问题（端点、响应、状态码）
 4. 集成问题（前后端通信）
 5. 性能问题（响应慢、超时）
-6. 其他/描述问题
+6. SDK 测试（完整集成测试）
+7. 其他/描述问题
 
 **等待用户响应后再路由。**
 </intake>
@@ -58,7 +59,8 @@ description: AI-Bridge 项目专用自动化调试技能 - 协调后端 Go 调�
 | 3, "api", "端点" | 后端分析器 + API 验证器 | workflows/api-debug.md |
 | 4, "集成", "通信" | 前端测试器 + 后端分析器（并行） | workflows/integration-debug.md |
 | 5, "性能", "慢", "超时" | 所有代理（并行） | workflows/performance-debug.md |
-| 6, "其他" 或详细描述 | 从上下文自动检测 | workflows/adaptive-debug.md |
+| 6, "sdk", "SDK 测试" | 前端测试器 + 后端验证 | workflows/sdk-test.md |
+| 7, "其他" 或详细描述 | 从上下文自动检测 | workflows/adaptive-debug.md |
 
 **基于意图的路由：**
 - "日志错误", "panic", "崩溃" → backend-debug.md
@@ -66,6 +68,7 @@ description: AI-Bridge 项目专用自动化调试技能 - 协调后端 Go 调�
 - "API 返回 500", "错误响应", "端点未找到" → api-debug.md
 - "前端无法连接", "CORS 错误", "WebSocket 失败" → integration-debug.md
 - "慢", "超时", "高内存" → performance-debug.md
+- "SDK 测试", "SDK 连接", "SDK 集成" → sdk-test.md
 - 有多个症状的复杂问题 → adaptive-debug.md
 </routing>
 
@@ -95,6 +98,7 @@ description: AI-Bridge 项目专用自动化调试技能 - 协调后端 Go 调�
 | api-debug.md | HTTP 端点测试 | 后端分析器、API 验证器 |
 | integration-debug.md | 前后端通信 | 前端测试器 + 后端分析器（并行） |
 | performance-debug.md | 响应慢、超时 | 所有代理（并行） |
+| sdk-test.md | SDK 集成测试 | 前端测试器 + 服务管理 |
 | adaptive-debug.md | 未知问题、自动检测 | 基于症状动态选择 |
 </workflows_index>
 
@@ -104,9 +108,16 @@ description: AI-Bridge 项目专用自动化调试技能 - 协调后端 Go 调�
 1. 后端错误：读取日志、分析堆栈跟踪、找到根本原因
 2. 前端问题：打开浏览器、检查控制台、测试 WebSocket
 3. API 问题：测试端点、验证响应、检查后端处理器
+4. SDK 测试：启动服务、运行测试、验证功能
 
 **完整调试：**
 描述问题 → 技能启动相应的代理 → 提供诊断
+
+**服务管理：**
+- 检查服务：`scripts/check-services.bat`
+- 启动后端：`scripts/start-backend.bat`
+- 健康检查：`scripts/health-check.bat`
+- 分析日志：`scripts/analyze-logs.bat`
 </quick_start>
 
 <objective>
