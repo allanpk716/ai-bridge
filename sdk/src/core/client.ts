@@ -20,6 +20,7 @@ export class AIBridgeSDK {
   private connection: ConnectionManager;
   private config: SDKConfig;
   private messageId = 0;
+  private messageHistory: MessageResponse[] = [];
 
   // iframe 元素引用
   public readonly iframe: HTMLIFrameElement;
@@ -138,10 +139,100 @@ export class AIBridgeSDK {
     const response = await this.bridge.sendAndWait(message, 30000);
 
     if (response.type === 'messageResponse') {
-      return response.payload;
+      const messageResponse = response.payload;
+
+      // 记录到历史
+      this.messageHistory.push(messageResponse);
+
+      // 触发回调
+      this.config.onMessage?.(messageResponse);
+
+      return messageResponse;
     }
 
     throw new Error('Unexpected response type');
+  }
+
+  /**
+   * 发送文本消息(简化版)
+   *
+   * @param text - 要发送的文本内容
+   * @returns Promise<MessageResponse> Claude 的响应
+   *
+   * @example
+   * const response = await sdk.chat('Hello, Claude!');
+   * console.log(response.content);
+   */
+  async chat(text: string): Promise<MessageResponse> {
+    return this.sendMessage(text);
+  }
+
+  /**
+   * 批量发送消息
+   *
+   * @param messages - 消息数组
+   * @returns Promise<MessageResponse[]> 所有响应
+   *
+   * @example
+   * const responses = await sdk.batch([
+   *   'First message',
+   *   'Second message',
+   * ]);
+   */
+  async batch(messages: string[]): Promise<MessageResponse[]> {
+    const responses: MessageResponse[] = [];
+
+    for (const message of messages) {
+      const response = await this.sendMessage(message);
+      responses.push(response);
+    }
+
+    return responses;
+  }
+
+  /**
+   * 流式发送消息(带回调)
+   *
+   * @param text - 要发送的文本
+   * @param callbacks - 回调函数
+   * @returns Promise<MessageResponse> 最终响应
+   *
+   * @example
+   * await sdk.stream('Long message...', {
+   *   onProgress: (delta) => console.log('Received:', delta),
+   *   onComplete: (response) => console.log('Done:', response),
+   * });
+   */
+  async stream(
+    text: string,
+    callbacks?: {
+      onProgress?: (delta: string) => void;
+      onComplete?: (response: MessageResponse) => void;
+      onError?: (error: Error) => void;
+    }
+  ): Promise<MessageResponse> {
+    try {
+      const response = await this.sendMessage(text);
+      callbacks?.onComplete?.(response);
+      return response;
+    } catch (error) {
+      callbacks?.onError?.(error as Error);
+      throw error;
+    }
+  }
+
+  /**
+   * 获取消息历史
+   */
+  getMessageHistory(): MessageResponse[] {
+    return [...this.messageHistory];
+  }
+
+  /**
+   * 清空消息历史
+   */
+  clearHistory(): void {
+    this.messageHistory = [];
   }
 
   /**
