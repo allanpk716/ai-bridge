@@ -1,5 +1,6 @@
 import type { SdkIncomingMessage, SdkOutgoingMessage, SdkModeConfig } from './types';
 import { SdkIncomingMessageSchema } from './types';
+import { createSdkMessageHandler, sendResultToSdk } from './messageIntegration';
 
 /**
  * SDK 桥接状态
@@ -18,6 +19,9 @@ const state: SdkBridgeState = {
   parentOrigin: null,
   pendingMessages: new Map(),
 };
+
+// 创建全局消息处理器实例
+const sdkMessageHandler = createSdkMessageHandler();
 
 /**
  * 发送消息到 SDK
@@ -67,22 +71,17 @@ async function handleSendMessageRequest(message: SdkIncomingMessage & { type: 's
   const { payload: msgPayload } = message;
 
   try {
-    // TODO: 实现实际的消息发送逻辑
-    // 这里需要调用现有的消息发送 API
-    // 暂时使用模拟响应
+    // 使用集成层发送消息
+    const result = await sdkMessageHandler.handle(
+      msgPayload.text,
+      msgPayload.sessionId,
+      msgPayload.messageId
+    );
 
-    const response = await sendToClaude(msgPayload.text);
-
-    sendToSdk({
-      type: 'messageResponse',
-      payload: {
-        messageId: msgPayload.messageId,
-        success: true,
-        content: response.content,
-        metadata: response.metadata,
-      },
-    });
+    // 发送结果到 SDK(集成层会处理)
+    sendResultToSdk(result);
   } catch (error) {
+    // 发送错误到 SDK
     sendToSdk({
       type: 'messageResponse',
       payload: {
@@ -92,29 +91,6 @@ async function handleSendMessageRequest(message: SdkIncomingMessage & { type: 's
       },
     });
   }
-}
-
-/**
- * 发送消息到 Claude(占位实现)
- */
-async function sendToClaude(text: string): Promise<{
-  content: string;
-  metadata: {
-    model: string;
-    tokensUsed: number;
-  };
-}> {
-  // TODO: 集成现有的 API 调用
-  // 这里需要使用 web/src/lib/api/ 中的 API 函数
-
-  // 暂时返回模拟响应
-  return {
-    content: `这是对 "${text}" 的模拟响应。实际实现需要集成 API。`,
-    metadata: {
-      model: 'haiku',
-      tokensUsed: text.length + 10,
-    },
-  };
 }
 
 /**
