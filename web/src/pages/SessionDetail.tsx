@@ -8,7 +8,7 @@ import { SessionMetadata } from '@/components/session/SessionMetadata';
 import { SessionHeader } from '@/components/session/SessionHeader';
 import { ResumeSessionDialog } from '@/components/session/ResumeSessionDialog';
 import { DeleteSessionDialog } from '@/components/session/DeleteSessionDialog';
-import { ChatMessageList } from '@/components/chat/ChatMessageList';
+import ChatMessageList from '@/components/chat/ChatMessageList';
 import { ChatInput, type ChatInputRef } from '@/components/chat/ChatInput';
 import { StreamingErrorCard } from '@/components/chat/StreamingErrorCard';
 import { useChatMessages } from '@/hooks/useChatMessages';
