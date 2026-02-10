@@ -6,15 +6,15 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 
 **Core value:** 功能完整性与性能表现双重验证 - 前端必须验证 AI-Bridge 后端所有 API 端点正常工作,同时在 10000+ 消息场景下验证增量同步性能
 
-**Current focus:** Phase 7: SDK & Integration — 🔄 In Progress (1/6 complete)
+**Current focus:** Phase 7: SDK & Integration — 🔄 In Progress (2/6 complete)
 
 ## Current Position
 
 Phase: 6 of 8 completed, Phase 6 ✅ complete, Phase 7 🔄 in progress
 UAT: Phase 1 ✅ passed, Phase 2 ✅ passed (67/67 must-haves verified), Phase 3 ✅ complete, Phase 4 ✅ complete, Phase 5 ✅ complete (10/10 must-haves verified), Phase 6 ✅ complete, Phase 7 🔄 in progress
-Last activity: 2026-02-10 — Phase 7-01 ✅ complete (SDK Package Structure and Core Client Implementation)
+Last activity: 2026-02-10 — Phase 7-03 ✅ complete (postMessage Bridge with Heartbeat and Connection Management)
 
-Progress: [█████████░] 63% (41/64 plans)
+Progress: [█████████░] 64% (42/64 plans)
 
 ## Performance Metrics
 
@@ -33,11 +33,11 @@ Progress: [█████████░] 63% (41/64 plans)
 | 4 | 11 | 56min | 5.1min |
 | 5 | 3 | 12min | 4min |
 | 6 | 7 | 51min | 7.3min ✅ complete |
-| 7 | 1 | 12min | 12min 🔄 in progress |
+| 7 | 2 | 24min | 12min 🔄 in progress |
 
 **Recent Trend:**
-- Last 5 plans: 06-05 (6min), 06-06 (5min), 06-07 (12min), 06-08 (25min), 06-09 (unknown), 07-01 (12min)
-- Trend: Phase 7 started with SDK package structure and core client implementation
+- Last 5 plans: 06-07 (12min), 06-08 (25min), 06-09 (unknown), 07-01 (12min), 07-03 (12min)
+- Trend: Phase 7 progressing with SDK communication infrastructure
 
 *Updated after each plan completion*
 
@@ -99,6 +99,7 @@ Recent decisions affecting current work:
 - [06-08 - Search and Export Integration]: Integrated search functionality from 06-01 (SearchBar to TopNav, useFuseSearch to SessionList) and export functionality from 06-02 (ExportButton and ExportPreviewModal to SessionDetail), copied components from src/features/ to web/src/features/ for proper module resolution, fixed barrel exports in chat/index.ts, created missing skeleton components (SessionListSkeleton, ChatMessageListSkeleton), dev server starts successfully
 - [06-09 - TypeScript Error Fixes]: Extended Message type definition with optional fields (id, sessionId, createdAt), fixed Socket.IO hooks type compatibility using type assertions, fixed Skeleton component className support by using pure CSS implementation, excluded test files from tsconfig to prevent type errors, cleaned up unused imports and variables across 35+ files, fixed Dialog component ref type issues, fixed type import syntax (using import type), fixed React Router v7 import paths, fixed API error handler class (removed parameter properties), added dropdown-menu component manually, fixed ChatMessageList Virtuoso configuration, fixed Service Worker registration, reduced TypeScript errors from 50+ to ~11 (mostly unused variable warnings)
 - [07-01 - SDK Package Structure]: Created SDK package structure with package.json, tsconfig.json, vite.config.ts, implemented TypeScript type definitions (SDKConfig, ConnectionState, Message types), created IframeManager for iframe lifecycle management, implemented AIBridgeSDK main client class with postMessage communication, message queue with timeout handling, connection state management (CONNECTING/CONNECTED/DISCONNECTED/ERROR), installed vite-plugin-dts for TypeScript declaration generation, built ESM and UMD output formats
+- [07-03 - postMessage Bridge and Connection]: Implemented MessageBridge class for bidirectional postMessage communication with request-response correlation and timeout handling, created ConnectionManager with heartbeat-based connection monitoring and exponential backoff reconnection (max 5 attempts), integrated bridge and connection manager into AIBridgeSDK client, added heartbeat/heartbeatAck message types to schemas, implemented heartbeat response handling in web application
 
 ### Pending Todos
 
@@ -124,8 +125,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-10 03:38 UTC
-Stopped at: Completed Phase 7-01 ✅ (SDK Package Structure and Core Client Implementation)
+Last session: 2026-02-10 11:42 UTC
+Stopped at: Completed Phase 7-03 ✅ (postMessage Bridge with Heartbeat and Connection Management)
 Resume file: None
 
 ## Phase 3 总结
