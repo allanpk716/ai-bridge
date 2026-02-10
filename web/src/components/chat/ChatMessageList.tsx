@@ -19,7 +19,6 @@ import { type Message } from "@/types/api";
 import { clsx } from "clsx";
 import { StreamingMessage } from "./StreamingMessage";
 import StreamingIndicator from "./StreamingIndicator";
-import TypingIndicator from "./TypingIndicator";
 import { ChatMessageListSkeleton } from "@/components/skeletons";
 import { PermissionCard } from "@/components/permissions";
 import type { PermissionWithStatus } from "@/hooks/usePermissionModal";

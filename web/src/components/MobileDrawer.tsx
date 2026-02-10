@@ -1,4 +1,5 @@
-import { useEffect, useSwipeable } from 'react-swipeable';
+import { useEffect } from 'react';
+import { useSwipeable } from 'react-swipeable';
 import { X } from 'lucide-react';
 import { Sidebar } from './Sidebar';
 import { Button } from './ui/button';

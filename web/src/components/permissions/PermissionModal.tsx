@@ -28,7 +28,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ScopeSelector, PermissionScope } from "@/components/permissions/ScopeSelector";
+import { ScopeSelector, type PermissionScope } from "@/components/permissions/ScopeSelector";
 import type { Permission } from "@/types/api";
 
 export interface PermissionModalProps {
