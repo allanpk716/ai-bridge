@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>SDK Debug</title>
+  <style>
+    body { font-family: monospace; padding: 20px; background: #1a1a1a; color: #fff; }
+    #container { height: 400px; border: 2px solid #444; margin: 20px 0; }
+    .log { background: #2a2a2a; padding: 10px; margin: 10px 0; border-left: 3px solid #4CAF50; }
+    .error { border-left-color: #f44336; background: #3a1a1a; }
+    .warn { border-left-color: #ff9800; background: #3a2a1a; }
+    iframe { width: 100%; height: 100%; border: none; background: #fff; }
+    button { padding: 10px 20px; margin: 5px; cursor: pointer; background: #4CAF50; color: #fff; border: none; }
+    button:hover { background: #45a049; }
+  </style>
+</head>
+<body>
+  <h1>SDK Connection Debug</h1>
+  <div id="status">Initializing...</div>
+  <button onclick="runDiagnostics()">Run Diagnostics</button>
+  <button onclick="clearLogs()">Clear Logs</button>
+
+  <div id="container"></div>
+
+  <h2>Debug Logs</h2>
+  <div id="logs"></div>
+
+  <script type="module">
+    const logs = document.getElementById('logs');
+    const status = document.getElementById('status');
+    let sdk = null;
+
+    function log(msg, type = 'info') {
+      const div = document.createElement('div');
+      div.className = `log ${type}`;
+      div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+      logs.appendChild(div);
+      console.log(`[Debug] ${msg}`);
+    }
+
+    window.clearLogs = () => { logs.innerHTML = ''; };
+
+    window.runDiagnostics = async () => {
+      log('=== Running Diagnostics ===');
+
+      // Check 1: SDK object
+      if (typeof window.sdk === 'undefined') {
+        log('❌ SDK not initialized', 'error');
+        return;
+      }
+      log('✓ SDK object exists');
+
+      // Check 2: Iframe
+      const iframe = document.querySelector('iframe');
+      if (!iframe) {
+        log('❌ No iframe found', 'error');
+        return;
+      }
+      log(`✓ Iframe exists, src=${iframe.src.substring(0, 60)}...`);
+
+      // Check 3: SDK diagnostics
+      try {
+        const diag = window.sdk.getDiagnostics();
+        log(`✓ SDK Diagnostics:`, 'info');
+        log(`  - State: ${diag.state}`, 'info');
+        log(`  - Healthy: ${diag.stats?.isHealthy}`, 'info');
+        log(`  - Pending: ${diag.pendingMessages}`, 'info');
+        log(`  - History: ${diag.messageHistoryLength}`, 'info');
+        log(`  - Attached: ${diag.iframeAttached}`, 'info');
+      } catch (e) {
+        log(`❌ Diagnostics failed: ${e.message}`, 'error');
+      }
+
+      // Check 4: Iframe contentWindow
+      try {
+        const contentWindow = iframe.contentWindow;
+        if (contentWindow) {
+          log('✓ Iframe contentWindow accessible');
+        } else {
+          log('❌ Iframe contentWindow is null', 'error');
+        }
+      } catch (e) {
+        log(`❌ Cannot access iframe: ${e.message}`, 'error');
+      }
+
+      log('=== Diagnostics Complete ===');
+    };
+
+    async function init() {
+      log('=== Starting SDK Initialization ===');
+
+      try {
+        // Import SDK
+        log('Importing AIBridgeSDK...');
+        const { AIBridgeSDK } = await import('../sdk/dist/ai-bridge-sdk.es.js');
+        log('✓ SDK module loaded');
+
+        // Create SDK
+        log('Creating SDK instance...');
+        sdk = new AIBridgeSDK({
+          url: 'http://localhost:3000',
+          targetOrigin: 'http://localhost:3000',
+          context: {
+            theme: 'light',
+            sessionId: 'debug-test',
+          },
+          onStateChange: (state) => {
+            log(`State changed: ${state}`, state === 'CONNECTED' ? 'info' : 'warn');
+            status.textContent = `Status: ${state}`;
+            status.style.color = state === 'CONNECTED' ? '#4CAF50' : '#ff9800';
+          },
+          onMessage: (msg) => {
+            log(`Message received: ${JSON.stringify(msg).substring(0, 100)}...`);
+          },
+          onError: (error) => {
+            log(`Error: ${error.message} (type: ${error.type})`, 'error');
+          },
+        });
+        log('✓ SDK instance created');
+
+        // Attach iframe
+        const container = document.getElementById('container');
+        container.appendChild(sdk.iframe);
+        log('✓ Iframe attached to DOM');
+
+        // Make SDK globally available
+        window.sdk = sdk;
+
+        // Wait and check
+        log('Waiting for connection...');
+        setTimeout(() => {
+          const currentState = sdk.getState();
+          log(`Current state after 3s: ${currentState}`, currentState === 'CONNECTED' ? 'info' : 'warn');
+
+          if (currentState !== 'CONNECTED') {
+            log('⚠️ Connection failed - run diagnostics for details', 'warn');
+          }
+        }, 3000);
+
+      } catch (error) {
+        log(`❌ Initialization failed: ${error.message}`, 'error');
+        log(`Stack: ${error.stack}`, 'error');
+      }
+    }
+
+    // Initialize
+    init();
+  </script>
+</body>
+</html>
