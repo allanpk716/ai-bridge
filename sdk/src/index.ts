@@ -1,17 +1,8 @@
+// 核心类
 export { AIBridgeSDK } from './core/client';
 export { IframeManager } from './core/IframeManager';
+export { MessageBridge } from './core/Bridge';
+export { ConnectionManager, ConnectionState } from './core/Connection';
 
-export type { SDKConfig, SDKContext, CSSProperties } from './types/config';
-export type { ConnectionState, SDKEvent, SdkMessageResponse } from './types/events';
-export type {
-  SdkMessage,
-  SendMessagePayload,
-  MessageResponse,
-  IframeResponse
-} from './types/messages';
-export {
-  SendMessagePayloadSchema,
-  MessageResponseSchema,
-  SdkMessageSchema,
-  IframeResponseSchema
-} from './types/messages';
+// 类型定义
+export * from './types';
