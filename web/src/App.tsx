@@ -6,6 +6,7 @@ import { ConnectionDialog } from "@/components/connection/ConnectionDialog";
 import { OfflineBanner, UpdatePrompt } from "@/components/pwa";
 import { NetworkStatusError } from "@/components/NetworkStatusError";
 import { LiveAnnouncer } from "@/components/accessibility";
+import { SdkMessageListener } from "@/sdk-bridge";
 import {
   ShortcutProvider,
   ShortcutHelpModal,
@@ -117,9 +118,11 @@ function App() {
   return (
     <ShortcutProvider>
       <ThemeProvider>
-        <ShortcutUIProvider>
-          <InnerApp />
-        </ShortcutUIProvider>
+        <SdkMessageListener>
+          <ShortcutUIProvider>
+            <InnerApp />
+          </ShortcutUIProvider>
+        </SdkMessageListener>
       </ThemeProvider>
     </ShortcutProvider>
   );
