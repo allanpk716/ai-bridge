@@ -9,7 +9,7 @@ import { DeleteSessionDialog } from "@/components/session/DeleteSessionDialog";
 import { BatchDeleteDialog } from "@/components/session/BatchDeleteDialog";
 import { SessionListSkeleton } from "@/components/skeletons";
 import { useNavigateToSession } from "@/router";
-import { useFuseSearch } from "@/features/search";
+import { useFuseSearch } from "@/features/search/hooks/useFuseSearch";
 import type { Session } from "@/types/api";
 import { toast } from "sonner";
 

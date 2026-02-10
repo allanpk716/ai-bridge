@@ -13,7 +13,9 @@ import { ChatInput, type ChatInputRef } from '@/components/chat/ChatInput';
 import { StreamingErrorCard } from '@/components/chat/StreamingErrorCard';
 import { useChatMessages } from '@/hooks/useChatMessages';
 import { CommandExecutor } from '@/components/commands';
-import { ExportButton, ExportPreviewModal, useExportMutation } from '@/features/export';
+import { ExportButton } from '@/features/export/components/ExportButton';
+import { ExportPreviewModal } from '@/features/export/components/ExportPreviewModal';
+import { useExportMutation } from '@/features/export/hooks/useExportMutation';
 import { toast } from 'sonner';
 
 /**

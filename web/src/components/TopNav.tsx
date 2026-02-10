@@ -3,7 +3,7 @@ import { Button } from './ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { useScrollDirection } from '../hooks/useScrollDirection';
 import { ConnectionStatusIndicator } from './connection/StatusIndicator';
-import { SearchBar } from '@/features/search';
+import { SearchBar } from '@/features/search/components/SearchBar';
 
 interface TopNavProps {
   onMenuClick?: () => void;
