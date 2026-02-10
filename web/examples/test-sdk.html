@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SDK Test</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    #container {
+      height: 600px;
+      width: 100%;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 14px;
+      border: none;
+      border-radius: 4px;
+      background: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .status {
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+    .status.connected {
+      background: #d4edda;
+      color: #155724;
+    }
+    .status.disconnected {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    .status.connecting {
+      background: #fff3cd;
+      color: #856404;
+    }
+    #log {
+      background: #f5f5f5;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 10px;
+      height: 200px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 12px;
+    }
+    .log-entry {
+      margin: 5px 0;
+      padding: 5px;
+      border-left: 3px solid #007bff;
+      padding-left: 10px;
+    }
+    .log-entry.error {
+      border-left-color: #dc3545;
+      background: #ffe6e6;
+    }
+    .log-entry.success {
+      border-left-color: #28a745;
+      background: #e6ffe6;
+    }
+  </style>
+</head>
+<body>
+  <h1>AI-Bridge SDK Test</h1>
+
+  <div id="status" class="status connecting">状态: 连接中...</div>
+
+  <div class="controls">
+    <button onclick="testSendMessage()" id="sendBtn">发送测试消息</button>
+    <button onclick="testChat()" id="chatBtn">测试 chat() 方法</button>
+    <button onclick="testBatch()" id="batchBtn">测试 batch() 方法</button>
+    <button onclick="testStream()" id="streamBtn">测试 stream() 方法</button>
+    <button onclick="testHistory()" id="historyBtn">查看历史</button>
+    <button onclick="clearLog()">清空日志</button>
+  </div>
+
+  <div id="container"></div>
+
+  <h2>日志</h2>
+  <div id="log"></div>
+
+  <script type="module">
+    import { AIBridgeSDK } from '../sdk/dist/ai-bridge-sdk.es.js';
+
+    let sdk = null;
+    const container = document.getElementById('container');
+    const statusDiv = document.getElementById('status');
+    const logDiv = document.getElementById('log');
+
+    // 日志函数
+    function log(message, type = 'info') {
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${type}`;
+      entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      logDiv.appendChild(entry);
+      logDiv.scrollTop = logDiv.scrollHeight;
+      console.log(`[SDK Test] ${message}`);
+    }
+
+    window.clearLog = function() {
+      logDiv.innerHTML = '';
+      log('日志已清空');
+    };
+
+    // 初始化 SDK
+    function initSDK() {
+      try {
+        sdk = new AIBridgeSDK({
+          url: 'http://localhost:3000/?embed=true',
+          targetOrigin: 'http://localhost:3000',
+          context: {
+            theme: 'light',
+            sessionId: 'test-session-sdk',
+          },
+          onMessage: (msg) => {
+            log(`收到消息: ${JSON.stringify(msg, null, 2)}`, 'success');
+          },
+          onStateChange: (state) => {
+            log(`状态变化: ${state}`, 'info');
+            updateStatus(state);
+          },
+          onError: (error) => {
+            log(`错误: ${error.message}`, 'error');
+          },
+        });
+
+        container.appendChild(sdk.iframe);
+        log('SDK 初始化成功');
+      } catch (error) {
+        log(`SDK 初始化失败: ${error.message}`, 'error');
+      }
+    }
+
+    // 更新连接状态显示
+    function updateStatus(state) {
+      statusDiv.className = 'status ' + state.toLowerCase();
+      const stateNames = {
+        'CONNECTING': '连接中...',
+        'CONNECTED': '已连接',
+        'DISCONNECTED': '已断开',
+        'ERROR': '连接错误'
+      };
+      statusDiv.textContent = '状态: ' + (stateNames[state] || state);
+    }
+
+    // 测试 sendMessage 方法
+    window.testSendMessage = async function() {
+      if (!sdk) {
+        log('SDK 未初始化', 'error');
+        return;
+      }
+
+      try {
+        log('发送测试消息...', 'info');
+        const response = await sdk.sendMessage('Hello from SDK! This is a test message.');
+        log(`收到响应: ${JSON.stringify(response, null, 2)}`, 'success');
+      } catch (error) {
+        log(`发送消息失败: ${error.message}`, 'error');
+      }
+    };
+
+    // 测试 chat 方法
+    window.testChat = async function() {
+      if (!sdk) {
+        log('SDK 未初始化', 'error');
+        return;
+      }
+
+      try {
+        log('测试 chat() 方法...', 'info');
+        const response = await sdk.chat('Can you explain what you can do?');
+        log(`chat() 响应: ${response.content?.substring(0, 100)}...`, 'success');
+      } catch (error) {
+        log(`chat() 失败: ${error.message}`, 'error');
+      }
+    };
+
+    // 测试 batch 方法
+    window.testBatch = async function() {
+      if (!sdk) {
+        log('SDK 未初始化', 'error');
+        return;
+      }
+
+      try {
+        log('测试 batch() 方法...', 'info');
+        const responses = await sdk.batch([
+          'What is 2+2?',
+          'What is the capital of France?',
+        ]);
+        log(`batch() 完成,收到 ${responses.length} 个响应`, 'success');
+        responses.forEach((resp, i) => {
+          log(`  响应 ${i + 1}: ${resp.content?.substring(0, 50)}...`, 'info');
+        });
+      } catch (error) {
+        log(`batch() 失败: ${error.message}`, 'error');
+      }
+    };
+
+    // 测试 stream 方法
+    window.testStream = async function() {
+      if (!sdk) {
+        log('SDK 未初始化', 'error');
+        return;
+      }
+
+      try {
+        log('测试 stream() 方法...', 'info');
+        await sdk.stream('Tell me a short joke.', {
+          onProgress: (delta) => {
+            log(`流式更新: ${delta}`, 'info');
+          },
+          onComplete: (response) => {
+            log(`stream() 完成: ${response.content?.substring(0, 100)}...`, 'success');
+          },
+          onError: (error) => {
+            log(`stream() 错误: ${error.message}`, 'error');
+          },
+        });
+      } catch (error) {
+        log(`stream() 失败: ${error.message}`, 'error');
+      }
+    };
+
+    // 测试历史记录
+    window.testHistory = function() {
+      if (!sdk) {
+        log('SDK 未初始化', 'error');
+        return;
+      }
+
+      try {
+        const history = sdk.getMessageHistory();
+        log(`消息历史: 共 ${history.length} 条消息`, 'info');
+        history.forEach((msg, i) => {
+          log(`  ${i + 1}. ${msg.messageId} - ${msg.success ? '成功' : '失败'}`, 'info');
+        });
+      } catch (error) {
+        log(`获取历史失败: ${error.message}`, 'error');
+      }
+    };
+
+    // 页面加载时初始化
+    window.addEventListener('DOMContentLoaded', () => {
+      log('页面加载完成,初始化 SDK...');
+      initSDK();
+    });
+  </script>
+</body>
+</html>
