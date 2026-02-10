@@ -78,7 +78,7 @@
     <div class="iframe-container">
       <iframe
         id="ai-bridge-iframe"
-        src="http://localhost:3000/?embed=true&theme=dark&sessionId=test-session-123"
+        src="http://localhost:3001/?embed=true&theme=dark&sessionId=test-session-123"
         allow="clipboard-read; clipboard-write"
       ></iframe>
     </div>
@@ -89,7 +89,7 @@
   <script>
     const iframe = document.getElementById('ai-bridge-iframe');
     const log = document.getElementById('log');
-    const TARGET_ORIGIN = 'http://localhost:3000';
+    const TARGET_ORIGIN = 'http://localhost:3001';
 
     let messageIdCounter = 0;
 
