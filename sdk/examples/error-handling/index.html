@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI-Bridge SDK - Error Handling Example</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: system-ui, -apple-system, sans-serif;
+        padding: 20px;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        margin-bottom: 20px;
+      }
+
+      .status {
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+
+      .status.connected {
+        background: #d1fae5;
+        color: #065f46;
+      }
+
+      .status.disconnected {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+
+      .status.connecting {
+        background: #fef3c7;
+        color: #92400e;
+      }
+
+      .status.error {
+        background: #fecaca;
+        color: #dc2626;
+      }
+
+      .section {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+
+      .section h2 {
+        font-size: 16px;
+        margin-bottom: 12px;
+      }
+
+      button {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        background: #3b82f6;
+        color: white;
+        cursor: pointer;
+        margin-right: 8px;
+        margin-bottom: 8px;
+      }
+
+      button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      button.danger {
+        background: #ef4444;
+      }
+
+      .log {
+        background: #1f2937;
+        color: #f3f4f6;
+        padding: 12px;
+        border-radius: 6px;
+        font-family: monospace;
+        font-size: 12px;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+
+      .log-entry {
+        margin-bottom: 4px;
+      }
+
+      .log-error { color: #f87171; }
+      .log-warn { color: #fbbf24; }
+      .log-info { color: #60a5fa; }
+      .log-success { color: #34d399; }
+
+      input {
+        padding: 8px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        width: 100%;
+        margin-bottom: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>AI-Bridge SDK - 错误处理示例</h1>
+
+    <div id="status" class="status connecting">连接中...</div>
+
+    <div class="section">
+      <h2>连接控制</h2>
+      <button id="btn-reconnect">重新连接</button>
+      <button id="btn-diagnostics">获取诊断信息</button>
+    </div>
+
+    <div class="section">
+      <h2>消息测试</h2>
+      <input type="text" id="message-input" placeholder="输入消息..." />
+      <button id="btn-send">发送消息</button>
+      <button id="btn-send-empty">发送空消息(触发错误)</button>
+      <button id="btn-send-long">发送过长消息(触发错误)</button>
+    </div>
+
+    <div class="section">
+      <h2>错误模拟</h2>
+      <button id="btn-simulate-disconnect" class="danger">模拟断开连接</button>
+      <button id="btn-simulate-timeout">模拟超时</button>
+    </div>
+
+    <div class="section">
+      <h2>日志</h2>
+      <div id="log" class="log"></div>
+    </div>
+
+    <script type="module">
+      import { AIBridgeSDK, ConnectionState, SDKError } from '../../dist/ai-bridge-sdk.es.js';
+
+      // UI 元素
+      const statusEl = document.getElementById('status');
+      const logEl = document.getElementById('log');
+      const inputEl = document.getElementById('message-input');
+
+      let sdk = null;
+
+      // 日志函数
+      function log(message, type = 'info') {
+        const entry = document.createElement('div');
+        entry.className = `log-entry log-${type}`;
+        entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+        logEl.insertBefore(entry, logEl.firstChild);
+
+        // 限制日志数量
+        while (logEl.children.length > 100) {
+          logEl.removeChild(logEl.lastChild);
+        }
+      }
+
+      // 更新状态显示
+      function updateStatus(state) {
+        statusEl.className = 'status';
+        statusEl.classList.add(state);
+
+        switch (state) {
+          case ConnectionState.CONNECTING:
+            statusEl.textContent = '连接中...';
+            break;
+          case ConnectionState.CONNECTED:
+            statusEl.textContent = '已连接';
+            break;
+          case ConnectionState.DISCONNECTED:
+            statusEl.textContent = '已断开';
+            break;
+          case ConnectionState.ERROR:
+            statusEl.textContent = '错误状态';
+            break;
+        }
+      }
+
+      // 初始化 SDK
+      function init() {
+        try {
+          sdk = new AIBridgeSDK({
+            url: 'http://localhost:3000',
+            targetOrigin: 'http://localhost:3000',
+            onStateChange: (state) => {
+              log(`状态变化: ${state}`, 'info');
+              updateStatus(state);
+            },
+            onMessage: (message) => {
+              log(`收到消息: ${message.content?.slice(0, 50)}...`, 'success');
+            },
+            onError: (error) => {
+              log(`错误: ${error.message}`, 'error');
+              if (error.type) {
+                log(`错误类型: ${error.type}`, 'warn');
+              }
+            },
+          });
+
+          log('SDK 初始化成功', 'success');
+        } catch (error) {
+          log(`SDK 初始化失败: ${error.message}`, 'error');
+        }
+      }
+
+      // 发送消息
+      async function sendMessage(text) {
+        if (!sdk) {
+          log('SDK 未初始化', 'error');
+          return;
+        }
+
+        try {
+          log(`发送消息: ${text}`, 'info');
+          const response = await sdk.sendMessage(text);
+          log(`收到响应: ${response.content?.slice(0, 50)}...`, 'success');
+        } catch (error) {
+          log(`发送失败: ${error.message}`, 'error');
+          if (error.type) {
+            log(`错误类型: ${error.type}`, 'warn');
+          }
+        }
+      }
+
+      // 获取诊断信息
+      function showDiagnostics() {
+        if (!sdk) {
+          log('SDK 未初始化', 'error');
+          return;
+        }
+
+        const diagnostics = sdk.getDiagnostics();
+        log('诊断信息:', 'info');
+        log(JSON.stringify(diagnostics, null, 2), 'info');
+      }
+
+      // 按钮事件
+      document.getElementById('btn-reconnect').addEventListener('click', () => {
+        log('触发重新连接', 'info');
+        // SDK 内部会自动重连,这里只是演示
+        if (sdk && sdk.connection) {
+          sdk.connection.reconnect();
+        }
+      });
+
+      document.getElementById('btn-diagnostics').addEventListener('click', showDiagnostics);
+
+      document.getElementById('btn-send').addEventListener('click', () => {
+        const text = inputEl.value.trim();
+        if (text) {
+          sendMessage(text);
+          inputEl.value = '';
+        }
+      });
+
+      document.getElementById('btn-send-empty').addEventListener('click', () => {
+        sendMessage(''); // 触发空消息错误
+      });
+
+      document.getElementById('btn-send-long').addEventListener('click', () => {
+        sendMessage('a'.repeat(11000)); // 触发过长消息错误
+      });
+
+      document.getElementById('btn-simulate-disconnect').addEventListener('click', () => {
+        log('模拟断开连接', 'warn');
+        if (sdk) {
+          sdk.destroy();
+        }
+      });
+
+      document.getElementById('btn-simulate-timeout').addEventListener('click', async () => {
+        log('发送超时测试消息...', 'info');
+        try {
+          // 发送一个会超时的消息
+          if (sdk) {
+            await sdk.sendMessage('timeout test', { timeout: 1 });
+          }
+        } catch (error) {
+          log(`超时错误(预期): ${error.message}`, 'warn');
+        }
+      });
+
+      // 初始化
+      init();
+
+      // 页面卸载时清理
+      window.addEventListener('beforeunload', () => {
+        if (sdk) {
+          sdk.destroy();
+        }
+      });
+    </script>
+  </body>
+</html>
