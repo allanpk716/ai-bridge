@@ -44,6 +44,10 @@ export const SdkIncomingMessageSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('disconnect'),
   }),
+  z.object({
+    type: z.literal('heartbeat'),
+    timestamp: z.number(),
+  }),
 ]);
 
 export type SdkIncomingMessage = z.infer<typeof SdkIncomingMessageSchema>;
@@ -65,6 +69,7 @@ export const SdkOutgoingMessageSchema = z.discriminatedUnion('type', [
       metadata: z.object({
         model: z.string(),
         tokensUsed: z.number(),
+        duration: z.number().optional(),
       }).optional(),
     }),
   }),
@@ -73,6 +78,12 @@ export const SdkOutgoingMessageSchema = z.discriminatedUnion('type', [
     payload: z.object({
       message: z.string(),
       code: z.string().optional(),
+    }),
+  }),
+  z.object({
+    type: z.literal('heartbeatAck'),
+    payload: z.object({
+      timestamp: z.number().optional(),
     }),
   }),
 ]);

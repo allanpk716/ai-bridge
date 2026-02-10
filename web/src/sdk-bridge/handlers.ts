@@ -1,10 +1,5 @@
-import { toast } from 'sonner';
-import { z } from 'zod';
 import type { SdkIncomingMessage, SdkOutgoingMessage, SdkModeConfig } from './types';
-import {
-  SdkIncomingMessageSchema,
-  SdkOutgoingMessageSchema,
-} from './types';
+import { SdkIncomingMessageSchema } from './types';
 
 /**
  * SDK 桥接状态
@@ -76,7 +71,7 @@ async function handleSendMessageRequest(message: SdkIncomingMessage & { type: 's
     // 这里需要调用现有的消息发送 API
     // 暂时使用模拟响应
 
-    const response = await sendToClaude(msgPayload.text, msgPayload.sessionId);
+    const response = await sendToClaude(msgPayload.text);
 
     sendToSdk({
       type: 'messageResponse',
@@ -102,7 +97,7 @@ async function handleSendMessageRequest(message: SdkIncomingMessage & { type: 's
 /**
  * 发送消息到 Claude(占位实现)
  */
-async function sendToClaude(text: string, sessionId?: string): Promise<{
+async function sendToClaude(text: string): Promise<{
   content: string;
   metadata: {
     model: string;
@@ -128,6 +123,19 @@ async function sendToClaude(text: string, sessionId?: string): Promise<{
 function handleDisconnectMessage(): void {
   state.isConnected = false;
   console.log('[SdkBridge] Disconnected from parent');
+}
+
+/**
+ * 处理心跳消息
+ */
+function handleHeartbeat(message: SdkIncomingMessage & { type: 'heartbeat' }): void {
+  // 响应心跳确认
+  sendToSdk({
+    type: 'heartbeatAck',
+    payload: {
+      timestamp: message.timestamp,
+    },
+  });
 }
 
 /**
@@ -162,6 +170,10 @@ export function setupSdkMessageListener(config: SdkModeConfig): () => void {
 
         case 'disconnect':
           handleDisconnectMessage();
+          break;
+
+        case 'heartbeat':
+          handleHeartbeat(message);
           break;
       }
     } catch (error) {
